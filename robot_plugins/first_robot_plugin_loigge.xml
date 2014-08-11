@@ -1,0 +1,9 @@
+<library path="lib/libtest_control">
+  <class name="my_controller_ns/PositionControllerLoigge"
+         type="my_controller_ns::PositionControllerLoigge" 
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      BlaBla..get lost
+    </description>
+  </class>
+</library>

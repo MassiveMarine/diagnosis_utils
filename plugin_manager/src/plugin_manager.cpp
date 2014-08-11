@@ -16,6 +16,13 @@ int PluginManager::loadPlugin(const std::string& name)
 {
 	ROS_WARN("Will load plugin '%s'", name.c_str());
 
+//	pluginlib::ClassLoader<polygon_namespace::Polygon> poly_loader("polygon_interface_package", "polygon_namespace::Polygon");
+
+
+	ROS_WARN("Should load plugin '%s'", name.c_str());
+
+
+
 	// Checks that we're not duplicating controllers
 	for (size_t j = 0; j < plugin_list_.size(); ++j)
 	{
