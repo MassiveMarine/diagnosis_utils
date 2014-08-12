@@ -4,7 +4,7 @@ project(robot_plugins)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS)
+find_package(catkin REQUIRED COMPONENTS roscpp pluginlib plugin_manager)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -78,8 +78,8 @@ find_package(catkin REQUIRED COMPONENTS)
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES robot_plugins
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+#  CATKIN_DEPENDS roscpp pluginlib
+#  DEPENDS boost
 )
 
 ###########

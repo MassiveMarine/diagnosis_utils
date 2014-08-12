@@ -2,7 +2,8 @@
 #define ROBOT_PLUGINS_FIRST_ROBOT_BASE_H_
 
 #include <pluginlib/class_list_macros.h>
-#include <robot_plugins/plugin_base.h>
+//#include <robot_plugins/plugin_base.h>
+#include <plugin_manager/plugin_base.h>
 
 
 namespace plugin_robot_ns{

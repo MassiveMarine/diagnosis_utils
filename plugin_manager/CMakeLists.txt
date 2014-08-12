@@ -78,7 +78,7 @@ find_package(catkin REQUIRED robot_plugins)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES plugin_manager
-#  CATKIN_DEPENDS other_catkin_pkg
+ CATKIN_DEPENDS robot_plugins
 #  DEPENDS system_lib
 )
 

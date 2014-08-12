@@ -1,7 +1,7 @@
 #ifndef ROBOT_PLUGINS_PLUGIN_BASE_H_
 #define ROBOT_PLUGINS_PLUGIN_BASE_H_
 
-#include <ros/ros.h>
+#include <string.h>
 
 namespace plugin_base
 {

@@ -2,16 +2,16 @@
 #define PLUGIN_SPEC_H
 
 #include <string>
+//#include <robot_plugins/plugin_base.h>
 
 namespace plugin_manager
 {
 
 struct PluginSpec
 {
-	int temp_number;
+	int id;
 	std::string name;
-//  hardware_interface::ControllerInfo info;
-//  boost::shared_ptr<controller_interface::ControllerBase> c;
+    boost::shared_ptr<plugin_base::RegularPlugin> instance;
 };
 
 }
