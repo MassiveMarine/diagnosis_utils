@@ -1,7 +1,6 @@
-<library path="lib/libtest_control">
-  <class name="my_controller_ns/PositionControllerLoigge"
-         type="my_controller_ns::PositionControllerLoigge" 
-         base_class_type="controller_interface::ControllerBase">
+<library path="lib/libfirst_robot">
+  <class type="plugin_robot_ns::FirstRobotLoigge" 
+         base_class_type="plugin_base::RegularPlugin">
     <description>
       BlaBla..get lost
     </description>

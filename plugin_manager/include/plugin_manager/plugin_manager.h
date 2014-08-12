@@ -14,7 +14,6 @@ public:
 	PluginManager();
 	virtual ~PluginManager();
 
-
 	int loadPlugin(const std::string& name);
 	//int unloadPlugin(const std::string &name);
 

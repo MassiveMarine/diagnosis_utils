@@ -1,6 +1,9 @@
 #include <plugin_manager/plugin_manager.h>
 #include <ros/console.h>
 
+#include <robot_plugins/plugin_base.h>
+//#include <robot_plugins/first_robot.h>
+
 namespace plugin_manager
 {
 
@@ -16,8 +19,20 @@ int PluginManager::loadPlugin(const std::string& name)
 {
 	ROS_WARN("Will load plugin '%s'", name.c_str());
 
-//	pluginlib::ClassLoader<polygon_namespace::Polygon> poly_loader("polygon_interface_package", "polygon_namespace::Polygon");
 
+	pluginlib::ClassLoader<plugin_base::RegularPlugin> robot_loader("robot_plugins", "plugin_base::RegularPlugin");
+
+	try
+	{
+		boost::shared_ptr<plugin_base::RegularPlugin> firstRobot = robot_loader.createInstance("plugin_robot_ns::FirstRobotLoigge");
+		firstRobot->initialize("BLIBLABLO");
+
+		ROS_INFO_STREAM("Name of first robot: " << firstRobot->getName());
+	}
+	catch(pluginlib::PluginlibException& ex)
+	{
+		ROS_ERROR("The plugin failed to load for some reason. Error: %s", ex.what());
+	}
 
 	ROS_WARN("Should load plugin '%s'", name.c_str());
 

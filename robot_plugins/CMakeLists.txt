@@ -4,7 +4,7 @@ project(robot_plugins)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS plugin_interface)
+find_package(catkin REQUIRED COMPONENTS)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -76,7 +76,7 @@ find_package(catkin REQUIRED COMPONENTS plugin_interface)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES robot_plugins
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
@@ -89,14 +89,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  #include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-add_library(robot_plugins
-   src/firstRobot.cpp
- )
+add_library(first_robot
+   src/first_robot.cpp
+)
 
 ## Declare a cpp executable
 # add_executable(robot_plugins_node src/robot_plugins_node.cpp)
@@ -106,7 +106,7 @@ add_library(robot_plugins
 # add_dependencies(robot_plugins_node robot_plugins_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(robot_plugins
+target_link_libraries(first_robot
   ${catkin_LIBRARIES}
 )
 
