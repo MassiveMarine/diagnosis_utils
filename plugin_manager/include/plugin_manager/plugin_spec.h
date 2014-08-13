@@ -9,9 +9,8 @@ namespace plugin_manager
 
 struct PluginSpec
 {
-	int id;
-	std::string name;
-    boost::shared_ptr<plugin_base::RegularPlugin> instance;
+  std::string name;
+  boost::shared_ptr<plugin_base::RegularPlugin> instance;
 };
 
 }

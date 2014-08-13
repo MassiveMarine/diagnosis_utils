@@ -5,27 +5,31 @@
 //#include <robot_plugins/plugin_base.h>
 #include <plugin_manager/plugin_base.h>
 
+namespace plugin_robot_ns
+{
 
-namespace plugin_robot_ns{
-
-class FirstRobotLoigge : public plugin_base::RegularPlugin
+class FirstRobotLoigge: public plugin_base::RegularPlugin
 {
 public:
-	FirstRobotLoigge(){}
-	virtual void initialize(std::string name)
-	{
-		name_ = name;
-	}
-	virtual std::string getName()
-	{
-		return name_;
-	}
+  FirstRobotLoigge()
+  {
+  }
+  virtual void initialize(std::string name)
+  {
+    name_ = name;
+  }
+  virtual std::string getName()
+  {
+    return name_;
+  }
 private:
-	std::string name_;
+  std::string name_;
 };
 
 //PLUGINLIB_EXPORT_CLASS(plugin_robot_ns::FirstRobotLoigge, plugin_base::RegularPlugin)
 
-};//namespace
+}
+;
+//namespace
 
 #endif

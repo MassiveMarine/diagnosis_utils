@@ -5,15 +5,20 @@
 
 namespace plugin_base
 {
-  class RegularPlugin
+class RegularPlugin
+{
+public:
+  virtual void initialize(std::string name) = 0;
+  virtual std::string getName() = 0;
+  virtual ~RegularPlugin()
   {
-    public:
-      virtual void initialize(std::string name) = 0;
-      virtual std::string getName() = 0;
-      virtual ~RegularPlugin(){}
+  }
 
-    protected:
-      RegularPlugin(){}
-  };
+protected:
+  RegularPlugin()
+  {
+  }
 };
+}
+;
 #endif
