@@ -16,14 +16,14 @@ public:
   }
   virtual void initialize(std::string name)
   {
-    name_ = name;
+    temp_data_ = name;
   }
   virtual std::string getName()
   {
-    return name_;
+    return temp_data_;
   }
 private:
-  std::string name_;
+  std::string temp_data_;
 };
 
 //PLUGINLIB_EXPORT_CLASS(plugin_robot_ns::FirstRobotLoigge, plugin_base::RegularPlugin)

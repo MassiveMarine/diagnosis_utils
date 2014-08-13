@@ -10,6 +10,7 @@ namespace plugin_manager
 struct PluginSpec
 {
   std::string name;
+  std::string type;
   boost::shared_ptr<plugin_base::RegularPlugin> instance;
 };
 

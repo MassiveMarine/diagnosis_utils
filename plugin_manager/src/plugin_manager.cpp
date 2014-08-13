@@ -9,34 +9,33 @@ namespace plugin_manager
 PluginManager::PluginManager(std::string package_name) :
     plugin_loader_(package_name, "plugin_base::RegularPlugin")
 {
-  ROS_WARN("PluginManager::created");
 }
 
 PluginManager::~PluginManager()
 {
 }
 
-bool PluginManager::loadPlugin(const std::string& name)
+bool PluginManager::loadPlugin(const std::string& type, const std::string& name)
 {
-  ROS_WARN("Will load plugin '%s'", name.c_str());
+  ROS_WARN("Will load plugin '%s'", type.c_str());
 
   boost::shared_ptr<plugin_base::RegularPlugin> newPluginInstance;
 
   try
   {
-  // Checks that we're not duplicating controllers
-    if (getPluginInstanceByName(name))
-      throw(plugin_manager::PluginAlreadyInListException(name.c_str()));
+    if (getPluginInstanceByName(type))
+      throw(plugin_manager::PluginAlreadyInListException(type.c_str()));
 
-    newPluginInstance = plugin_loader_.createInstance(name);
+    newPluginInstance = plugin_loader_.createInstance(type);
 
     if (!newPluginInstance)
-      throw(plugin_manager::PluginCannotBeCreatedException(name.c_str()));
+      throw(plugin_manager::PluginCannotBeCreatedException(type.c_str()));
 
     newPluginInstance->initialize("BLIBLABLO");
 
     plugin_list_.resize(plugin_list_.size() + 1);
     plugin_list_[plugin_list_.size() - 1].name = name;
+    plugin_list_[plugin_list_.size() - 1].type = type;
     plugin_list_[plugin_list_.size() - 1].instance = newPluginInstance;
 
   }

@@ -145,6 +145,9 @@ target_link_libraries(first_robot
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
+#install(TARGETS first_robot LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+#install(FILES first_robot_plugin_loigge.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
 #############
 ## Testing ##
 #############

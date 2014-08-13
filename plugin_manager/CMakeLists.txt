@@ -4,7 +4,7 @@ project(plugin_manager)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED robot_plugins)
+find_package(catkin REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -78,7 +78,7 @@ find_package(catkin REQUIRED robot_plugins)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES plugin_manager
- CATKIN_DEPENDS robot_plugins
+# CATKIN_DEPENDS robot_plugins
 #  DEPENDS system_lib
 )
 
@@ -144,6 +144,9 @@ target_link_libraries(plugin_manager
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
+
+#install(DIRECTORY include/
+#DESTINATION include) 
 
 #############
 ## Testing ##
