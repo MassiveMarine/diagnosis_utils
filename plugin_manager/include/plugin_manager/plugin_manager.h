@@ -22,7 +22,6 @@ public:
   const std::vector<std::string> getPluginNames();
   const std::vector<PluginSpec> getPluginList();
 
-
 private:
   PluginManager();
   std::vector<PluginSpec> plugin_list_;
