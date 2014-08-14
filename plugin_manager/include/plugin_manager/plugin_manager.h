@@ -19,7 +19,9 @@ public:
   bool loadPlugin(const std::string& type, const std::string& name);
 
   boost::shared_ptr<plugin_base::RegularPlugin> getPluginInstanceByName(const std::string& name);
-  void getPluginNames(std::vector<std::string> &names);
+  const std::vector<std::string> getPluginNames();
+  const std::vector<PluginSpec> getPluginList();
+
 
 private:
   PluginManager();

@@ -2,7 +2,6 @@
 #define PLUGIN_SPEC_H
 
 #include <string>
-//#include <robot_plugins/plugin_base.h>
 
 namespace plugin_manager
 {

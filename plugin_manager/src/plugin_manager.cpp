@@ -21,39 +21,21 @@ bool PluginManager::loadPlugin(const std::string& type, const std::string& name)
 
   boost::shared_ptr<plugin_base::RegularPlugin> newPluginInstance;
 
-  try
-  {
-    if (getPluginInstanceByName(type))
-      throw(plugin_manager::PluginAlreadyInListException(type.c_str()));
+  if (getPluginInstanceByName(name))
+    throw(plugin_manager::PluginAlreadyInListException(std::string("The plugin '").append(name.c_str()).append("' was already loaded inside the plugin manager")));
 
-    newPluginInstance = plugin_loader_.createInstance(type);
+  newPluginInstance = plugin_loader_.createInstance(type);
 
-    if (!newPluginInstance)
-      throw(plugin_manager::PluginCannotBeCreatedException(type.c_str()));
+  if (!newPluginInstance)
+    throw(plugin_manager::PluginCannotBeCreatedException(std::string("Could not create object of plugin '").append(name.c_str()).append("'")));
 
-    newPluginInstance->initialize("BLIBLABLO");
+  newPluginInstance->initialize("BLIBLABLO");
 
-    plugin_list_.resize(plugin_list_.size() + 1);
-    plugin_list_[plugin_list_.size() - 1].name = name;
-    plugin_list_[plugin_list_.size() - 1].type = type;
-    plugin_list_[plugin_list_.size() - 1].instance = newPluginInstance;
+  plugin_list_.resize(plugin_list_.size() + 1);
+  plugin_list_[plugin_list_.size() - 1].name = name;
+  plugin_list_[plugin_list_.size() - 1].type = type;
+  plugin_list_[plugin_list_.size() - 1].instance = newPluginInstance;
 
-  }
-  catch (plugin_manager::PluginAlreadyInListException& ex)
-  {
-    ROS_ERROR_STREAM("A plugin '" << ex.what() << "' was already loaded inside the plugin manager");
-    return false;
-  }
-  catch (plugin_manager::PluginCannotBeCreatedException& ex)
-  {
-    ROS_ERROR_STREAM("Could not create object of plugin '" << ex.what() << "'");
-    return false;
-  }
-  catch (pluginlib::PluginlibException& ex)
-  {
-    ROS_ERROR("The plugin failed to load for some reason. Error: %s", ex.what());
-    return false;
-  }
   return true;
 }
 
@@ -66,11 +48,17 @@ boost::shared_ptr<plugin_base::RegularPlugin> PluginManager::getPluginInstanceBy
   return boost::shared_ptr<plugin_base::RegularPlugin>();
 }
 
-void PluginManager::getPluginNames(std::vector<std::string> &names)
+const std::vector<std::string> PluginManager::getPluginNames()
 {
-  names.clear();
+  std::vector<std::string> names_list;
   for (size_t i = 0; i < plugin_list_.size(); ++i)
-    names.push_back(plugin_list_[i].name);
+    names_list.push_back(plugin_list_[i].name);
+
+  return names_list;
+}
+const std::vector<PluginSpec> PluginManager::getPluginList()
+{
+  return plugin_list_;
 }
 
 }
