@@ -16,11 +16,15 @@ namespace tug_can_interface
  * Interface for CAN NIC (network interface card) driver plugins.
  *
  * Implementations must guarantee thread safety. In particular, implementations must ensure that blocking methods like
- * readMessage() and writeMessage() will not block each other -- e.g., writing a message or closing the device must be
- * possible while readMessage() is waiting for a message.
+ * read() and write() will not block each other -- e.g., writing a message or closing the device must be
+ * possible while read() is waiting for a message.
  *
- * readMessage() and writeMessage() should be interruptible via boost::thread::interrupt(). If this is not possible,
+ * read() and write() should be interruptible via boost::thread::interrupt(). If this is not possible,
  * they must return within io_timeout after close() has been called.
+ *
+ * Impementations must implement loopback functionality, that is, read() must
+ * also return messages sent via write(). If possible, this should be
+ * implemented using hardware features.
  *
  * Implementations should prepend all log output with a prefix corresponding to their name.
  */
@@ -63,7 +67,7 @@ public:
      * @param baud_rate    the baud rate in symbols per second (e.g., 500000
      *         for 500k). Can be zero if not applicable for the device, or if
      *         a preset value should be used.
-     * @param io_timeout   timeout within which readMessage() and writeMessage()
+     * @param io_timeout   timeout within which read() and write()
      *         should return after close() has been called.
      * @param node_handle  a ROS NodeHandle. Can be used to supply further
      *         parameters to the plugin.

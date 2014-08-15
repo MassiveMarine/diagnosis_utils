@@ -14,7 +14,7 @@
 namespace tug_can_interface
 {
 
-// TODO: Make thread-safe!
+// TODO: Build in diagnostic updater from can_node (here or elsewhere?)
 class CanNicDriverHost : public CanInterface
 {
 public:
