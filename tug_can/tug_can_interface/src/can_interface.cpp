@@ -1,4 +1,5 @@
 #include <tug_can_interface/can_interface.h>
+#include <boost/make_shared.hpp>
 
 namespace tug_can_interface
 {
