@@ -13,6 +13,11 @@ const char * CanNicDriver::Exception::what() const throw()
     return ("[" + getCauseName(cause_) + "] " + this->runtime_error::what()).c_str();
 }
 
+std::string CanNicDriver::Exception::getMessage() const
+{
+    return this->runtime_error::what();
+}
+
 CanNicDriver::Exception::Cause CanNicDriver::Exception::getCause() const
 {
     return cause_;

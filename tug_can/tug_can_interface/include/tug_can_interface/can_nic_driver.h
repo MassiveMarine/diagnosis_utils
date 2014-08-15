@@ -43,7 +43,7 @@ public:
         Exception(Cause cause, const std::string & message);
 
         virtual const char * what() const throw();
-
+        std::string getMessage() const;
         Cause getCause() const;
 
         static std::string getCauseName(Cause cause);
