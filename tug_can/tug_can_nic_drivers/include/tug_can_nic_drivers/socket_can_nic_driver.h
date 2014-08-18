@@ -2,6 +2,7 @@
 #define TUG_CAN_NIC_DRIVERS__SOCKET_CAN_NIC_DRIVER_H_
 
 #include <tug_can_interface/can_nic_driver.h>
+#include <boost/thread/mutex.hpp>
 
 namespace tug_can_nic_drivers
 {
@@ -26,6 +27,11 @@ public:
     virtual void write(const tug_can_msgs::CanMessageConstPtr & message);
 
 private:
+    void ensureOpen();
+    void closeSocket();
+    void checkErrno(const char * operation);
+
+    boost::mutex mutex_;
     int socket_;
     int io_timeout_;
 };
