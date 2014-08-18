@@ -4,7 +4,7 @@ project(robot_plugins)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp pluginlib tug_device_driver plugin_manager)
+find_package(catkin REQUIRED COMPONENTS roscpp pluginlib tug_device_driver plugin_manager) #tug_device_driver tug_controlled_device_driver tug_preprocessor tug_postprocessor
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
