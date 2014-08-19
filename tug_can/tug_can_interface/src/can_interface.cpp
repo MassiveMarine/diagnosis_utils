@@ -9,10 +9,6 @@ CanInterface::Exception::Exception(const std::string & what_arg)
 {
 }
 
-CanInterface::Subscription::~Subscription()
-{
-}
-
 CanInterface::~CanInterface()
 {
 }
@@ -50,7 +46,7 @@ void CanInterface::sendMessage(uint32_t id, bool rtr, bool extended, const uint8
     sendMessage(can_message);
 }
 
-CanInterface::SubscriptionPtr CanInterface::subscribe(uint32_t id, const MessageCallback & callback)
+CanSubscriptionPtr CanInterface::subscribe(uint32_t id, const MessageCallback & callback)
 {
     return subscribe(std::vector<uint32_t>(1, id), callback);
 }

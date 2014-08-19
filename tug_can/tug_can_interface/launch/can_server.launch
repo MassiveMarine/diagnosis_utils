@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Name of the launched node. -->
+  <arg name="node_name" default="can_server" />
+
+  <!-- Name of the driver plugin class. -->
+  <arg name="driver" />
+
+  <!-- Name of the CAN interface device. -->
+  <arg name="device" />
+
+  <!-- Baud rate, e.g., 500k, 1M, 100. -->
+  <arg name="baud_rate" />
+  
+  <!-- I/O timeout (timeout for closing CAN device) in seconds. -->
+  <arg name="io_timeout" default="1.0" />
+
+  <node name="$(arg node_name)" pkg="tug_can_interface" type="can_server" output="screen">
+    <param name="driver" type="string" value="$(arg driver)" />
+    <param name="device" type="string" value="$(arg device)" />
+    <param name="baud_rate" type="string" value="$(arg baud_rate)" />
+    <param name="io_timeout" type="double" value="$(arg io_timeout)" />
+  </node>
+</launch>
+

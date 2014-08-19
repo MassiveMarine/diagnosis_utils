@@ -8,6 +8,7 @@
 #include <ros/duration.h>
 #include <ros/node_handle.h>
 #include <tug_can_msgs/CanMessage.h>
+#include <tug_can_interface/forwards.h>
 
 namespace tug_can_interface
 {
@@ -83,7 +84,7 @@ public:
      */
     virtual void open(const std::string & device_name, int baud_rate,
                       const ros::Duration & io_timeout,
-                      ros::NodeHandle & node_handle) = 0;
+                      const ros::NodeHandle & node_handle) = 0;
 
     /**
      * Closes the CAN interface device. Does nothing if device is not open.
@@ -134,8 +135,6 @@ public:
      */
     virtual void write(const tug_can_msgs::CanMessageConstPtr & message) = 0;
 };
-
-typedef boost::shared_ptr<CanNicDriver> CanNicDriverPtr;
 
 }
 

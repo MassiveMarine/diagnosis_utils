@@ -81,7 +81,7 @@ find_package(Boost REQUIRED COMPONENTS thread)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES tug_can_interface
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS tug_can_msgs
 #  DEPENDS system_lib
 )
@@ -99,19 +99,33 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(tug_can_interface
-#   src/${PROJECT_NAME}/tug_can_interface.cpp
-# )
+add_library(${PROJECT_NAME}
+  src/can_client.cpp include/${PROJECT_NAME}/can_client.h
+  src/can_interface.cpp include/${PROJECT_NAME}/can_interface.h
+  src/can_nic_driver.cpp include/${PROJECT_NAME}/can_nic_driver.h
+  src/can_nic_driver_host.cpp include/${PROJECT_NAME}/can_nic_driver_host.h
+  src/can_server.cpp include/${PROJECT_NAME}/can_server.h
+  src/can_subscription.cpp include/${PROJECT_NAME}/can_subscription.h
+  include/${PROJECT_NAME}/forwards.h
+)
 
 ## Declare a cpp executable
-add_executable(tug_can_interface_test src/can_client.cpp src/can_interface.cpp src/can_nic_driver.cpp src/can_nic_driver_host.cpp src/can_server.cpp src/can_server_node.cpp)
+add_executable(can_server
+  src/can_server_node.cpp include/${PROJECT_NAME}/can_server_node.h
+)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(tug_can_interface_test tug_can_msgs_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} tug_can_msgs_generate_messages_cpp)
+add_dependencies(can_server tug_can_msgs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(tug_can_interface_test
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(can_server
+  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 

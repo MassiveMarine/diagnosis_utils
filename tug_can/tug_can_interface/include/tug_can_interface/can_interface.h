@@ -4,8 +4,10 @@
 #include <stdexcept>
 #include <vector>
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <tug_can_msgs/CanMessage.h>
+#include <tug_can_interface/forwards.h>
 
 namespace tug_can_interface
 {
@@ -21,20 +23,20 @@ namespace tug_can_interface
  * using the supplied checkMessage() method), throwing std::invalid_argument on
  * failure. If an I/O or other error occurs, CanInterface::Exception
  * should be thrown.
- * {@code virtual SubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
+ * {@code virtual CanSubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
  *         const MessageCallback & callback);}
  * Registers a callback to be called when a message with one of the specified
- * IDs is received. Must return a boost::shared_ptr to a Subscription
+ * IDs is received. Must return a boost::shared_ptr to a CanSubscription
  * implementation, which must unregister the callback on destruction.
- * {@code virtual SubscriptionPtr subscribeToAll(const MessageCallback &
+ * {@code virtual CanSubscriptionPtr subscribeToAll(const MessageCallback &
  *         callback);}
  * Registers a callback to be called every time a message is received. Must
- * return a boost::shared_ptr to a Subscription implementation, which must
+ * return a boost::shared_ptr to a CanSubscription implementation, which must
  * unregister the callback on destruction.
  *
  * Several helper methods are defined for ease of use.
  */
-class CanInterface
+class CanInterface : public boost::noncopyable
 {
 public:
     typedef boost::function<void(const tug_can_msgs::CanMessageConstPtr &)> MessageCallback;
@@ -44,14 +46,6 @@ public:
     public:
         Exception(const std::string & what_arg);
     };
-
-    class Subscription
-    {
-    public:
-        virtual ~Subscription();
-    };
-
-    typedef boost::shared_ptr<Subscription> SubscriptionPtr;
 
     virtual ~CanInterface();
 
@@ -64,18 +58,16 @@ public:
     void sendMessage(uint32_t id, bool rtr, bool extended, const uint8_t * data,
                      size_t size);
 
-    virtual SubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
+    virtual CanSubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
                                       const MessageCallback & callback) = 0;
-    virtual SubscriptionPtr subscribeToAll(const MessageCallback & callback) = 0;
+    virtual CanSubscriptionPtr subscribeToAll(const MessageCallback & callback) = 0;
 
-    SubscriptionPtr subscribe(uint32_t id, const MessageCallback & callback);
+    CanSubscriptionPtr subscribe(uint32_t id, const MessageCallback & callback);
 
     static tug_can_msgs::CanMessagePtr createMessage(uint32_t id, bool rtr, bool extended);
 
     static void checkMessage(const tug_can_msgs::CanMessageConstPtr & can_message);
 };
-
-typedef boost::shared_ptr<CanInterface> CanInterfacePtr;
 
 }
 

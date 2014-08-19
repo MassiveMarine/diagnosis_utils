@@ -10,6 +10,9 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <pluginlib/class_list_macros.h>
+
+PLUGINLIB_EXPORT_CLASS(tug_can_nic_drivers::SocketCanNicDriver, tug_can_interface::CanNicDriver)
 
 namespace tug_can_nic_drivers
 {
@@ -26,7 +29,7 @@ SocketCanNicDriver::~SocketCanNicDriver()
 
 void SocketCanNicDriver::open(const std::string & device_name, int baud_rate,
                   const ros::Duration & io_timeout,
-                  ros::NodeHandle & node_handle)
+                  const ros::NodeHandle & node_handle)
 {
     boost::lock_guard<boost::mutex> lock(mutex_);
 

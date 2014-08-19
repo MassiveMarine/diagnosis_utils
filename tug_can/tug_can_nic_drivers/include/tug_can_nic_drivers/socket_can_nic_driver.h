@@ -7,7 +7,6 @@
 namespace tug_can_nic_drivers
 {
 
-// TODO: make thread-safe!
 class SocketCanNicDriver : public tug_can_interface::CanNicDriver
 {
 public:
@@ -18,7 +17,7 @@ public:
     /// Supports "*" as a device name, opening all available CAN interfaces.
     virtual void open(const std::string & device_name, int baud_rate,
                       const ros::Duration & io_timeout,
-                      ros::NodeHandle & node_handle);
+                      const ros::NodeHandle & node_handle);
 
     virtual void close();
 

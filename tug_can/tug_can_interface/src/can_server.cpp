@@ -6,6 +6,7 @@
 #include <boost/weak_ptr.hpp>
 #include <ros/single_subscriber_publisher.h>
 #include <tug_can_msgs/ForwardCanMessages.h>
+#include <tug_can_interface/can_interface.h>
 
 namespace tug_can_interface
 {
@@ -14,7 +15,7 @@ const std::string CanServer::SEND_TOPIC("send");
 const std::string CanServer::RECEIVE_TOPIC("receive");
 const std::string CanServer::FORWARD_SERVICE("forward_can_messages");
 
-CanServer::CanServer(ros::NodeHandle & node_handle, const CanInterfacePtr & can_interface)
+CanServer::CanServer(const ros::NodeHandle & node_handle, const CanInterfacePtr & can_interface)
     : node_handle_(node_handle), can_interface_(can_interface)
 {
     try
@@ -64,10 +65,11 @@ bool CanServer::forwardCanMessagesCallback(
         res.topic = getForwardTopic(req.ids);
         if (forwards_.find(res.topic) != forwards_.end())
         {
-            ROS_INFO("Requested forward already exists.");
+            ROS_INFO_STREAM("Requested forward to topic " << res.topic << " already exists");
         }
         else
         {
+            ROS_INFO_STREAM("Creating forward to topic " << res.topic);
             ForwardPtr forward = boost::make_shared<Forward>();
             forward->publisher_ = node_handle_.advertise<tug_can_msgs::CanMessage>(res.topic, 10,
                         boost::bind(&CanServer::subscriberConnectedCallback, this, _1),
@@ -102,7 +104,6 @@ void CanServer::subscriberDisconnectedCallback(const ros::SingleSubscriberPublis
         forwards_.erase(it);
     }
 }
-
 
 std::string CanServer::getForwardTopic(const std::vector<uint32_t> & ids)
 {

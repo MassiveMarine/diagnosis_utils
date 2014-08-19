@@ -8,8 +8,11 @@
 #include <boost/thread/thread.hpp>
 #include <boost/weak_ptr.hpp>
 #include <pluginlib/class_loader.h>
+#include <ros/duration.h>
+#include <ros/node_handle.h>
+#include <tug_can_interface/forwards.h>
 #include <tug_can_interface/can_interface.h>
-#include <tug_can_interface/can_nic_driver.h>
+#include <tug_can_interface/can_subscription.h>
 
 namespace tug_can_interface
 {
@@ -32,7 +35,7 @@ public:
     CanNicDriverHost(const std::string & driver_plugin_name,
                      const std::string & device_name, int baud_rate,
                      const ros::Duration & io_timeout,
-                     ros::NodeHandle & node_handle);
+                     const ros::NodeHandle & node_handle);
 
     virtual ~CanNicDriverHost();
 
@@ -48,14 +51,14 @@ public:
     static int parseBaudRate(const std::string & baud_rate_string);
 
     virtual void sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message);
-    virtual SubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
+    virtual CanSubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
                                       const MessageCallback & callback);
-    virtual SubscriptionPtr subscribeToAll(const MessageCallback & callback);
+    virtual CanSubscriptionPtr subscribeToAll(const MessageCallback & callback);
 
 private:
     typedef pluginlib::ClassLoader<CanNicDriver> DriverClassLoader;
 
-    class SubscriptionImpl : public Subscription
+    class SubscriptionImpl : public CanSubscription
     {
     public:
         SubscriptionImpl(const MessageCallback & callback);
@@ -87,8 +90,6 @@ private:
     SubscriptionMap subscriptions_;
     SubscriptionVector subscriptions_to_all_;
 };
-
-typedef boost::shared_ptr<CanNicDriverHost> CanNicDriverHostPtr;
 
 }
 

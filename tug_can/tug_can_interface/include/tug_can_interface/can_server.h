@@ -9,9 +9,9 @@
 #include <ros/publisher.h>
 #include <ros/service_server.h>
 #include <ros/subscriber.h>
-#include <tug_can_interface/can_interface.h>
 #include <tug_can_msgs/CanMessage.h>
 #include <tug_can_msgs/ForwardCanMessages.h>
+#include <tug_can_interface/forwards.h>
 
 namespace tug_can_interface
 {
@@ -23,13 +23,13 @@ public:
     static const std::string RECEIVE_TOPIC;
     static const std::string FORWARD_SERVICE;
 
-    CanServer(ros::NodeHandle & node_handle, const CanInterfacePtr & can_interface);
+    CanServer(const ros::NodeHandle & node_handle, const CanInterfacePtr & can_interface);
     virtual ~CanServer();
 
 protected:
     struct Forward
     {
-        CanInterface::SubscriptionPtr can_subscription_;
+        CanSubscriptionPtr can_subscription_;
         ros::Publisher publisher_;
     };
 
@@ -56,8 +56,6 @@ protected:
     boost::mutex forwards_mutex_;
     ForwardMap forwards_;
 };
-
-typedef boost::shared_ptr<CanServer> CanServerPtr;
 
 }
 

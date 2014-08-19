@@ -3,6 +3,8 @@
 #include <sstream>
 #include <boost/make_shared.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <tug_can_interface/can_nic_driver.h>
+#include <tug_can_interface/can_subscription.h>
 
 namespace tug_can_interface
 {
@@ -10,7 +12,7 @@ namespace tug_can_interface
 CanNicDriverHost::CanNicDriverHost(const std::string & driver_plugin_name,
                                    const std::string & device_name, int baud_rate,
                                    const ros::Duration & io_timeout,
-                                   ros::NodeHandle & node_handle)
+                                   const ros::NodeHandle & node_handle)
     : device_name_(device_name), baud_rate_(baud_rate), io_timeout_(io_timeout), node_handle_(node_handle), running_(true)
 {
     try
@@ -109,7 +111,7 @@ void CanNicDriverHost::sendMessage(const tug_can_msgs::CanMessageConstPtr & can_
     }
 }
 
-CanNicDriverHost::SubscriptionPtr CanNicDriverHost::subscribe(const std::vector<uint32_t> & ids,
+CanSubscriptionPtr CanNicDriverHost::subscribe(const std::vector<uint32_t> & ids,
                                   const MessageCallback & callback)
 {
     boost::lock_guard<boost::recursive_mutex> lock(subscriptions_mutex_);
@@ -119,7 +121,7 @@ CanNicDriverHost::SubscriptionPtr CanNicDriverHost::subscribe(const std::vector<
     return subscription;
 }
 
-CanNicDriverHost::SubscriptionPtr CanNicDriverHost::subscribeToAll(const MessageCallback & callback)
+CanSubscriptionPtr CanNicDriverHost::subscribeToAll(const MessageCallback & callback)
 {
     boost::lock_guard<boost::recursive_mutex> lock(subscriptions_mutex_);
     SubscriptionImplPtr subscription = boost::make_shared<SubscriptionImpl>(callback);
