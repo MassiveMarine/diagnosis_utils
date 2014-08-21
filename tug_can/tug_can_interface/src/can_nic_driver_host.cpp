@@ -94,6 +94,7 @@ int CanNicDriverHost::parseBaudRate(const std::string & baud_rate_string)
 
 void CanNicDriverHost::sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message)
 {
+    checkMessage(can_message);
     if (driver_)
     {
         try

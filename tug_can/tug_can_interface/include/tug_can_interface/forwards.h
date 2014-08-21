@@ -6,9 +6,6 @@
 namespace tug_can_interface
 {
 
-class CanSubscription;
-typedef boost::shared_ptr<CanSubscription> CanSubscriptionPtr;
-
 class CanClient;
 typedef boost::shared_ptr<CanClient> CanClientPtr;
 
@@ -23,6 +20,9 @@ typedef boost::shared_ptr<CanNicDriverHost> CanNicDriverHostPtr;
 
 class CanServer;
 typedef boost::shared_ptr<CanServer> CanServerPtr;
+
+class CanSubscription;
+typedef boost::shared_ptr<CanSubscription> CanSubscriptionPtr;
 
 }
 
