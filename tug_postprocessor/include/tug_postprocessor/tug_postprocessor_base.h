@@ -2,11 +2,11 @@
 #define TUG_POSTPROCESSOR_BASE_H_
 
 #include <ros/ros.h>
-#include <plugin_manager/plugin_base.h>
+#include <tug_plugin_manager/plugin_base.h>
 
-namespace plugin_base_postprocessor
+namespace tug_postprocessor
 {
-class Postprocessor: public plugin_base::RegularPlugin
+class Postprocessor: public tug_plugin_manager::RegularPlugin
 {
 public:
   Postprocessor(){};

@@ -1,10 +1,11 @@
+#set(QT_QMAKE_EXECUTABLE /usr/bin/qmake-qt4)
 cmake_minimum_required(VERSION 2.8.3)
-project(plugin_manager)
+project(tug_robot_control)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tug_plugin_manager) # controller_manager
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -76,10 +77,10 @@ find_package(catkin REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES plugin_manager
-# CATKIN_DEPENDS robot_plugins
-#  DEPENDS system_lib
+#  INCLUDE_DIRS include
+#  LIBRARIES test_robot
+#  CATKIN_DEPENDS other_catkin_pkg
+#  DEPENDS system_lib roscpp std_msgs controller_manager
 )
 
 ###########
@@ -89,25 +90,28 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+ # include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-add_library(plugin_manager
-  src/plugin_manager.cpp
-)
+#add_library(test_robot
+#   src/MyRobot.cpp
+#)
 
 ## Declare a cpp executable
-# add_executable(plugin_manager_node src/plugin_manager_node.cpp)
+add_executable(tug_robot_control_node src/tug_robot_control_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(plugin_manager_node plugin_manager_generate_messages_cpp)
+# add_dependencies(test_robot_node test_robot_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(plugin_manager
-   ${catkin_LIBRARIES}
+#target_link_libraries(test_robot
+#  ${catkin_LIBRARIES}
+#)
+target_link_libraries(tug_robot_control_node
+  ${catkin_LIBRARIES} #test_robot
 )
 
 #############
@@ -125,7 +129,7 @@ target_link_libraries(plugin_manager
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS plugin_manager plugin_manager_node
+# install(TARGETS test_robot test_robot_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -145,15 +149,12 @@ target_link_libraries(plugin_manager
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
-#install(DIRECTORY include/
-#DESTINATION include) 
-
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_plugin_manager.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_test_robot.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

@@ -4,11 +4,11 @@
 #include <vector>
 #include <pluginlib/class_loader.h>
 
-#include <plugin_manager/plugin_base.h>
-#include <plugin_manager/plugin_spec.h>
-#include <plugin_manager/plugin_manager_exceptions.h>
+#include <tug_plugin_manager/plugin_base.h>
+#include <tug_plugin_manager/plugin_spec.h>
+#include <tug_plugin_manager/plugin_manager_exceptions.h>
 
-namespace plugin_manager
+namespace tug_plugin_manager
 {
 class PluginManager
 {
@@ -18,14 +18,14 @@ public:
 
   bool loadPlugin(const std::string& type, const std::string& name);
 
-  boost::shared_ptr<plugin_base::RegularPlugin> getPluginInstanceByName(const std::string& name);
+  boost::shared_ptr<RegularPlugin> getPluginInstanceByName(const std::string& name);
   const std::vector<std::string> getPluginNames();
   const std::vector<PluginSpec> getPluginList();
 
 private:
   PluginManager();
   std::vector<PluginSpec> plugin_list_;
-  pluginlib::ClassLoader<plugin_base::RegularPlugin> plugin_loader_;
+  pluginlib::ClassLoader<RegularPlugin> plugin_loader_;
 
 };
 

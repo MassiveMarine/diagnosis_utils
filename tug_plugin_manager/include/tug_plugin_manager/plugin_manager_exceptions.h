@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-namespace plugin_manager
+namespace tug_plugin_manager
 {
 
 class PluginManagerException: public std::runtime_error

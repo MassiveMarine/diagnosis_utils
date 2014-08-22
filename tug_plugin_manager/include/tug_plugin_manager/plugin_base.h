@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-namespace plugin_base
+namespace tug_plugin_manager
 {
 class RegularPlugin
 {

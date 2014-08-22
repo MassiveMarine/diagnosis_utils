@@ -3,14 +3,14 @@
 
 #include <string>
 
-namespace plugin_manager
+namespace tug_plugin_manager
 {
 
 struct PluginSpec
 {
   std::string name;
   std::string type;
-  boost::shared_ptr<plugin_base::RegularPlugin> instance;
+  boost::shared_ptr<RegularPlugin> instance;
 };
 
 }

@@ -15,4 +15,4 @@ std::string FirstRobotLoigge::getName()
 }
 }
 
-PLUGINLIB_EXPORT_CLASS(plugin_robot_ns::FirstRobotLoigge, plugin_base::RegularPlugin)
+PLUGINLIB_EXPORT_CLASS(plugin_robot_ns::FirstRobotLoigge, tug_plugin_manager::RegularPlugin)

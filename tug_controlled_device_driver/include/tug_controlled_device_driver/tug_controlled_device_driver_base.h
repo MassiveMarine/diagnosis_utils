@@ -2,11 +2,11 @@
 #define TUG_CONTROLLED_DEVICE_DRIVER_BASE_H_
 
 #include <ros/ros.h>
-#include <plugin_manager/plugin_base.h>
+#include <tug_plugin_manager/plugin_base.h>
 
-namespace plugin_base_controlled_device_driver
+namespace tug_controlled_device_driver
 {
-class ControlledDeviceDriver: public plugin_base::RegularPlugin
+class ControlledDeviceDriver: public tug_plugin_manager::RegularPlugin
 {
 public:
   ControlledDeviceDriver(){};

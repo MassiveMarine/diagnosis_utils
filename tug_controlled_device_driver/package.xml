@@ -43,13 +43,13 @@
  
   <build_depend>pluginlib</build_depend> 
   <build_depend>roscpp</build_depend>  
-  <build_depend>plugin_manager</build_depend>
+  <build_depend>tug_plugin_manager</build_depend>
 
 
 
   <run_depend>pluginlib</run_depend>
   <run_depend>roscpp</run_depend>
-  <run_depend>plugin_manager</run_depend>
+  <run_depend>tug_plugin_manager</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

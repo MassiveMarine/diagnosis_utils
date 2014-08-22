@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(robot_plugins)
+project(tug_plugin_manager)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp pluginlib tug_device_driver tug_plugin_manager) #tug_device_driver tug_controlled_device_driver tug_preprocessor tug_postprocessor
+find_package(catkin REQUIRED pluginlib)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -77,9 +77,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp pluginlib tug_device_driver tug_p
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
-#  LIBRARIES robot_plugins
-#  CATKIN_DEPENDS roscpp pluginlib
-#  DEPENDS boost
+ LIBRARIES tug_plugin_manager
+# CATKIN_DEPENDS robot_plugins
+#  DEPENDS system_lib
 )
 
 ###########
@@ -94,21 +94,20 @@ include_directories(
 )
 
 ## Declare a cpp library
-add_library(first_robot
-   src/first_robot.cpp
+add_library(tug_plugin_manager
+  src/plugin_manager.cpp
 )
 
 ## Declare a cpp executable
-# add_executable(robot_plugins_node src/robot_plugins_node.cpp)
+# add_executable(plugin_manager_node src/plugin_manager_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(robot_plugins_node robot_plugins_generate_messages_cpp)
+# add_dependencies(plugin_manager_node plugin_manager_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(first_robot
-  ${catkin_LIBRARIES}
-#  tug_device_driver_base
+target_link_libraries(tug_plugin_manager
+   ${catkin_LIBRARIES}
 )
 
 #############
@@ -126,7 +125,7 @@ target_link_libraries(first_robot
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS robot_plugins robot_plugins_node
+# install(TARGETS plugin_manager plugin_manager_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -146,15 +145,15 @@ target_link_libraries(first_robot
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
-#install(TARGETS first_robot LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
-#install(FILES first_robot_plugin_loigge.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+#install(DIRECTORY include/
+#DESTINATION include) 
 
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_robot_plugins.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_plugin_manager.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

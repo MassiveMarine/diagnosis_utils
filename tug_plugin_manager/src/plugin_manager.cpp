@@ -1,13 +1,13 @@
-#include <plugin_manager/plugin_manager.h>
+#include <tug_plugin_manager/plugin_manager.h>
 #include <ros/console.h>
 
 //#include <robot_plugins/plugin_base.h>
 
-namespace plugin_manager
+namespace tug_plugin_manager
 {
 
 PluginManager::PluginManager(std::string package_name) :
-    plugin_loader_(package_name, "plugin_base::RegularPlugin")
+    plugin_loader_(package_name, "tug_plugin_manager::RegularPlugin")
 {
 }
 
@@ -19,15 +19,15 @@ bool PluginManager::loadPlugin(const std::string& type, const std::string& name)
 {
   ROS_WARN("Will load plugin '%s'", type.c_str());
 
-  boost::shared_ptr<plugin_base::RegularPlugin> newPluginInstance;
+  boost::shared_ptr<RegularPlugin> newPluginInstance;
 
   if (getPluginInstanceByName(name))
-    throw(plugin_manager::PluginAlreadyInListException(std::string("The plugin '").append(name.c_str()).append("' was already loaded inside the plugin manager")));
+    throw(PluginAlreadyInListException(std::string("The plugin '").append(name.c_str()).append("' was already loaded inside the plugin manager")));
 
   newPluginInstance = plugin_loader_.createInstance(type);
 
   if (!newPluginInstance)
-    throw(plugin_manager::PluginCannotBeCreatedException(std::string("Could not create object of plugin '").append(name.c_str()).append("'")));
+    throw(PluginCannotBeCreatedException(std::string("Could not create object of plugin '").append(name.c_str()).append("'")));
 
   newPluginInstance->initialize("BLIBLABLO");
 
@@ -39,13 +39,13 @@ bool PluginManager::loadPlugin(const std::string& type, const std::string& name)
   return true;
 }
 
-boost::shared_ptr<plugin_base::RegularPlugin> PluginManager::getPluginInstanceByName(const std::string& name)
+boost::shared_ptr<RegularPlugin> PluginManager::getPluginInstanceByName(const std::string& name)
 {
   for (size_t i = 0; i < plugin_list_.size(); ++i)
     if (plugin_list_[i].name == name)
       return plugin_list_[i].instance;
 
-  return boost::shared_ptr<plugin_base::RegularPlugin>();
+  return boost::shared_ptr<RegularPlugin>();
 }
 
 const std::vector<std::string> PluginManager::getPluginNames()
