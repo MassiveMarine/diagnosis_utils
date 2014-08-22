@@ -15,9 +15,9 @@ PluginManager::~PluginManager()
 {
 }
 
-bool PluginManager::loadPlugin(const std::string& type, const std::string& name)
+bool PluginManager::loadPlugin(const std::string& name, const std::string& type)
 {
-  ROS_WARN("Will load plugin '%s'", type.c_str());
+  ROS_INFO("Will load plugin '%s' of type '%s'", name.c_str(),type.c_str());
 
   boost::shared_ptr<RegularPlugin> newPluginInstance;
 
@@ -35,6 +35,8 @@ bool PluginManager::loadPlugin(const std::string& type, const std::string& name)
   plugin_list_[plugin_list_.size() - 1].name = name;
   plugin_list_[plugin_list_.size() - 1].type = type;
   plugin_list_[plugin_list_.size() - 1].instance = newPluginInstance;
+
+//  ROS_INFO("Now %d plugin(s) is/are loaded!", (int)plugin_list_.size() );
 
   return true;
 }
@@ -56,7 +58,7 @@ const std::vector<std::string> PluginManager::getPluginNames()
 
   return names_list;
 }
-const std::vector<PluginSpec> PluginManager::getPluginList()
+std::vector<PluginSpec> PluginManager::getPluginList()
 {
   return plugin_list_;
 }

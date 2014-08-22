@@ -10,6 +10,7 @@ class Preprocessor: public tug_plugin_manager::RegularPlugin
 {
 public:
   Preprocessor(){};
+  virtual bool process(const ros::Time& time, const ros::Duration& period) = 0;
 };
 }
 

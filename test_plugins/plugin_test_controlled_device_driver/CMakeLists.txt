@@ -1,11 +1,10 @@
-#set(QT_QMAKE_EXECUTABLE /usr/bin/qmake-qt4)
 cmake_minimum_required(VERSION 2.8.3)
-project(tug_robot_control)
+project(plugin_test_controlled_device_driver)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs controller_manager tug_plugin_manager tug_controlled_device_driver tug_preprocessor tug_postprocessor) # controller_manager
+find_package(catkin REQUIRED COMPONENTS roscpp pluginlib tug_controlled_device_driver tug_plugin_manager) #tug_device_driver tug_controlled_device_driver tug_preprocessor tug_postprocessor
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -77,10 +76,10 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs controller_manager tug_p
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES test_robot
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib roscpp std_msgs controller_manager
+ INCLUDE_DIRS include
+#  LIBRARIES robot_plugins
+#  CATKIN_DEPENDS roscpp pluginlib
+#  DEPENDS boost
 )
 
 ###########
@@ -90,28 +89,25 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
- # include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-#add_library(test_robot
-#   src/MyRobot.cpp
-#)
+add_library(first_controlled_device_driver
+   src/first_controlled_device_driver.cpp
+)
 
 ## Declare a cpp executable
-add_executable(tug_robot_control_node src/tug_robot_control_node.cpp)
+# add_executable(robot_plugins_node src/robot_plugins_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(test_robot_node test_robot_generate_messages_cpp)
+# add_dependencies(robot_plugins_node robot_plugins_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-#target_link_libraries(test_robot
-#  ${catkin_LIBRARIES}
-#)
-target_link_libraries(tug_robot_control_node
-  ${catkin_LIBRARIES} #test_robot
+target_link_libraries(first_controlled_device_driver
+  ${catkin_LIBRARIES}
 )
 
 #############
@@ -129,7 +125,7 @@ target_link_libraries(tug_robot_control_node
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS test_robot test_robot_node
+# install(TARGETS robot_plugins robot_plugins_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -149,12 +145,15 @@ target_link_libraries(tug_robot_control_node
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
+#install(TARGETS first_robot LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+#install(FILES first_robot_plugin_loigge.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_test_robot.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_robot_plugins.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

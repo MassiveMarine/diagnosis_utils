@@ -10,6 +10,7 @@ class Postprocessor: public tug_plugin_manager::RegularPlugin
 {
 public:
   Postprocessor(){};
+  virtual bool process(const ros::Time& time, const ros::Duration& period) = 0;
 };
 }
 

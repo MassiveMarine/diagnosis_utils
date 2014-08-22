@@ -1,0 +1,8 @@
+<library path="lib/libfirst_preprocessor">
+  <class type="plugin_test_preprocessor::FirstPreprocessor" 
+         base_class_type="tug_plugin_manager::RegularPlugin">
+    <description>
+      BlaBla..get lost
+    </description>
+  </class>
+</library>

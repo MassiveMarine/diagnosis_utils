@@ -16,11 +16,11 @@ public:
   PluginManager(std::string package_name);
   virtual ~PluginManager();
 
-  bool loadPlugin(const std::string& type, const std::string& name);
+  bool loadPlugin(const std::string& name, const std::string& type);
 
   boost::shared_ptr<RegularPlugin> getPluginInstanceByName(const std::string& name);
   const std::vector<std::string> getPluginNames();
-  const std::vector<PluginSpec> getPluginList();
+  std::vector<PluginSpec> getPluginList();
 
 private:
   PluginManager();
