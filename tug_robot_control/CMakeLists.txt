@@ -90,14 +90,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
- # include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-#add_library(test_robot
-#   src/MyRobot.cpp
-#)
+add_library(robot_hardware
+   src/robot_hardware.cpp
+)
 
 ## Declare a cpp executable
 add_executable(tug_robot_control_node src/tug_robot_control_node.cpp)
@@ -107,11 +107,11 @@ add_executable(tug_robot_control_node src/tug_robot_control_node.cpp)
 # add_dependencies(test_robot_node test_robot_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-#target_link_libraries(test_robot
-#  ${catkin_LIBRARIES}
-#)
+target_link_libraries(robot_hardware
+  ${catkin_LIBRARIES}
+)
 target_link_libraries(tug_robot_control_node
-  ${catkin_LIBRARIES} #test_robot
+  ${catkin_LIBRARIES} robot_hardware
 )
 
 #############
