@@ -13,7 +13,7 @@ namespace tug_plugin_manager
 class PluginManager
 {
 public:
-  PluginManager(std::string package_name);
+  PluginManager();
   virtual ~PluginManager();
 
   RegularPluginPtr loadPlugin(const std::string& name, const std::string& type);
@@ -23,7 +23,6 @@ public:
   std::vector<PluginSpec> getPluginList();
 
 private:
-  PluginManager();
   std::vector<PluginSpec> plugin_list_;
   pluginlib::ClassLoader<RegularPlugin> plugin_loader_;
 

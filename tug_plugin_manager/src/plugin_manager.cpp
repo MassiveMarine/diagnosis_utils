@@ -6,8 +6,10 @@
 namespace tug_plugin_manager
 {
 
-PluginManager::PluginManager(std::string package_name) :
-    plugin_loader_(package_name, "tug_plugin_manager::RegularPlugin")
+PluginManager::PluginManager() :
+    plugin_loader_("tug_plugin_manager", "tug_plugin_manager::RegularPlugin")
+//    PluginManager::PluginManager(std::string package_name = "tug_plugin_manager") :
+//    plugin_loader_(package_name, "tug_plugin_manager::RegularPlugin")
 {
 }
 
@@ -17,12 +19,13 @@ PluginManager::~PluginManager()
 
 RegularPluginPtr PluginManager::loadPlugin(const std::string& name, const std::string& type)
 {
-  ROS_INFO("Will load plugin '%s' of type '%s'", name.c_str(),type.c_str());
+  ROS_INFO("Will load plugin '%s' of type '%s'", name.c_str(), type.c_str());
 
   RegularPluginPtr newPluginInstance;
 
   if (getPluginInstanceByName(name))
-    throw(PluginAlreadyInListException(std::string("The plugin '").append(name.c_str()).append("' was already loaded inside the plugin manager")));
+    throw(PluginAlreadyInListException(
+        std::string("The plugin '").append(name.c_str()).append("' was already loaded inside the plugin manager")));
 
   newPluginInstance = plugin_loader_.createInstance(type);
 
