@@ -1,8 +1,0 @@
-<library path="lib/libfirst_robot">
-  <class type="plugin_robot_ns::FirstRobotLoigge" 
-         base_class_type="tug_plugin_manager::RegularPlugin">
-    <description>
-      BlaBla..get lost
-    </description>
-  </class>
-</library>

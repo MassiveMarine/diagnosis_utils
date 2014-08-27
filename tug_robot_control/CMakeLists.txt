@@ -5,7 +5,7 @@ project(tug_robot_control)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs controller_manager tug_plugin_manager tug_controlled_device_driver tug_preprocessor tug_postprocessor) # controller_manager
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs controller_manager tug_plugin_manager ) # controller_manager tug_controlled_device_driver tug_preprocessor tug_postprocessor
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -77,8 +77,8 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs controller_manager tug_p
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES test_robot
+ INCLUDE_DIRS include
+# LIBRARIES tug_robot_control
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib roscpp std_msgs controller_manager
 )

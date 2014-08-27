@@ -15,11 +15,11 @@ PluginManager::~PluginManager()
 {
 }
 
-bool PluginManager::loadPlugin(const std::string& name, const std::string& type)
+RegularPluginPtr PluginManager::loadPlugin(const std::string& name, const std::string& type)
 {
   ROS_INFO("Will load plugin '%s' of type '%s'", name.c_str(),type.c_str());
 
-  boost::shared_ptr<RegularPlugin> newPluginInstance;
+  RegularPluginPtr newPluginInstance;
 
   if (getPluginInstanceByName(name))
     throw(PluginAlreadyInListException(std::string("The plugin '").append(name.c_str()).append("' was already loaded inside the plugin manager")));
@@ -29,7 +29,7 @@ bool PluginManager::loadPlugin(const std::string& name, const std::string& type)
   if (!newPluginInstance)
     throw(PluginCannotBeCreatedException(std::string("Could not create object of plugin '").append(name.c_str()).append("'")));
 
-  newPluginInstance->initialize("BLIBLABLO");
+  //newPluginInstance->initialize("BLIBLABLO");
 
   plugin_list_.resize(plugin_list_.size() + 1);
   plugin_list_[plugin_list_.size() - 1].name = name;
@@ -38,16 +38,16 @@ bool PluginManager::loadPlugin(const std::string& name, const std::string& type)
 
 //  ROS_INFO("Now %d plugin(s) is/are loaded!", (int)plugin_list_.size() );
 
-  return true;
+  return newPluginInstance;
 }
 
-boost::shared_ptr<RegularPlugin> PluginManager::getPluginInstanceByName(const std::string& name)
+RegularPluginPtr PluginManager::getPluginInstanceByName(const std::string& name)
 {
   for (size_t i = 0; i < plugin_list_.size(); ++i)
     if (plugin_list_[i].name == name)
       return plugin_list_[i].instance;
 
-  return boost::shared_ptr<RegularPlugin>();
+  return RegularPluginPtr();
 }
 
 const std::vector<std::string> PluginManager::getPluginNames()

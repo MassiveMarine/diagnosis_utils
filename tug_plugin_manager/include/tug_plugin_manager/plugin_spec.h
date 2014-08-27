@@ -6,11 +6,13 @@
 namespace tug_plugin_manager
 {
 
+typedef boost::shared_ptr<RegularPlugin> RegularPluginPtr;
+
 struct PluginSpec
 {
   std::string name;
   std::string type;
-  boost::shared_ptr<RegularPlugin> instance;
+  RegularPluginPtr instance;
 };
 
 }

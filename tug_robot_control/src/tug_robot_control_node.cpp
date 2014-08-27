@@ -4,9 +4,12 @@
 #include <controller_manager/controller_manager.h>
 #include <tug_plugin_manager/plugin_manager.h>
 #include <tug_plugin_manager/plugin_base.h>
-#include <tug_controlled_device_driver/tug_controlled_device_driver_base.h>
-#include <tug_preprocessor/tug_preprocessor_base.h>
-#include <tug_postprocessor/tug_postprocessor_base.h>
+
+#include <tug_robot_control/robot_control_plugin_base.h>
+
+#include <tug_robot_control/tug_controlled_device_driver_base.h>
+#include <tug_robot_control/tug_preprocessor_base.h>
+#include <tug_robot_control/tug_postprocessor_base.h>
 
 #include <vector>
 
@@ -15,16 +18,20 @@
 using tug_plugin_manager::PluginManager;
 using tug_plugin_manager::PluginSpec;
 
-using tug_controlled_device_driver::ControlledDeviceDriver;
-typedef boost::shared_ptr<ControlledDeviceDriver> controlled_device_driver_ptr;
+using tug_robot_control::PluginBase;
+typedef boost::shared_ptr<PluginBase> PluginBasePtr;
+#define plugin_base_ptr_cast(p) boost::dynamic_pointer_cast<PluginBase>(p)
+
+using tug_robot_control::ControlledDeviceDriver;
+typedef boost::shared_ptr<ControlledDeviceDriver> ControlledDeviceDriverPtr;
 #define controlled_device_driver_ptr_cast(p) boost::dynamic_pointer_cast<ControlledDeviceDriver>(p)
 
-using tug_preprocessor::Preprocessor;
-typedef boost::shared_ptr<Preprocessor> preprocessor_ptr;
+using tug_robot_control::Preprocessor;
+typedef boost::shared_ptr<Preprocessor> PreprocessorPtr;
 #define preprocessor_ptr_cast(p) boost::dynamic_pointer_cast<Preprocessor>(p)
 
-using tug_postprocessor::Postprocessor;
-typedef boost::shared_ptr<Postprocessor> postprocessor_ptr;
+using tug_robot_control::Postprocessor;
+typedef boost::shared_ptr<Postprocessor> PostprocessorPtr;
 #define postprocessor_ptr_cast(p) boost::dynamic_pointer_cast<Postprocessor>(p)
 
 int main(int argc, char** argv)
@@ -43,13 +50,25 @@ int main(int argc, char** argv)
     PluginManager* pm_preprocessor = new PluginManager("tug_plugin_manager");
     PluginManager* pm_postprocessor = new PluginManager("tug_plugin_manager");
 
-    pm_device_driver->loadPlugin("1st device driver", "plugin_test_device_driver::FirstDeviceDriver");
-    pm_controlled_device_driver->loadPlugin("1st controlled device driver",
-        "plugin_test_controlled_device_driver::FirstControlledDeviceDriver");
-    pm_controlled_device_driver->loadPlugin("2nd controlled device driver",
-        "plugin_test_controlled_device_driver::FirstControlledDeviceDriver");
-    pm_preprocessor->loadPlugin("First preprocessor", "plugin_test_preprocessor::FirstPreprocessor");
-    pm_postprocessor->loadPlugin("First postprocessor", "plugin_test_postprocessor::FirstPostprocessor");
+    PluginBasePtr new_plugin;
+    new_plugin = plugin_base_ptr_cast(pm_device_driver->loadPlugin("1st device driver", "plugin_test_device_driver::FirstDeviceDriver"));
+    new_plugin->initialize(&robot_hardware, nh, "");
+
+    new_plugin = plugin_base_ptr_cast(
+        pm_controlled_device_driver->loadPlugin("1st controlled device driver",
+            "plugin_test_controlled_device_driver::FirstControlledDeviceDriver"));
+    new_plugin->initialize(&robot_hardware, nh, "");
+
+    new_plugin = plugin_base_ptr_cast(
+        pm_controlled_device_driver->loadPlugin("2nd controlled device driver",
+            "plugin_test_controlled_device_driver::FirstControlledDeviceDriver"));
+    new_plugin->initialize(&robot_hardware, nh, "");
+
+    new_plugin = plugin_base_ptr_cast(pm_preprocessor->loadPlugin("First preprocessor", "plugin_test_preprocessor::FirstPreprocessor"));
+    new_plugin->initialize(&robot_hardware, nh, "");
+
+    new_plugin = plugin_base_ptr_cast(pm_postprocessor->loadPlugin("First postprocessor", "plugin_test_postprocessor::FirstPostprocessor"));
+    new_plugin->initialize(&robot_hardware, nh, "");
 
     ros::Rate loop_rate(LOOP_RATE);
     ros::Time last_time = ros::Time::now();
@@ -67,7 +86,7 @@ int main(int argc, char** argv)
       // read all controlled device driver
       for (unsigned int i = 0; i < controlled_device_driver_list.size(); i++)
       {
-        controlled_device_driver_ptr driver = controlled_device_driver_ptr_cast(controlled_device_driver_list.at(i).instance);
+        ControlledDeviceDriverPtr driver = controlled_device_driver_ptr_cast(controlled_device_driver_list.at(i).instance);
         if (driver)
           driver->read(current_time, elapsed_time);
       }
@@ -76,7 +95,7 @@ int main(int argc, char** argv)
       std::vector<PluginSpec> preprocessor_list = pm_preprocessor->getPluginList();
       for (unsigned int i = 0; i < preprocessor_list.size(); i++)
       {
-        preprocessor_ptr processor = preprocessor_ptr_cast(preprocessor_list.at(i).instance);
+        PreprocessorPtr processor = preprocessor_ptr_cast(preprocessor_list.at(i).instance);
         if (processor)
           processor->process(current_time, elapsed_time);
       }
@@ -88,7 +107,7 @@ int main(int argc, char** argv)
       std::vector<PluginSpec> postprocessor_list = pm_postprocessor->getPluginList();
       for (unsigned int i = 0; i < postprocessor_list.size(); i++)
       {
-        postprocessor_ptr processor = postprocessor_ptr_cast(postprocessor_list.at(i).instance);
+        PostprocessorPtr processor = postprocessor_ptr_cast(postprocessor_list.at(i).instance);
         if (processor)
           processor->process(current_time, elapsed_time);
       }
@@ -96,7 +115,7 @@ int main(int argc, char** argv)
       // write all controlled device driver
       for (unsigned int i = 0; i < controlled_device_driver_list.size(); i++)
       {
-        controlled_device_driver_ptr driver = controlled_device_driver_ptr_cast(controlled_device_driver_list.at(i).instance);
+        ControlledDeviceDriverPtr driver = controlled_device_driver_ptr_cast(controlled_device_driver_list.at(i).instance);
         if (driver)
           driver->write(current_time, elapsed_time);
       }
@@ -105,6 +124,7 @@ int main(int argc, char** argv)
   catch (...)
   {
     ROS_ERROR("Unhandled exception!");
+    throw;
     return -1;
   }
 
