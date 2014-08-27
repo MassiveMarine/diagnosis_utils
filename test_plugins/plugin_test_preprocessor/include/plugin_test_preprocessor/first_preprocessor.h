@@ -13,7 +13,7 @@ class FirstPreprocessor: public tug_robot_control::Preprocessor
 public:
   FirstPreprocessor();
 
-  virtual void initialize(tug_robot_control::RobotHardware* robot_hardware, ros::NodeHandle & nh, std::string name);
+  virtual void initialize(tug_robot_control::RobotHardware* robot_hardware, const ros::NodeHandle & nh, std::string name);
 
   virtual bool process(const ros::Time& time, const ros::Duration& period);
 

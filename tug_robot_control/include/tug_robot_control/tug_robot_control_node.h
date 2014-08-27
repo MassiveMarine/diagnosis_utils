@@ -41,14 +41,16 @@ public:
 
 private:
   void loadAndInitPlugins();
+  void loadAndInitPlugin(PluginManager* pm, std::string prefix);
+
   void runRobotControlLoop();
 
   void readControlledDevice(const ros::Time& time, const ros::Duration& period);
   void writeControlledDevice(const ros::Time& time, const ros::Duration& period);
   void readWriteControlledDevice(const ros::Time& time, const ros::Duration& period, bool write_mode = false);
 
-  void doPreprocessing(const ros::Time& time, const ros::Duration& period);
   void doPostprocessing(const ros::Time& time, const ros::Duration& period);
+  void doPreprocessing(const ros::Time& time, const ros::Duration& period);
 
   PluginBasePtr pluginBasePtrCast(tug_plugin_manager::RegularPluginPtr ptr)
   {
@@ -76,8 +78,8 @@ private:
 
   PluginManager* pm_controlled_device_driver_;
   PluginManager* pm_device_driver_;
-  PluginManager* pm_preprocessor_;
   PluginManager* pm_postprocessor_;
+  PluginManager* pm_preprocessor_;
 
   boost::thread robot_control_loop_thread_;
 

@@ -6,7 +6,7 @@ FirstControlledDeviceDriver::FirstControlledDeviceDriver()
 {
 }
 
-void FirstControlledDeviceDriver::initialize(tug_robot_control::RobotHardware* robot_hardware, ros::NodeHandle & nh, std::string name)
+void FirstControlledDeviceDriver::initialize(tug_robot_control::RobotHardware* robot_hardware, const ros::NodeHandle & nh, std::string name)
 {
 
 }

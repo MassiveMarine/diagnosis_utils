@@ -15,7 +15,7 @@ class FirstControlledDeviceDriver: public tug_robot_control::ControlledDeviceDri
 public:
   FirstControlledDeviceDriver();
 
-  virtual void initialize(tug_robot_control::RobotHardware* robot_hardware, ros::NodeHandle & nh, std::string name);
+  virtual void initialize(tug_robot_control::RobotHardware* robot_hardware, const ros::NodeHandle & nh, std::string name);
   virtual void write(const ros::Time& time, const ros::Duration& period);
   virtual void read(const ros::Time& time, const ros::Duration& period);
 

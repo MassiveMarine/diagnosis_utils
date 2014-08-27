@@ -11,7 +11,7 @@ namespace tug_robot_control
 class PluginBase: public tug_plugin_manager::RegularPlugin
 {
 public:
-  virtual void initialize(tug_robot_control::RobotHardware* robot_hardware, ros::NodeHandle & nh, std::string name) = 0;
+  virtual void initialize(tug_robot_control::RobotHardware* robot_hardware, const ros::NodeHandle & nh, std::string name) = 0;
 protected:
   PluginBase()
   {

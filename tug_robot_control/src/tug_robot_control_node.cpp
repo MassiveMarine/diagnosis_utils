@@ -3,7 +3,7 @@
 namespace tug_robot_control
 {
 RobotControl::RobotControl() :
-    node_handle_("~"), robot_hardware_(), controller_manager_(&robot_hardware_, ros::NodeHandle(node_handle_, "plugins"))
+    node_handle_("~"), robot_hardware_(), controller_manager_(&robot_hardware_, ros::NodeHandle(node_handle_, "controllers"))
 {
   pm_controlled_device_driver_ = new PluginManager();
   pm_device_driver_ = new PluginManager();
@@ -27,23 +27,28 @@ int RobotControl::run()
 
 void RobotControl::loadAndInitPlugins()
 {
+  loadAndInitPlugin(pm_controlled_device_driver_,"controlled_device_drivers");
+  loadAndInitPlugin(pm_device_driver_,"device_drivers");
+  loadAndInitPlugin(pm_postprocessor_,"postprocessors");
+  loadAndInitPlugin(pm_preprocessor_,"preprocessors");
+}
+
+void RobotControl::loadAndInitPlugin(PluginManager* pm, std::string prefix)
+{
   tug_plugin_manager::RegularPluginPtr new_plugin;
-  new_plugin = pm_device_driver_->loadPlugin("1st device driver", "plugin_test_device_driver::FirstDeviceDriver");
-  pluginBasePtrCast(new_plugin)->initialize(&robot_hardware_, node_handle_, "");
 
-  new_plugin = pm_controlled_device_driver_->loadPlugin("1st controlled device driver",
-      "plugin_test_controlled_device_driver::FirstControlledDeviceDriver");
-  pluginBasePtrCast(new_plugin)->initialize(&robot_hardware_, node_handle_, "");
+  ros::NodeHandle node_handle(node_handle_, prefix);
+  XmlRpc::XmlRpcValue params;
+  node_handle.getParam("", params);
+  for (XmlRpc::XmlRpcValue::iterator it = params.begin(); it != params.end(); ++it)
+  {
+    XmlRpc::XmlRpcValue & param = it->second;
+    if (!param.hasMember("type"))
+      throw std::runtime_error(prefix + "/" + it->first + " has no 'type' parameter");
 
-  new_plugin = pm_controlled_device_driver_->loadPlugin("2nd controlled device driver",
-      "plugin_test_controlled_device_driver::FirstControlledDeviceDriver");
-  pluginBasePtrCast(new_plugin)->initialize(&robot_hardware_, node_handle_, "");
-
-  new_plugin = pm_preprocessor_->loadPlugin("First preprocessor", "plugin_test_preprocessor::FirstPreprocessor");
-  pluginBasePtrCast(new_plugin)->initialize(&robot_hardware_, node_handle_, "");
-
-  new_plugin = pm_postprocessor_->loadPlugin("First postprocessor", "plugin_test_postprocessor::FirstPostprocessor");
-  pluginBasePtrCast(new_plugin)->initialize(&robot_hardware_, node_handle_, "");
+    new_plugin = pm->loadPlugin(it->first, param["type"]);
+    pluginBasePtrCast(new_plugin)->initialize(&robot_hardware_, ros::NodeHandle(node_handle, it->first), "");
+  }
 }
 
 void RobotControl::runRobotControlLoop()
