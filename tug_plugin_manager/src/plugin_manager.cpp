@@ -8,8 +8,6 @@ namespace tug_plugin_manager
 
 PluginManager::PluginManager() :
     plugin_loader_("tug_plugin_manager", "tug_plugin_manager::RegularPlugin")
-//    PluginManager::PluginManager(std::string package_name = "tug_plugin_manager") :
-//    plugin_loader_(package_name, "tug_plugin_manager::RegularPlugin")
 {
 }
 
@@ -31,8 +29,6 @@ RegularPluginPtr PluginManager::loadPlugin(const std::string& name, const std::s
 
   if (!newPluginInstance)
     throw(PluginCannotBeCreatedException(std::string("Could not create object of plugin '").append(name.c_str()).append("'")));
-
-  //newPluginInstance->initialize("BLIBLABLO");
 
   plugin_list_.resize(plugin_list_.size() + 1);
   plugin_list_[plugin_list_.size() - 1].name = name;

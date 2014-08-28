@@ -3,18 +3,18 @@
 namespace tug_robot_control
 {
 RobotControl::RobotControl() :
-    node_handle_("~"), robot_hardware_(), controller_manager_(&robot_hardware_, ros::NodeHandle(node_handle_, "controllers"))
+    node_handle_("~"),
+    robot_hardware_(),
+    controller_manager_(&robot_hardware_,ros::NodeHandle(node_handle_, "controllers")),
+    pm_controlled_device_driver_(new PluginManager()),
+    pm_device_driver_(new PluginManager()),
+    pm_preprocessor_(new PluginManager()),
+    pm_postprocessor_(new PluginManager())
 {
-  pm_controlled_device_driver_ = new PluginManager();
-  pm_device_driver_ = new PluginManager();
-  pm_preprocessor_ = new PluginManager();
-  pm_postprocessor_ = new PluginManager();
 }
 
 int RobotControl::run()
 {
-  ROS_ERROR("Starting main");
-
   loadAndInitPlugins();
 
   robot_control_loop_thread_ = boost::thread(&RobotControl::runRobotControlLoop, this);
@@ -33,7 +33,7 @@ void RobotControl::loadAndInitPlugins()
   loadAndInitPlugin(pm_preprocessor_,"preprocessors");
 }
 
-void RobotControl::loadAndInitPlugin(PluginManager* pm, std::string prefix)
+void RobotControl::loadAndInitPlugin(PluginManagerPtr pm, std::string prefix)
 {
   tug_plugin_manager::RegularPluginPtr new_plugin;
 
@@ -53,7 +53,6 @@ void RobotControl::loadAndInitPlugin(PluginManager* pm, std::string prefix)
 
 void RobotControl::runRobotControlLoop()
 {
-  ROS_ERROR("Entering robot control loop");
   ros::Rate loop_rate(1.0);
   ros::Time last_time = ros::Time::now();
 
@@ -65,19 +64,14 @@ void RobotControl::runRobotControlLoop()
 
     try
     {
-      // read all controlled device driver
       readControlledDevice(current_time, elapsed_time);
 
-      // do preprocessing work
       doPreprocessing(current_time, elapsed_time);
 
-      // make the update step
       controller_manager_.update(current_time, elapsed_time);
 
-      // do postprocessing work
       doPostprocessing(current_time, elapsed_time);
 
-      // write all controlled device driver
       writeControlledDevice(current_time, elapsed_time);
 
     }
@@ -91,7 +85,6 @@ void RobotControl::runRobotControlLoop()
     }
     loop_rate.sleep();
   }
-  std::cout << "Exiting control loop" << std::endl;
 }
 
 void RobotControl::readControlledDevice(const ros::Time& time, const ros::Duration& period)
@@ -112,7 +105,6 @@ void RobotControl::writeControlledDevice(const ros::Time& time, const ros::Durat
     ControlledDeviceDriverPtr driver = controlledDeviceDriverPtrCast(list.at(i).instance);
     if (driver)
       driver->write(time, period);
-
   }
 }
 

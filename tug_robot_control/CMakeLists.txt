@@ -95,9 +95,9 @@ include_directories(
 )
 
 ## Declare a cpp library
-add_library(robot_hardware
-   src/robot_hardware.cpp
-)
+#add_library(robot_hardware
+#   src/robot_hardware.cpp
+#)
 
 ## Declare a cpp executable
 add_executable(tug_robot_control_node src/tug_robot_control_node.cpp)
@@ -107,11 +107,11 @@ add_executable(tug_robot_control_node src/tug_robot_control_node.cpp)
 # add_dependencies(test_robot_node test_robot_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(robot_hardware
-  ${catkin_LIBRARIES}
-)
+#target_link_libraries(robot_hardware
+#  ${catkin_LIBRARIES}
+#)
 target_link_libraries(tug_robot_control_node
-  ${catkin_LIBRARIES} robot_hardware
+  ${catkin_LIBRARIES} #robot_hardware
 )
 
 #############

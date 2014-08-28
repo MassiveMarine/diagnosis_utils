@@ -5,6 +5,7 @@ device_drivers:
 controlled_device_drivers:
     first_controlled_device_driver:
         type: plugin_test_controlled_device_driver::FirstControlledDeviceDriver
+        data1: 1
 
 postprocessors:
     first_postprocessor:

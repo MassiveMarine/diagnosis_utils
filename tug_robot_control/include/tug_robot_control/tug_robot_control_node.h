@@ -31,6 +31,8 @@ typedef boost::shared_ptr<ControlledDeviceDriver> ControlledDeviceDriverPtr;
 typedef boost::shared_ptr<Preprocessor> PreprocessorPtr;
 typedef boost::shared_ptr<Postprocessor> PostprocessorPtr;
 
+typedef boost::shared_ptr<PluginManager> PluginManagerPtr;
+
 class RobotControl
 {
 public:
@@ -41,7 +43,7 @@ public:
 
 private:
   void loadAndInitPlugins();
-  void loadAndInitPlugin(PluginManager* pm, std::string prefix);
+  void loadAndInitPlugin(PluginManagerPtr pm, std::string prefix);
 
   void runRobotControlLoop();
 
@@ -76,10 +78,10 @@ private:
   tug_robot_control::RobotHardware robot_hardware_;
   controller_manager::ControllerManager controller_manager_;
 
-  PluginManager* pm_controlled_device_driver_;
-  PluginManager* pm_device_driver_;
-  PluginManager* pm_postprocessor_;
-  PluginManager* pm_preprocessor_;
+  PluginManagerPtr pm_controlled_device_driver_;
+  PluginManagerPtr pm_device_driver_;
+  PluginManagerPtr pm_postprocessor_;
+  PluginManagerPtr pm_preprocessor_;
 
   boost::thread robot_control_loop_thread_;
 

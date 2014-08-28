@@ -23,8 +23,9 @@ public:
   std::vector<PluginSpec> getPluginList();
 
 private:
-  std::vector<PluginSpec> plugin_list_;
   pluginlib::ClassLoader<RegularPlugin> plugin_loader_;
+  std::vector<PluginSpec> plugin_list_;
+
 
 };
 
