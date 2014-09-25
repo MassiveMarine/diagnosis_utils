@@ -26,13 +26,24 @@ public:
     virtual void write(const tug_can_msgs::CanMessageConstPtr & message);
 
 private:
+    enum State
+    {
+        STATE_CLOSED,
+        STATE_OPEN,
+        STATE_CLOSING
+    };
+
     void ensureOpen();
     void closeSocket();
     void checkErrno(const char * operation);
 
     boost::mutex mutex_;
-    int socket_;
+    State state_;
     int io_timeout_;
+
+    boost::mutex read_mutex_;
+    boost::mutex write_mutex_;
+    int socket_;
 };
 
 }

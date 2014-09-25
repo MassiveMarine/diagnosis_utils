@@ -4,6 +4,7 @@
 #include <map>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/weak_ptr.hpp>
@@ -81,10 +82,11 @@ private:
     ros::Duration io_timeout_;
     ros::NodeHandle node_handle_;
 
+    boost::mutex mutex_;
     boost::shared_ptr<DriverClassLoader> driver_class_loader_;
     CanNicDriverPtr driver_;
     boost::thread read_thread_;
-    volatile bool running_;
+    bool running_;
 
     boost::recursive_mutex subscriptions_mutex_; ///< Using a recursive mutex so that callbacks can call subscribe() and subscribeToAll().
     SubscriptionMap subscriptions_;

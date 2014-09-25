@@ -18,7 +18,7 @@ namespace tug_can_nic_drivers
 {
 
 SocketCanNicDriver::SocketCanNicDriver()
-    : socket_(-1)
+    : state_(STATE_CLOSED), io_timeout_(0), socket_(-1)
 {
 }
 
@@ -33,7 +33,7 @@ void SocketCanNicDriver::open(const std::string & device_name, int baud_rate,
 {
     boost::lock_guard<boost::mutex> lock(mutex_);
 
-    if (socket_ >= 0)
+    if (state_ != STATE_CLOSED)
         throw Exception(Exception::ILLEGAL_STATE, "Tried to open CAN device being already open");
 
     if (baud_rate != 0)
@@ -86,7 +86,7 @@ void SocketCanNicDriver::open(const std::string & device_name, int baud_rate,
             }
         }
 
-        struct sockaddr_can addr;
+        struct sockaddr_can addr = { };
         addr.can_family = AF_CAN;
         addr.can_ifindex = ifr.ifr_ifindex;
         if (bind(socket_, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr)) != 0)
@@ -95,6 +95,8 @@ void SocketCanNicDriver::open(const std::string & device_name, int baud_rate,
             message << "Could not bind to CAN interface (errno: " << errno << ")";
             throw Exception(Exception::DEVICE_UNAVAILABLE, message.str());
         }
+
+        state_ = STATE_OPEN;
     }
     catch (...)
     {
@@ -105,12 +107,32 @@ void SocketCanNicDriver::open(const std::string & device_name, int baud_rate,
 
 void SocketCanNicDriver::close()
 {
-    boost::lock_guard<boost::mutex> lock(mutex_);
-    closeSocket();
+    bool do_it = false;
+    {
+        boost::lock_guard<boost::mutex> lock(mutex_);
+        if (state_ == STATE_OPEN)
+        {
+            state_ = STATE_CLOSING;
+            do_it = true;
+        }
+    }
+
+    if (do_it)
+    {
+        // Ensure all reads and writes have finished:
+        boost::lock_guard<boost::mutex> lock1(read_mutex_);
+        boost::lock_guard<boost::mutex> lock2(write_mutex_);
+
+        // Finally, close socket and update state:
+        boost::lock_guard<boost::mutex> lock3(mutex_);
+        closeSocket();
+        state_ = STATE_CLOSED;
+    }
 }
 
 void SocketCanNicDriver::read(const tug_can_msgs::CanMessagePtr & message)
 {
+    boost::lock_guard<boost::mutex> lock(read_mutex_);
     while (true)
     {
         ensureOpen();
@@ -137,9 +159,9 @@ void SocketCanNicDriver::read(const tug_can_msgs::CanMessagePtr & message)
                 throw Exception(Exception::IO_ERROR, "read() returned invalid number of bytes");
             else if (frame.can_id & CAN_ERR_FLAG)
             {
-                std::ostringstream message;
-                message << "CAN device reported a bus error: 0x" << std::hex << (frame.can_id & CAN_ERR_MASK);
-                throw Exception(Exception::BUS_ERROR, message.str());
+                std::ostringstream msg;
+                msg << "CAN device reported a bus error: 0x" << std::hex << (frame.can_id & CAN_ERR_MASK);
+                throw Exception(Exception::BUS_ERROR, msg.str());
             }
             else
             {
@@ -160,8 +182,8 @@ void SocketCanNicDriver::read(const tug_can_msgs::CanMessagePtr & message)
 
 void SocketCanNicDriver::write(const tug_can_msgs::CanMessageConstPtr & message)
 {
-    if (message->data.size() > 8)
-        throw Exception(Exception::ILLEGAL_ARGUMENT, "Message contains more than eight bytes of data");
+    if (message->data.size() > sizeof(can_frame::data))
+        throw Exception(Exception::ILLEGAL_ARGUMENT, "Message contains too many bytes of data");
     if (message->id > CAN_EFF_MASK || (!message->extended && message->id > CAN_SFF_MASK))
         throw Exception(Exception::ILLEGAL_ARGUMENT, "Message contains invalid ID");
 
@@ -175,6 +197,7 @@ void SocketCanNicDriver::write(const tug_can_msgs::CanMessageConstPtr & message)
     for (size_t i = 0; i < message->data.size(); ++i)
         frame.data[i] = message->data[i];
 
+    boost::lock_guard<boost::mutex> lock(write_mutex_);
     while (true)
     {
         ensureOpen();
@@ -199,7 +222,7 @@ void SocketCanNicDriver::write(const tug_can_msgs::CanMessageConstPtr & message)
 void SocketCanNicDriver::ensureOpen()
 {
     boost::lock_guard<boost::mutex> lock(mutex_);
-    if (socket_ < 0)
+    if (state_ != STATE_OPEN)
         throw Exception(Exception::DEVICE_CLOSED, "Device not open");
 }
 

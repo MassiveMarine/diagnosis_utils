@@ -51,12 +51,20 @@ CanNicDriverHost::CanNicDriverHost(const std::string & driver_plugin_name,
 
 CanNicDriverHost::~CanNicDriverHost()
 {
-    running_ = false;
+    //std::cerr << "CanNicDriverHost: Shutting down CAN read thread" << std::endl;
+    {
+        boost::lock_guard<boost::mutex> lock(mutex_);
+        if (driver_)
+            driver_->close();
+        running_ = false;
+    }
+
     if (read_thread_.joinable())
     {
         read_thread_.interrupt();
         read_thread_.join();
     }
+    //std::cerr << "CanNicDriverHost: Shutdown complete." << std::endl;
 }
 
 int CanNicDriverHost::parseBaudRate(const std::string & baud_rate_string)
@@ -95,7 +103,9 @@ int CanNicDriverHost::parseBaudRate(const std::string & baud_rate_string)
 void CanNicDriverHost::sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message)
 {
     checkMessage(can_message);
-    if (driver_)
+
+    boost::lock_guard<boost::mutex> lock(mutex_);
+    if (running_ && driver_)
     {
         try
         {
@@ -141,10 +151,16 @@ CanNicDriverHost::SubscriptionImpl::~SubscriptionImpl()
 
 void CanNicDriverHost::readAndDispatchMessages()
 {
-    ROS_INFO("CAN read thread started");
+    //std::cerr << "CAN read thread started" << std::endl;
     tug_can_msgs::CanMessagePtr can_message = boost::make_shared<tug_can_msgs::CanMessage>();
-    while (running_ && driver_)
+    while (true)
     {
+        {
+            boost::lock_guard<boost::mutex> lock(mutex_);
+            if (!running_)
+                break;
+        }
+
         try
         {
             boost::this_thread::interruption_point();
@@ -155,6 +171,13 @@ void CanNicDriverHost::readAndDispatchMessages()
         }
         catch (CanNicDriver::Exception & ex)
         {
+            // If we're shutting down, the exception probably came from that.
+            {
+                boost::lock_guard<boost::mutex> lock(mutex_);
+                if (!running_)
+                    break;
+            }
+
             switch (ex.getCause())
             {
             case CanNicDriver::Exception::IO_ERROR:
@@ -163,8 +186,9 @@ void CanNicDriverHost::readAndDispatchMessages()
 
             case CanNicDriver::Exception::DEVICE_CLOSED:
             case CanNicDriver::Exception::DEVICE_UNAVAILABLE:
-                ROS_ERROR("CAN device closed or unavailable; trying to open it again after a short time");
+                std::cerr << "CAN device closed or unavailable; trying to open it again after a short time" << std::endl;
                 driver_->close();
+
                 boost::this_thread::sleep(boost::posix_time::seconds(1));
                 try
                 {
@@ -199,7 +223,7 @@ void CanNicDriverHost::readAndDispatchMessages()
             ROS_ERROR("Exception while reading from CAN device.");
         }
     }
-    ROS_INFO("CAN read thread finished");
+    //std::cerr << "CAN read thread finished" << std::endl;
 }
 
 void CanNicDriverHost::dispatchMessage(const tug_can_msgs::CanMessageConstPtr & can_message)
