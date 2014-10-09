@@ -94,9 +94,9 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(tug_colin
-#   src/${PROJECT_NAME}/tug_colin.cpp
-# )
+add_library(krikket
+  src/krikkit.cpp
+)
 
 ## Declare a cpp executable
  add_executable(colin_test src/colin_test.cpp)

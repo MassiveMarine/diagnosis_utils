@@ -19,7 +19,7 @@ int main(int argc, char ** argv)
 				"tug_can_nic_drivers::SocketCanNicDriver", "can0", 0,
 				ros::Duration(1.0), node_handle);
 
-	can_subscription_ = can_interface->subscribe(100 + 1, boost::bind(&CanTransport::canMessageCallback, this, _1));
+//	can_subscription_ = can_interface->subscribe(100 + 1, boost::bind(&CanTransport::canMessageCallback, this, _1));
 
 
 
