@@ -1,0 +1,8 @@
+prefix=/home/robotics/hydro/catkin_ws/install
+
+Name: tug_colin
+Description: Description of tug_colin
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/robotics/hydro/catkin_ws/install/lib 
+Requires: 

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="have_valgrind" default="false" />
+    
+    <arg if="$(arg have_valgrind)" name="launch_prefix" value="valgrind --log-file=$(env HOME)/gripper_test_valgrind.log" />
+    <arg unless="$(arg have_valgrind)" name="launch_prefix" value="" />
+
+    <node name="colin_test" pkg="tug_colin" type="colin_test" launch-prefix="$(arg launch_prefix)" output="screen" />
+</launch>
