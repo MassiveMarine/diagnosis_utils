@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "tug_colin")
-set(tug_colin_MAINTAINER "robotics <stefan.loigge@student.tugraz.at>")
-set(tug_colin_DEPRECATED "")
-set(tug_colin_VERSION "0.0.0")
-set(tug_colin_BUILD_DEPENDS )
-set(tug_colin_RUN_DEPENDS )
-set(tug_colin_BUILDTOOL_DEPENDS "catkin")
