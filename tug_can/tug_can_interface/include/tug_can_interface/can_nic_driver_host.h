@@ -40,6 +40,13 @@ public:
 
     virtual ~CanNicDriverHost();
 
+    virtual void sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message);
+    virtual CanSubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
+                                      const MessageCallback & callback);
+    virtual CanSubscriptionPtr subscribeToAll(const MessageCallback & callback);
+
+    void setDumpMessagesEnabled(bool dump_messages_enabled);
+
     /**
      * Parses a baud rate and returns it as a number. The following formats are
      * supported:
@@ -50,11 +57,6 @@ public:
      * @throw std::invalid_argument if the supplied value cannot be parsed.
      */
     static int parseBaudRate(const std::string & baud_rate_string);
-
-    virtual void sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message);
-    virtual CanSubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
-                                      const MessageCallback & callback);
-    virtual CanSubscriptionPtr subscribeToAll(const MessageCallback & callback);
 
 private:
     typedef pluginlib::ClassLoader<CanNicDriver> DriverClassLoader;
@@ -87,6 +89,7 @@ private:
     CanNicDriverPtr driver_;
     boost::thread read_thread_;
     bool running_;
+    bool dump_messages_enabled_;
 
     boost::recursive_mutex subscriptions_mutex_; ///< Using a recursive mutex so that callbacks can call subscribe() and subscribeToAll().
     SubscriptionMap subscriptions_;
