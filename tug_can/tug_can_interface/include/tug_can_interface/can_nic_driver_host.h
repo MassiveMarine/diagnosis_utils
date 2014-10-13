@@ -1,6 +1,7 @@
 #ifndef TUG_CAN_INTERFACE__CAN_NIC_DRIVER_HOST_H_
 #define TUG_CAN_INTERFACE__CAN_NIC_DRIVER_HOST_H_
 
+#include <iostream>
 #include <map>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
@@ -57,6 +58,11 @@ public:
      * @throw std::invalid_argument if the supplied value cannot be parsed.
      */
     static int parseBaudRate(const std::string & baud_rate_string);
+
+    /**
+     * Dumps a message to the given output stream.
+     */
+    static void dumpMessage(std::ostream & dump, const tug_can_msgs::CanMessageConstPtr & can_message);
 
 private:
     typedef pluginlib::ClassLoader<CanNicDriver> DriverClassLoader;

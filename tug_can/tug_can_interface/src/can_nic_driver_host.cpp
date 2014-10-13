@@ -101,6 +101,19 @@ int CanNicDriverHost::parseBaudRate(const std::string & baud_rate_string)
     return static_cast<int>(result);
 }
 
+void CanNicDriverHost::dumpMessage(std::ostream & dump, const tug_can_msgs::CanMessageConstPtr & can_message)
+{
+    dump << "id: " << can_message->id;
+    if (can_message->extended)
+        dump << " EXT";
+    if (can_message->rtr)
+        dump << " RTR";
+    dump << ", data: [" << std::hex;
+    for (tug_can_msgs::CanMessage::_data_type::const_iterator it = can_message->data.begin(); it != can_message->data.end(); ++it)
+        dump << " 0x" << std::setw(2) << std::setfill('0') << static_cast<unsigned>(*it);
+    dump << " ]";
+}
+
 void CanNicDriverHost::setDumpMessagesEnabled(bool dump_messages_enabled)
 {
     boost::lock_guard<boost::mutex> lock1(mutex_);
@@ -115,7 +128,11 @@ void CanNicDriverHost::sendMessage(const tug_can_msgs::CanMessageConstPtr & can_
 
     boost::lock_guard<boost::mutex> lock(mutex_);
     if (dump_messages_enabled_)
-        ROS_INFO_STREAM("Sending CAN message: " << can_message);
+    {
+        std::ostringstream dump;
+        dumpMessage(dump, can_message);
+        ROS_INFO_STREAM("Sending CAN message: " << dump.str());
+    }
     if (running_ && driver_)
     {
         try
@@ -241,7 +258,11 @@ void CanNicDriverHost::dispatchMessage(const tug_can_msgs::CanMessageConstPtr & 
 {
     boost::lock_guard<boost::recursive_mutex> lock(subscriptions_mutex_);
     if (dump_messages_enabled_)
-        ROS_INFO_STREAM("Received CAN message: " << can_message);
+    {
+        std::ostringstream dump;
+        dumpMessage(dump, can_message);
+        ROS_INFO_STREAM("Received CAN message: " << dump.str());
+    }
     try
     {
         dispatchMessage(subscriptions_to_all_, can_message);
