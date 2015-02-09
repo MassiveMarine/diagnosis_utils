@@ -13,7 +13,8 @@ CanNicDriverHost::CanNicDriverHost(const std::string & driver_plugin_name,
                                    const std::string & device_name, int baud_rate,
                                    const ros::Duration & io_timeout,
                                    const ros::NodeHandle & node_handle)
-    : device_name_(device_name), baud_rate_(baud_rate), io_timeout_(io_timeout), node_handle_(node_handle), running_(true)
+    : device_name_(device_name), baud_rate_(baud_rate), io_timeout_(io_timeout),
+      node_handle_(node_handle), running_(true), dump_messages_enabled_(false)
 {
     try
     {
@@ -100,11 +101,38 @@ int CanNicDriverHost::parseBaudRate(const std::string & baud_rate_string)
     return static_cast<int>(result);
 }
 
+void CanNicDriverHost::dumpMessage(std::ostream & dump, const tug_can_msgs::CanMessageConstPtr & can_message)
+{
+    dump << "id: " << can_message->id;
+    if (can_message->extended)
+        dump << " EXT";
+    if (can_message->rtr)
+        dump << " RTR";
+    dump << ", data: [" << std::hex;
+    for (tug_can_msgs::CanMessage::_data_type::const_iterator it = can_message->data.begin(); it != can_message->data.end(); ++it)
+        dump << " 0x" << std::setw(2) << std::setfill('0') << static_cast<unsigned>(*it);
+    dump << " ]";
+}
+
+void CanNicDriverHost::setDumpMessagesEnabled(bool dump_messages_enabled)
+{
+    boost::lock_guard<boost::mutex> lock1(mutex_);
+    boost::lock_guard<boost::recursive_mutex> lock2(subscriptions_mutex_);
+    dump_messages_enabled_ = dump_messages_enabled;
+}
+
+
 void CanNicDriverHost::sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message)
 {
     checkMessage(can_message);
 
     boost::lock_guard<boost::mutex> lock(mutex_);
+    if (dump_messages_enabled_)
+    {
+        std::ostringstream dump;
+        dumpMessage(dump, can_message);
+        ROS_INFO_STREAM("Sending CAN message: " << dump.str());
+    }
     if (running_ && driver_)
     {
         try
@@ -229,6 +257,12 @@ void CanNicDriverHost::readAndDispatchMessages()
 void CanNicDriverHost::dispatchMessage(const tug_can_msgs::CanMessageConstPtr & can_message)
 {
     boost::lock_guard<boost::recursive_mutex> lock(subscriptions_mutex_);
+    if (dump_messages_enabled_)
+    {
+        std::ostringstream dump;
+        dumpMessage(dump, can_message);
+        ROS_INFO_STREAM("Received CAN message: " << dump.str());
+    }
     try
     {
         dispatchMessage(subscriptions_to_all_, can_message);

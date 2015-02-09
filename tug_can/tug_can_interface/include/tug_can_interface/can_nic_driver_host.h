@@ -1,6 +1,7 @@
 #ifndef TUG_CAN_INTERFACE__CAN_NIC_DRIVER_HOST_H_
 #define TUG_CAN_INTERFACE__CAN_NIC_DRIVER_HOST_H_
 
+#include <iostream>
 #include <map>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
@@ -40,6 +41,13 @@ public:
 
     virtual ~CanNicDriverHost();
 
+    virtual void sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message);
+    virtual CanSubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
+                                      const MessageCallback & callback);
+    virtual CanSubscriptionPtr subscribeToAll(const MessageCallback & callback);
+
+    void setDumpMessagesEnabled(bool dump_messages_enabled);
+
     /**
      * Parses a baud rate and returns it as a number. The following formats are
      * supported:
@@ -51,10 +59,10 @@ public:
      */
     static int parseBaudRate(const std::string & baud_rate_string);
 
-    virtual void sendMessage(const tug_can_msgs::CanMessageConstPtr & can_message);
-    virtual CanSubscriptionPtr subscribe(const std::vector<uint32_t> & ids,
-                                      const MessageCallback & callback);
-    virtual CanSubscriptionPtr subscribeToAll(const MessageCallback & callback);
+    /**
+     * Dumps a message to the given output stream.
+     */
+    static void dumpMessage(std::ostream & dump, const tug_can_msgs::CanMessageConstPtr & can_message);
 
 private:
     typedef pluginlib::ClassLoader<CanNicDriver> DriverClassLoader;
@@ -87,6 +95,7 @@ private:
     CanNicDriverPtr driver_;
     boost::thread read_thread_;
     bool running_;
+    bool dump_messages_enabled_;
 
     boost::recursive_mutex subscriptions_mutex_; ///< Using a recursive mutex so that callbacks can call subscribe() and subscribeToAll().
     SubscriptionMap subscriptions_;
