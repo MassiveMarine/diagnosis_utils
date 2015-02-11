@@ -94,12 +94,13 @@ include_directories(
 )
 
 ## Declare a cpp library
-add_library(krikket
-  src/krikkit.cpp
+add_library(conversion
+  src/conversion.cpp
 )
 
 ## Declare a cpp executable
  add_executable(colin_test src/colin_test.cpp)
+ add_executable(krikkit_test src/krikkit.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -107,6 +108,10 @@ add_library(krikket
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(colin_test
+   ${catkin_LIBRARIES}
+ )
+
+ target_link_libraries(krikkit_test conversion
    ${catkin_LIBRARIES}
  )
 
