@@ -4,6 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/weak_ptr.hpp>
+#include <boost/thread/lock_guard.hpp>
 #include <ros/single_subscriber_publisher.h>
 #include <tug_can_msgs/ForwardCanMessages.h>
 #include <tug_can_interface/can_interface.h>
