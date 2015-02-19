@@ -1,0 +1,13 @@
+controlled_device_drivers:
+    colin:
+        type: plugin_test_controlled_device_driver::FirstControlledDeviceDriver
+        data1: 1
+
+postprocessors:
+    first_postprocessor:
+        type: plugin_test_postprocessor::FirstPostprocessor
+
+preprocessors:
+    first_preprocessor:
+        type: plugin_test_preprocessor::FirstPreprocessor
+

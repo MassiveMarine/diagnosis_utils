@@ -31,9 +31,9 @@ RegularPluginPtr PluginManager::loadPlugin(const std::string& name, const std::s
     throw(PluginCannotBeCreatedException(std::string("Could not create object of plugin '").append(name.c_str()).append("'")));
 
   plugin_list_.resize(plugin_list_.size() + 1);
-  plugin_list_[plugin_list_.size() - 1].name = name;
-  plugin_list_[plugin_list_.size() - 1].type = type;
-  plugin_list_[plugin_list_.size() - 1].instance = newPluginInstance;
+  plugin_list_.back().name = name;
+  plugin_list_.back().type = type;
+  plugin_list_.back().instance = newPluginInstance;
 
 //  ROS_INFO("Now %d plugin(s) is/are loaded!", (int)plugin_list_.size() );
 

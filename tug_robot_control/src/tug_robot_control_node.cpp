@@ -40,9 +40,17 @@ void RobotControl::loadAndInitPlugin(PluginManagerPtr pm, std::string prefix)
   ros::NodeHandle node_handle(node_handle_, prefix);
   XmlRpc::XmlRpcValue params;
   node_handle.getParam("", params);
+
+  if (!params.valid())
+  {
+    ROS_WARN_STREAM("No Plugins given for " << prefix);
+    return;
+  }
+
   for (XmlRpc::XmlRpcValue::iterator it = params.begin(); it != params.end(); ++it)
   {
     XmlRpc::XmlRpcValue & param = it->second;
+
     if (!param.hasMember("type"))
       throw std::runtime_error(prefix + "/" + it->first + " has no 'type' parameter");
 
