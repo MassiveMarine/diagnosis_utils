@@ -1,0 +1,8 @@
+<library path="lib/libfirst_device_driver">
+  <class type="plugin_test_device_driver::FirstDeviceDriver" 
+         base_class_type="tug_plugin_manager::RegularPlugin">
+    <description>
+      BlaBla..get lost
+    </description>
+  </class>
+</library>

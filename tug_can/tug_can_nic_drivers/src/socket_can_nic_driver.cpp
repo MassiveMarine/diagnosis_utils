@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <pluginlib/class_list_macros.h>
+#include <boost/thread/lock_guard.hpp>
 
 PLUGINLIB_EXPORT_CLASS(tug_can_nic_drivers::SocketCanNicDriver, tug_can_interface::CanNicDriver)
 

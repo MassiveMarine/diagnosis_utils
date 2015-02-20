@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <!--include file="$(find tug_colin)/launch/ps3_teleop.launch"/-->
-
-    <node name="krikkit" pkg="tug_colin" type="krikkit_test" output="screen" />
-</launch>
