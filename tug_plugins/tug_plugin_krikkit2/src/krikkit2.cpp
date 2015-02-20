@@ -11,15 +11,6 @@ namespace tug_plugin_krikkit2
     ROS_INFO("Krikkit2::initialize");
   }
 
-  void Krikkit2::write(const ros::Time& time, const ros::Duration& period)
-  {
-    ROS_INFO("Krikkit2::write()");
-  }
-
-  void Krikkit2::read(const ros::Time& time, const ros::Duration& period)
-  {
-    ROS_INFO("Krikkit2::read()");
-  }
 }
 
 PLUGINLIB_EXPORT_CLASS(tug_plugin_krikkit2::Krikkit2, tug_plugin_manager::RegularPlugin)
