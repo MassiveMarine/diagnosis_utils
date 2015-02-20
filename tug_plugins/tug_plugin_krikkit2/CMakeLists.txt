@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   tug_plugin_manager
   tug_robot_control
+  tug_can_interface #only while can is not available as plugin
 )
 
 ## System dependencies are found with CMake's conventions
