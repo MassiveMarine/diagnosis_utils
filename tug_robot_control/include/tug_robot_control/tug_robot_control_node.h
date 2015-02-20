@@ -39,6 +39,7 @@ public:
   RobotControl();
   virtual ~RobotControl();
 
+  void init();
   int run();
 
 private:
@@ -75,6 +76,7 @@ private:
   }
 
   ros::NodeHandle node_handle_;
+  double robot_control_loop_rate_;
   tug_robot_control::RobotHardware robot_hardware_;
   controller_manager::ControllerManager controller_manager_;
 

@@ -13,6 +13,11 @@ RobotControl::RobotControl() :
 {
 }
 
+void RobotControl::init()
+{
+  node_handle_.param<double>("robot_control_loop_rate", this->robot_control_loop_rate_,25.0);
+}
+
 int RobotControl::run()
 {
   loadAndInitPlugins();
@@ -61,7 +66,7 @@ void RobotControl::loadAndInitPlugin(PluginManagerPtr pm, std::string prefix)
 
 void RobotControl::runRobotControlLoop()
 {
-  ros::Rate loop_rate(1.0);
+  ros::Rate loop_rate(robot_control_loop_rate_);
   ros::Time last_time = ros::Time::now();
 
   while (ros::ok())
@@ -148,6 +153,7 @@ int main(int argc, char** argv)
   {
     ros::init(argc, argv, "tug_robot_control_node");
     tug_robot_control::RobotControl node;
+    node.init();
     return node.run();
   }
   catch (std::exception & ex)

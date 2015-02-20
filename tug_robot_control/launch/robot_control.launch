@@ -1,17 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="node_name" value="tug_robot_control_node" />
-
-    <node name="$(arg node_name)" pkg="tug_robot_control" type="tug_robot_control_node" output="screen">
-        
-        <rosparam command="load" file="$(find tug_robot_control)/config/robot_control_configuration.yaml" />
-        
-    </node>
-
-<!--
-<launch>
-    <rosparam command="load" ns="tug_robot_control" file="$(find tug_robot_control)/config/robot_control_configuration.yaml" />
-</launch>
--->
-
+  <arg name="node_name" value="tug_robot_control_node" />
+  
+  <node name="$(arg node_name)" pkg="tug_robot_control" type="tug_robot_control_node" output="screen">
+    
+    <param name="robot_control_loop_rate" type="double" value="1.0"/>
+    <rosparam command="load" file="$(find tug_robot_control)/config/robot_control_configuration.yaml" />
+  
+  </node>
+  
 </launch>
