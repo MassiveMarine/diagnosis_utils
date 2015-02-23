@@ -64,10 +64,10 @@ namespace tug_plugin_krikkit2
 
     //!-------------------------------------------------------------------------------
     //! uint8Touint16
-    //! converts from two uint8 into uint16 (Little-Endian)
+    //! converts from two uint8 into int16 (Little-Endian)
     //! @param src_value: the source value of the conversion
     //! @param dest_value: the destination value of the conversion
-    static void uint8Touint16(uint8_t src_value[2], uint16_t& dest_value);
+    static void uint8Toint16(uint8_t src_value[2], int16_t& dest_value);
   };
 }
 

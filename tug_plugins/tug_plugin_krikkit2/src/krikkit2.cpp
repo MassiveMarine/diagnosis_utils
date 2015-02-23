@@ -108,12 +108,12 @@ namespace tug_plugin_krikkit2
     dp_data[1] = msg->data[5];
 
     // unpack the data
-    uint16_t dr;
-    uint16_t ds;
-    uint16_t dp;
-    Conversion::uint8Touint16(dr_data, dr);
-    Conversion::uint8Touint16(ds_data, ds);
-    Conversion::uint8Touint16(dp_data, dp);
+    int16_t dr;
+    int16_t ds;
+    int16_t dp;
+    Conversion::uint8Toint16(dr_data, dr);
+    Conversion::uint8Toint16(ds_data, ds);
+    Conversion::uint8Toint16(dp_data, dp);
 
     // convert the data from the can message to double values of the odometry
     double vx;
@@ -194,9 +194,9 @@ namespace tug_plugin_krikkit2
     return ((message_id << 20) | (0x1 << device_id));
   }
 
-  void Conversion::uint8Touint16(uint8_t src_value[2], uint16_t & dest_value)
+  void Conversion::uint8Toint16(uint8_t src_value[2], int16_t & dest_value)
   {
-    dest_value = ((src_value[1] << 8) | src_value[0]);
+    dest_value = (int16_t)((src_value[1] << 8) | src_value[0]);
   }
 
   //--------------------------------------------------------------------------------
