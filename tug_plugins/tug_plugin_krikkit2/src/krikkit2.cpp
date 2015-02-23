@@ -30,8 +30,7 @@ const uint32_t CAN_MSG_ENABLE_ODOMETRY = 0x05;
 namespace tug_plugin_krikkit2
 {
   Krikkit2::Krikkit2() :
-    node_handle_("~"),
-    odometry_seq_count_(1)
+      node_handle_("~"), odometry_seq_count_(1), current_time_(ros::Time::now()), last_time_(ros::Time::now()), x_(0.0), y_(0.0), th_(0.0)
   {
   }
 
@@ -39,14 +38,20 @@ namespace tug_plugin_krikkit2
   {
     ROS_INFO("Krikkit2::initialize");
     cmd_vel_subscriber_ = node_handle_.subscribe("/cmd_vel", 1, &Krikkit2::cmdVelCallback, this);
-      odom_publisher_ = node_handle_.advertise<nav_msgs::Odometry>("/odom", 1);
+    odom_publisher_ = node_handle_.advertise<nav_msgs::Odometry>("/odom", 1);
 
-      can_interface_ = boost::make_shared<tug_can_interface::CanNicDriverHost>("tug_can_nic_drivers::SocketCanNicDriver",
-          "can0", 0, ros::Duration(1.0), ros::NodeHandle(node_handle_, "can_nic_driver"));
+    can_interface_ = boost::make_shared<tug_can_interface::CanNicDriverHost>("tug_can_nic_drivers::SocketCanNicDriver", "can0", 0, ros::Duration(1.0),
+        ros::NodeHandle(node_handle_, "can_nic_driver"));
 
-      odom_subscriber_ = can_interface_->subscribeToAll(boost::bind(&Krikkit2::odometryCallback,this,_1));
+    odom_subscriber_ = can_interface_->subscribeToAll(boost::bind(&Krikkit2::odometryCallback, this, _1));
 
-      enableOdometrySensor();
+    enableOdometrySensor();
+    current_time_ = ros::Time::now();
+    last_time_ = ros::Time::now();
+    x_ = 0.0;
+    y_ = 0.0;
+    th_ = 0.0;
+
   }
 
   void Krikkit2::cmdVelCallback(const geometry_msgs::TwistConstPtr & cmd_vel)
@@ -106,41 +111,70 @@ namespace tug_plugin_krikkit2
     uint16_t dr;
     uint16_t ds;
     uint16_t dp;
-    Conversion::uint8Touint16(dr_data,dr);
-    Conversion::uint8Touint16(ds_data,ds);
-    Conversion::uint8Touint16(dp_data,dp);
+    Conversion::uint8Touint16(dr_data, dr);
+    Conversion::uint8Touint16(ds_data, ds);
+    Conversion::uint8Touint16(dp_data, dp);
 
     // convert the data from the can message to double values of the odometry
-    double send_vx;
-    double send_vy;
-    double send_vth;
-    send_vx = static_cast<double>(dr) * static_cast<double>(CONV_ODO_LIN);
-    send_vy = static_cast<double>(ds) * static_cast<double>(CONV_ODO_LIN);
-    send_vth = static_cast<double>(dp) * static_cast<double>(CONV_ODO_ROT);
+    double vx;
+    double vy;
+    double vth;
+    vx = static_cast<double>(dr) * static_cast<double>(CONV_ODO_LIN);
+    vy = static_cast<double>(ds) * static_cast<double>(CONV_ODO_LIN);
+    vth = static_cast<double>(dp) * static_cast<double>(CONV_ODO_ROT);
 
-    // create and init high level odometry data
+    // calculate odometry data
+    current_time_ = ros::Time::now();
+    double dt = (current_time_ - last_time_).toSec();
+    double delta_x = (vx * cos(th_) - vy * sin(th_)) * dt;
+    double delta_y = (vx * sin(th_) + vy * cos(th_)) * dt;
+    double delta_th = vth * dt;
+
+    x_ += delta_x;
+    y_ += delta_y;
+    th_ += delta_th;
+    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th_);
+
+    geometry_msgs::TransformStamped odom_trans;
+    odom_trans.header.stamp = current_time_;
+    odom_trans.header.frame_id = "odom";
+    odom_trans.child_frame_id = "base_link";
+
+    odom_trans.transform.translation.x = x_;
+    odom_trans.transform.translation.y = y_;
+    odom_trans.transform.translation.z = 0.0;
+    odom_trans.transform.rotation = odom_quat;
+
+    odom_broadcaster_.sendTransform(odom_trans);
+
+    // publish local odometry
     nav_msgs::Odometry odometry;
-    odometry.header.stamp = ros::Time::now();
+    odometry.header.stamp = current_time_;
     odometry.header.seq = odometry_seq_count_;
-    odometry.header.frame_id = "odometry";
+    odometry.header.frame_id = "odom";
     odometry.child_frame_id = "base_link";
 
-    //set the velocity
-    odometry.twist.twist.linear.x = send_vx;
-    odometry.twist.twist.linear.y = send_vy;
-    odometry.twist.twist.angular.z = send_vth;
-    odometry.twist.covariance[ 0] = TWISTCOV;
-    odometry.twist.covariance[ 7] = TWISTCOV;
+    odometry.twist.twist.linear.x = vx;
+    odometry.twist.twist.linear.y = vy;
+    odometry.twist.twist.angular.z = vth;
+    odometry.twist.covariance[0] = TWISTCOV;
+    odometry.twist.covariance[7] = TWISTCOV;
     odometry.twist.covariance[14] = TWISTCOV;
     odometry.twist.covariance[21] = TWISTCOV;
     odometry.twist.covariance[28] = TWISTCOV;
     odometry.twist.covariance[35] = TWISTCOV;
 
-    // publish the message
+    odometry.pose.pose.position.x = x_;
+    odometry.pose.pose.position.y = y_;
+    odometry.pose.pose.position.z = 0.0;
+    odometry.pose.pose.orientation = odom_quat;
+
     odom_publisher_.publish(odometry);
 
     // increase number of received odometry data
     ++odometry_seq_count_;
+    last_time_ = current_time_;
+
   }
 
   void Krikkit2::enableOdometrySensor()
