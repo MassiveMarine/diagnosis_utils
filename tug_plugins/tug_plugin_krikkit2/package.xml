@@ -44,10 +44,16 @@
   <build_depend>roscpp</build_depend>
   <build_depend>tug_plugin_manager</build_depend>
   <build_depend>tug_robot_control</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>tf</build_depend>
   <run_depend>pluginlib</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>tug_plugin_manager</run_depend>
   <run_depend>tug_robot_control</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>tf</run_depend>
   
   <!-- only while CAN is not available as plugin -->
   <build_depend>tug_can_interface</build_depend>
