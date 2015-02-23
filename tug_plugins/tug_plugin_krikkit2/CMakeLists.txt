@@ -9,6 +9,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   tug_plugin_manager
   tug_robot_control
+  tf
+  nav_msgs
+  geometry_msgs
   tug_can_interface #only while can is not available as plugin
 )
 
