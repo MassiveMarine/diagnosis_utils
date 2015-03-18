@@ -5,7 +5,8 @@
 
 #define DEG2RAD (M_PI / 180.0)
 #define CONV_ODO_LIN    (1.0/(1000.0))  // get mm/s, use m/s
-#define CONV_ODO_ROT    (DEG2RAD/1000.0)  // get m°/s, use rad/s
+//#define CONV_ODO_ROT    (DEG2RAD/1000.0)  // get m°/s, use rad/s
+#define CONV_ODO_ROT    (DEG2RAD/8.0)  // get m°/s, use rad/s
 
 const uint32_t CONV_MOTION_LIN = 1000.0;              // get m/s, send mm/s
 const uint32_t CONV_MOTION_ROT = 1000.0;              // get rad/s, send (mrad/s)
