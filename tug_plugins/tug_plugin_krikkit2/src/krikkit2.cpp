@@ -32,6 +32,12 @@ namespace tug_plugin_krikkit2
   Krikkit2::Krikkit2() :
       node_handle_("~"), odometry_seq_count_(1), current_time_(ros::Time::now()), last_time_(ros::Time::now()), x_(0.0), y_(0.0), th_(0.0)
   {
+    config_server_.setCallback(boost::bind(&Krikkit2::configCallback, this, _1, _2));
+  }
+
+  void Krikkit2::configCallback(const tug_plugin_krikkit2::Krikkit2Config & config, uint32_t)
+  {
+      config_ = config;
   }
 
   void Krikkit2::initialize(tug_robot_control::RobotHardware* robot_hardware, const ros::NodeHandle & nh, std::string name)
@@ -122,6 +128,10 @@ namespace tug_plugin_krikkit2
     vx = static_cast<double>(dr) * static_cast<double>(CONV_ODO_LIN);
     vy = static_cast<double>(ds) * static_cast<double>(CONV_ODO_LIN);
     vth = static_cast<double>(dp) * static_cast<double>(CONV_ODO_ROT);
+
+    vx = vx * config_.vx_k + config_.vx_d;
+    vy = vy * config_.vy_k + config_.vy_d;
+    vth = vth * config_.vth_k + config_.vth_d;
 
     // calculate odometry data
     current_time_ = ros::Time::now();

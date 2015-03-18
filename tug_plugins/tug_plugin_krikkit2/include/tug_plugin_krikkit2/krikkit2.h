@@ -9,6 +9,9 @@
 #include <pluginlib/class_list_macros.h>
 #include <tug_plugin_manager/plugin_base.h>
 
+#include <dynamic_reconfigure/server.h>
+#include <tug_plugin_krikkit2/Krikkit2Config.h>
+
 // Select necessary plugin base
 //#include <tug_robot_control/tug_controlled_device_driver_base.h>
 #include <tug_robot_control/tug_device_driver_base.h>
@@ -31,6 +34,9 @@ namespace tug_plugin_krikkit2
 
   private:
     ros::NodeHandle node_handle_;
+    dynamic_reconfigure::Server<tug_plugin_krikkit2::Krikkit2Config> config_server_;
+    tug_plugin_krikkit2::Krikkit2Config config_;
+    void configCallback(const tug_plugin_krikkit2::Krikkit2Config & config, uint32_t);
 
     ros::Subscriber cmd_vel_subscriber_;
     void cmdVelCallback(const geometry_msgs::TwistConstPtr & cmd_vel);

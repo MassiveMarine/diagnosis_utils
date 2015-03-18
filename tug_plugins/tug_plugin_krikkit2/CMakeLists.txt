@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   nav_msgs
   geometry_msgs
+  dynamic_reconfigure
   tug_can_interface #only while can is not available as plugin
 )
 
@@ -74,6 +75,9 @@ find_package(catkin REQUIRED COMPONENTS
 #   DEPENDENCIES
 #   std_msgs  # Or other packages containing msgs
 # )
+generate_dynamic_reconfigure_options(
+  cfg/Krikkit2.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
