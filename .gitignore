@@ -9,7 +9,6 @@ build
 lib
 srv_gen
 msg_gen
-_*.py
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
