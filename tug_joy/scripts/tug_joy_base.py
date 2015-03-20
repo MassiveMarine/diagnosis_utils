@@ -5,43 +5,88 @@ from time import struct_time
 import rospy
 from sensor_msgs.msg import Joy
 
-# JOYSTICK_AXIS_STICK_0_HORZ = 0
-# JOYSTICK_AXIS_STICK_0_VERT = 1
-#
-# JOYSTICK_AXIS_STICK_1_HORZ = 2
-# JOYSTICK_AXIS_STICK_1_VERT = 3
-#
-# mapping = {0: JOYSTICK_AXIS_STICK_0_HORZ,
-# :"abc"}
+
+class Actuator:
+    def __init__(self, name='unknown', callback_fct=None):
+        self.name = name
+        self.callback_fct = callback_fct
+
+    def __str__(self):
+        return str(self.name)
 
 
-class Stick:
-    def __init__(self, horizontal_id, vertical_id):
+class Button(Actuator):
+    def __init__(self, button_id, name='unknown', callback_fct=None):
+        Actuator.__init__(self, name, callback_fct)
+        self.button_val = 0.0
+        self.button_id = button_id
+
+    def button_cb(self, msg):
+        try:
+            self.button_val = msg.buttons[self.button_id]
+        except:
+            print "[" + Actuator.__str__(self) + "] button id '", self.button_id, "' not found"
+
+        if self.callback_fct:
+            self.callback_fct(self)
+
+    def __str__(self):
+        return 'B ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.button_val)
+
+    def __repr__(self):
+        return str(self)
+
+
+class Axis(Actuator):
+    def __init__(self, axis_id, name='unknown', callback_fct=None):
+        Actuator.__init__(self, name, callback_fct)
+        self.axis_val = 0.0
+        self.axis_id = axis_id
+
+    def axis_cb(self, msg):
+        try:
+            self.axis_val = msg.axes[self.axis_id]
+        except:
+            print "[" + Actuator.__str__(self) + "] axis id '", self.axis_id, "' not found"
+
+        if self.callback_fct:
+            self.callback_fct(self)
+
+    def __str__(self):
+        return 'A ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.axis_val)
+
+    def __repr__(self):
+        return str(self)
+
+
+class Stick(Actuator):
+    def __init__(self, horizontal_id, vertical_id, name='unknown', callback_fct=None):
+        Actuator.__init__(self, name, callback_fct)
         self.horizontal_val = 0.0
         self.horizontal_id = horizontal_id
         self.vertical_val = 0.0
         self.vertical_id = vertical_id
-        self.callback_fct = None
 
     def stick_cb(self, msg):
         try:
             self.horizontal_val = msg.axes[self.horizontal_id]
             self.vertical_val = msg.axes[self.vertical_id]
         except:
-            print "stick id not found"
+            print "[" + Actuator.__str__(self) + "] stick id '", self.horizontal_id, "' or '", self.vertical_id, "'not found"
 
         if self.callback_fct:
             self.callback_fct(self)
 
     def __str__(self):
-        return "h: " + str(self.horizontal_val) + " v: " + str(self.vertical_val)
+        return 'S ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
 
     def __repr__(self):
         return str(self)
 
 
-class VirtualStick:
-    def __init__(self, source_type, up_id, right_id, down_id, left_id, invert_axes=[False, False]):
+class VirtualStick(Actuator):
+    def __init__(self, source_type, up_id, right_id, down_id, left_id, invert_axes=[1.0, 1.0], name='unknown', callback_fct=None):
+        Actuator.__init__(self, name, callback_fct)
         self.source_type = source_type
         self.invert_axes = invert_axes
         self.horizontal_val = 0.0
@@ -61,14 +106,17 @@ class VirtualStick:
 
         try:
             self.horizontal_val = source[self.left_id] - source[self.right_id]
-            self.horizontal_val *= 1.0 if not self.invert_axes[0] else -1.0
+            self.horizontal_val *= self.invert_axes[0]
             self.vertical_val = source[self.up_id] - source[self.down_id]
-            self.vertical_val *= 1.0 if not self.invert_axes[1] else -1.0
+            self.vertical_val *= self.invert_axes[1]
         except:
-            print "button id not found"
+            print "[" + Actuator.__str__(self) + "] button id not found"
+
+        if self.callback_fct:
+            self.callback_fct(self)
 
     def __str__(self):
-        return "h: " + str(self.horizontal_val) + " v: " + str(self.vertical_val)
+        return 'S ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
 
     def __repr__(self):
         return str(self)
@@ -83,33 +131,65 @@ class Manager:
 
     def init_sticks(self, contoller_name):
         if contoller_name == 'ps3':
-            self.sticks.append(Stick(0, 1))
-            self.sticks.append(Stick(2, 3))
+            self.sticks.append(Stick(0, 1, 'left'))
+            self.sticks.append(Stick(2, 3, 'right'))
+            self.sticks.append(VirtualStick('axes', 8, 9, 10, 11, [-0.5, -0.5], 'left'))
+            self.sticks.append(VirtualStick('axes', 16, 17, 18, 19, [-0.5, -0.5], 'right'))
+            self.axes.append(Axis(0, 'stick_l_hori'))
+            self.axes.append(Axis(1, 'stick_l_vert'))
+            self.axes.append(Axis(2, 'stick_r_hori'))
+            self.axes.append(Axis(3, 'stick_r_vert'))
+            self.axes.append(Axis(8, 'cross_up'))
+            self.axes.append(Axis(9, 'cross_right'))
+            self.axes.append(Axis(10, 'cross_down'))
+            self.axes.append(Axis(11, 'cross_left'))
+            self.axes.append(Axis(12, 'shoulder_ll'))
+            self.axes.append(Axis(13, 'shoulder_lr'))
+            self.axes.append(Axis(14, 'shoulder_ul'))
+            self.axes.append(Axis(15, 'shoulder_ur'))
+            self.axes.append(Axis(16, 'triangle'))
+            self.axes.append(Axis(17, 'circle'))
+            self.axes.append(Axis(18, 'cross'))
+            self.axes.append(Axis(19, 'square'))
+            self.axes.append(Axis(24, 'acc_x'))
+            self.axes.append(Axis(23, 'acc_y'))
+            self.axes.append(Axis(25, 'acc_z'))
+            self.axes.append(Axis(26, 'gyro_yaw'))
+
+            self.axes.append(Axis(16, 'triangle'))
+            self.axes.append(Axis(17, 'circle'))
+            self.axes.append(Axis(18, 'cross'))
+            self.axes.append(Axis(19, 'square'))
+            self.buttons.append(Button(0, 'select'))
+            self.buttons.append(Button(1, 'stick_left'))
+            self.buttons.append(Button(2, 'stick_right'))
+            self.buttons.append(Button(3, 'start'))
+            self.buttons.append(Button(4, 'cross_up'))
+            self.buttons.append(Button(5, 'cross_right'))
+            self.buttons.append(Button(6, 'cross_down'))
+            self.buttons.append(Button(7, 'cross_left'))
+            self.buttons.append(Button(8, 'shoulder_ll'))
+            self.buttons.append(Button(9, 'shoulder_lr'))
+            self.buttons.append(Button(10, 'shoulder_ul'))
+            self.buttons.append(Button(11, 'shoulder_ur'))
+            self.buttons.append(Button(12, 'triangle'))
+            self.buttons.append(Button(13, 'circle'))
+            self.buttons.append(Button(14, 'cross'))
+            self.buttons.append(Button(15, 'square'))
+            self.buttons.append(Button(16, 'ps'))
         elif contoller_name == 'default':
-            self.sticks.append(Stick(0, 1))
-            self.sticks.append(Stick(3, 2))
-            self.sticks.append(VirtualStick('buttons', 1, 3, 2, 0))
+            self.sticks.append(Stick(0, 1, 'left'))
+            self.sticks.append(Stick(3, 2, 'right'))
+            self.sticks.append(VirtualStick('buttons', 1, 3, 2, 0, [1.0, 1.0], 'right'))
         else:
             print "contoller name not found"
 
     def joy_callback(self, msg):
         for stick in self.sticks:
             stick.stick_cb(msg)
-            # try:
-            #     stick.horizontal_val = msg.axes[stick.horizontal_id]
-            #     stick.vertical_val = msg.axes[stick.vertical_id]
-            # except:
-            #     print "stick id not found"
+        for button in self.buttons:
+            button.button_cb(msg)
+        for axis in self.axes:
+            axis.axis_cb(msg)
 
-        # print self.sticks
-
-
-# if __name__ == "__main__":
-#     rospy.init_node('tug_joy_base', anonymous=True)
-#
-#     try:
-#         print 'Hallo'
-#     except KeyboardInterrupt:
-#         pass
-#     except rospy.ROSInterruptException:
-#         pass
+        print self.sticks
