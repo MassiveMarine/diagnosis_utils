@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
 # basics
+
 from time import struct_time
 import rospy
 from sensor_msgs.msg import Joy
+import threading
+import dic
+
 
 
 class Actuator:
@@ -27,8 +31,8 @@ class Button(Actuator):
         except:
             print "[" + Actuator.__str__(self) + "] button id '", self.button_id, "' not found"
 
-        if self.callback_fct:
-            self.callback_fct(self)
+        # if self.callback_fct:
+        #     self.callback_fct(self)
 
     def __str__(self):
         return 'B ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.button_val)
@@ -49,8 +53,8 @@ class Axis(Actuator):
         except:
             print "[" + Actuator.__str__(self) + "] axis id '", self.axis_id, "' not found"
 
-        if self.callback_fct:
-            self.callback_fct(self)
+        # if self.callback_fct:
+        #     self.callback_fct(self)
 
     def __str__(self):
         return 'A ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.axis_val)
@@ -72,10 +76,10 @@ class Stick(Actuator):
             self.horizontal_val = msg.axes[self.horizontal_id]
             self.vertical_val = msg.axes[self.vertical_id]
         except:
-            print "[" + Actuator.__str__(self) + "] stick id '", self.horizontal_id, "' or '", self.vertical_id, "'not found"
+            print "[" + Actuator.__str__(self) + "] stick id '", self.horizontal_id, "' or '", self.vertical_id, "' not found"
 
-        if self.callback_fct:
-            self.callback_fct(self)
+        # if self.callback_fct:
+            # self.callback_fct(self)
 
     def __str__(self):
         return 'S ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
@@ -112,8 +116,8 @@ class VirtualStick(Actuator):
         except:
             print "[" + Actuator.__str__(self) + "] button id not found"
 
-        if self.callback_fct:
-            self.callback_fct(self)
+        # if self.callback_fct:
+        #     self.callback_fct(self)
 
     def __str__(self):
         return 'S ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
@@ -122,67 +126,63 @@ class VirtualStick(Actuator):
         return str(self)
 
 
+class Generator(threading.Thread):
+    def __init__(self, thread_event, inputs, rate):
+        threading.Thread.__init__(self)
+        self.thread_event = thread_event
+        self.rate = rospy.Rate(rate)  # 10hz
+        self.inputs = inputs
+
+    def run(self):
+        while not rospy.is_shutdown() or self.thread_event.is_set():
+            print self.inputs
+            # for input in self.inputs:
+            #     if input.callback_fct:
+            #         input.callback_fct(self)
+            self.rate.sleep()
+
+
+threads = []
+thread_event = threading.Event()
+
 class Manager:
+
     def __init__(self, contoller_name):
         self.sticks = []
         self.axes = []
         self.buttons = []
         self.init_sticks(contoller_name)
+        # self.thread_event = threading.Event()
+        # self.threads = []
 
-    def init_sticks(self, contoller_name):
-        if contoller_name == 'ps3':
-            self.sticks.append(Stick(0, 1, 'left'))
-            self.sticks.append(Stick(2, 3, 'right'))
-            self.sticks.append(VirtualStick('axes', 8, 9, 10, 11, [-0.5, -0.5], 'left'))
-            self.sticks.append(VirtualStick('axes', 16, 17, 18, 19, [-0.5, -0.5], 'right'))
-            self.axes.append(Axis(0, 'stick_l_hori'))
-            self.axes.append(Axis(1, 'stick_l_vert'))
-            self.axes.append(Axis(2, 'stick_r_hori'))
-            self.axes.append(Axis(3, 'stick_r_vert'))
-            self.axes.append(Axis(8, 'cross_up'))
-            self.axes.append(Axis(9, 'cross_right'))
-            self.axes.append(Axis(10, 'cross_down'))
-            self.axes.append(Axis(11, 'cross_left'))
-            self.axes.append(Axis(12, 'shoulder_ll'))
-            self.axes.append(Axis(13, 'shoulder_lr'))
-            self.axes.append(Axis(14, 'shoulder_ul'))
-            self.axes.append(Axis(15, 'shoulder_ur'))
-            self.axes.append(Axis(16, 'triangle'))
-            self.axes.append(Axis(17, 'circle'))
-            self.axes.append(Axis(18, 'cross'))
-            self.axes.append(Axis(19, 'square'))
-            self.axes.append(Axis(24, 'acc_x'))
-            self.axes.append(Axis(23, 'acc_y'))
-            self.axes.append(Axis(25, 'acc_z'))
-            self.axes.append(Axis(26, 'gyro_yaw'))
+    def init_sticks(self, contoller_name='default'):
+        self.buttons.append(Button(0, 'cross-right_button-left'))
+        self.buttons.append(Button(1, 'cross-right_button-up'))
+        self.buttons.append(Button(2, 'cross-right_button-down'))
+        self.buttons.append(Button(3, 'cross-right_button-right'))
+        # if contoller_name == 'ps3':
+        #     self.buttons.append(Button(14, 'cross'))
+        # elif contoller_name == 'default':
+        #     self.sticks.append(Stick(0, 1, 'left'))
+        #     self.sticks.append(Stick(3, 2, 'right'))
+        #     self.sticks.append(VirtualStick('buttons', 1, 3, 2, 0, [1.0, 1.0], 'right'))
+        # else:
+        #     print "contoller name not found"
+        # self.axes.append(Axis(17, 'circle'))
+        # self.axes.append(Axis(18, 'cross'))
+        # thread1 = Generator(thread_event, self.axes, 20)
+        # thread1.start()
+        threads.append(Generator(thread_event, self.axes, 20))
 
-            self.axes.append(Axis(16, 'triangle'))
-            self.axes.append(Axis(17, 'circle'))
-            self.axes.append(Axis(18, 'cross'))
-            self.axes.append(Axis(19, 'square'))
-            self.buttons.append(Button(0, 'select'))
-            self.buttons.append(Button(1, 'stick_left'))
-            self.buttons.append(Button(2, 'stick_right'))
-            self.buttons.append(Button(3, 'start'))
-            self.buttons.append(Button(4, 'cross_up'))
-            self.buttons.append(Button(5, 'cross_right'))
-            self.buttons.append(Button(6, 'cross_down'))
-            self.buttons.append(Button(7, 'cross_left'))
-            self.buttons.append(Button(8, 'shoulder_ll'))
-            self.buttons.append(Button(9, 'shoulder_lr'))
-            self.buttons.append(Button(10, 'shoulder_ul'))
-            self.buttons.append(Button(11, 'shoulder_ur'))
-            self.buttons.append(Button(12, 'triangle'))
-            self.buttons.append(Button(13, 'circle'))
-            self.buttons.append(Button(14, 'cross'))
-            self.buttons.append(Button(15, 'square'))
-            self.buttons.append(Button(16, 'ps'))
-        elif contoller_name == 'default':
-            self.sticks.append(Stick(0, 1, 'left'))
-            self.sticks.append(Stick(3, 2, 'right'))
-            self.sticks.append(VirtualStick('buttons', 1, 3, 2, 0, [1.0, 1.0], 'right'))
-        else:
-            print "contoller name not found"
+        for thread in threads:
+            thread.start()
+
+        # self.threads.append(thread1)
+
+    def stop(self):
+        thread_event.clear()
+        for thread in threads:
+            thread.join()
 
     def joy_callback(self, msg):
         for stick in self.sticks:
@@ -192,4 +192,56 @@ class Manager:
         for axis in self.axes:
             axis.axis_cb(msg)
 
-        print self.sticks
+        # print self.axes
+
+
+
+
+
+
+            # self.sticks.append(Stick(0, 1, 'left'))
+            # self.sticks.append(Stick(2, 3, 'right'))
+            # self.sticks.append(VirtualStick('axes', 8, 9, 10, 11, [-0.5, -0.5], 'left'))
+            # self.sticks.append(VirtualStick('axes', 16, 17, 18, 19, [-0.5, -0.5], 'right'))
+            # self.axes.append(Axis(0, 'stick_l_hori'))
+            # self.axes.append(Axis(1, 'stick_l_vert'))
+            # self.axes.append(Axis(2, 'stick_r_hori'))
+            # self.axes.append(Axis(3, 'stick_r_vert'))
+            # self.axes.append(Axis(8, 'cross_up'))
+            # self.axes.append(Axis(9, 'cross_right'))
+            # self.axes.append(Axis(10, 'cross_down'))
+            # self.axes.append(Axis(11, 'cross_left'))
+            # self.axes.append(Axis(12, 'shoulder_ll'))
+            # self.axes.append(Axis(13, 'shoulder_lr'))
+            # self.axes.append(Axis(14, 'shoulder_ul'))
+            # self.axes.append(Axis(15, 'shoulder_ur'))
+            # self.axes.append(Axis(16, 'triangle'))
+            # self.axes.append(Axis(17, 'circle'))
+            # self.axes.append(Axis(18, 'cross'))
+            # self.axes.append(Axis(19, 'square'))
+            # self.axes.append(Axis(24, 'acc_x'))
+            # self.axes.append(Axis(23, 'acc_y'))
+            # self.axes.append(Axis(25, 'acc_z'))
+            # self.axes.append(Axis(26, 'gyro_yaw'))
+            #
+            # self.axes.append(Axis(16, 'triangle'))
+            # self.axes.append(Axis(17, 'circle'))
+            # self.axes.append(Axis(18, 'cross'))
+            # self.axes.append(Axis(19, 'square'))
+            # self.buttons.append(Button(0, 'select'))
+            # self.buttons.append(Button(1, 'stick_left'))
+            # self.buttons.append(Button(2, 'stick_right'))
+            # self.buttons.append(Button(3, 'start'))
+            # self.buttons.append(Button(4, 'cross_up'))
+            # self.buttons.append(Button(5, 'cross_right'))
+            # self.buttons.append(Button(6, 'cross_down'))
+            # self.buttons.append(Button(7, 'cross_left'))
+            # self.buttons.append(Button(8, 'shoulder_ll'))
+            # self.buttons.append(Button(9, 'shoulder_lr'))
+            # self.buttons.append(Button(10, 'shoulder_ul'))
+            # self.buttons.append(Button(11, 'shoulder_ur'))
+            # self.buttons.append(Button(12, 'triangle'))
+            # self.buttons.append(Button(13, 'circle'))
+            # self.buttons.append(Button(14, 'cross'))
+            # self.buttons.append(Button(15, 'square'))
+            # self.buttons.append(Button(16, 'ps'))
