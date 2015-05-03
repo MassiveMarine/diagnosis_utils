@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 # basics
+from ldb import valid_attr_name
 
-from time import struct_time
 import rospy
-from sensor_msgs.msg import Joy
 import threading
-import dic
+import mappings
+
 
 
 
@@ -127,7 +127,7 @@ class VirtualStick(Actuator):
 
 
 class Generator(threading.Thread):
-    def __init__(self, thread_event, inputs, rate):
+    def __init__(self, inputs, rate):
         threading.Thread.__init__(self)
         self.thread_event = thread_event
         self.rate = rospy.Rate(rate)  # 10hz
@@ -135,31 +135,34 @@ class Generator(threading.Thread):
 
     def run(self):
         while not rospy.is_shutdown() or self.thread_event.is_set():
-            print self.inputs
-            # for input in self.inputs:
-            #     if input.callback_fct:
-            #         input.callback_fct(self)
+            for name, actuator in self.inputs.iteritems():
+                if actuator.callback_fct:
+                    actuator.callback_fct(actuator)
             self.rate.sleep()
 
 
 threads = []
 thread_event = threading.Event()
 
+
 class Manager:
 
-    def __init__(self, contoller_name):
+    def __init__(self, contoller_name='default'):
         self.sticks = []
         self.axes = []
-        self.buttons = []
+        self.buttons = dict()
         self.init_sticks(contoller_name)
+
         # self.thread_event = threading.Event()
         # self.threads = []
 
-    def init_sticks(self, contoller_name='default'):
-        self.buttons.append(Button(0, 'cross-right_button-left'))
-        self.buttons.append(Button(1, 'cross-right_button-up'))
-        self.buttons.append(Button(2, 'cross-right_button-down'))
-        self.buttons.append(Button(3, 'cross-right_button-right'))
+    def init_sticks(self, contoller_name):
+        # self.buttons['cross_right_button_left'] = Button(15)
+        # self.buttons['cross_right_button_up'] = Button(12)
+        # self.buttons['cross_right_button_down'] = Button(14)
+        # self.buttons['cross_right_button_right'] = Button(13)
+        self.buttons = mappings.ps3_to_general_mapping_buttons
+
         # if contoller_name == 'ps3':
         #     self.buttons.append(Button(14, 'cross'))
         # elif contoller_name == 'default':
@@ -170,27 +173,36 @@ class Manager:
         #     print "contoller name not found"
         # self.axes.append(Axis(17, 'circle'))
         # self.axes.append(Axis(18, 'cross'))
-        # thread1 = Generator(thread_event, self.axes, 20)
+        thread1 = Generator(self.buttons, 20)
         # thread1.start()
-        threads.append(Generator(thread_event, self.axes, 20))
+        # threads.append(Generator(thread_event, self.axes, 20))
+        #
+        # for thread in threads:
+        #     thread.start()
 
-        for thread in threads:
-            thread.start()
-
-        # self.threads.append(thread1)
+        threads.append(thread1)
 
     def stop(self):
         thread_event.clear()
         for thread in threads:
             thread.join()
 
+    def run(self):
+        thread_event.clear()
+        for thread in threads:
+            thread.start()
+
+    def set_function_mapping(self, mapping):
+        for key, func_ptr in mapping.iteritems():
+            self.buttons[key].callback_fct = func_ptr
+
     def joy_callback(self, msg):
-        for stick in self.sticks:
-            stick.stick_cb(msg)
-        for button in self.buttons:
+        # for stick in self.sticks:
+        #     stick.stick_cb(msg)
+        for key, button in self.buttons.iteritems():
             button.button_cb(msg)
-        for axis in self.axes:
-            axis.axis_cb(msg)
+        # for axis in self.axes:
+        #     axis.axis_cb(msg)
 
         # print self.axes
 
