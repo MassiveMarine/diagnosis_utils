@@ -44,6 +44,38 @@ class Button(Actuator):
         return str(self)
 
 
+class VirtualButton(Actuator):
+    def __init__(self, axis_id, response_at_positive, name='unknown', callback_fct=None, callback_filtering=CB_FILTERING_NONE):
+        Actuator.__init__(self, name, callback_fct, callback_filtering)
+        self.value = 0.0
+        self.axis_id = axis_id
+        self.response_at_positive = response_at_positive
+
+    def set_value(self, msg):
+        try:
+            new_value = msg.axes[self.axis_id]
+            if self.response_at_positive:
+                new_value = max(new_value, 0)
+            else:
+                new_value = max(new_value * -1, 0)
+
+            if self.value != new_value:
+                self.value = new_value
+                self.change_since_last = (CB_FILTERING_PRESS if self.value == 1 else CB_FILTERING_RELEASE)
+        except:
+            logerr("[" + Actuator.__str__(self) + "] virtual button id '", self.axis_id, "' not found")
+
+    def set_cb(self, callback_fct, callback_filtering=CB_FILTERING_NONE):
+        self.callback_fct = callback_fct
+        self.callback_filtering = callback_filtering
+
+    def __str__(self):
+        return 'VB ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value) + ' filter: ' + self.callback_filtering
+
+    def __repr__(self):
+        return str(self)
+
+
 class Axis(Actuator):
     def __init__(self, axis_id, name='unknown', callback_fct=None):
         Actuator.__init__(self, name, callback_fct)
@@ -53,6 +85,37 @@ class Axis(Actuator):
     def set_value(self, msg):
         try:
             self.value = msg.axes[self.axis_id]
+        except:
+            logerr("[" + Actuator.__str__(self) + "] axis id '", self.axis_id, "' not found")
+
+    def set_cb(self, callback_fct, callback_filtering=CB_FILTERING_NONE):
+        self.callback_fct = callback_fct
+        self.callback_filtering = CB_FILTERING_NONE
+        if callback_filtering != CB_FILTERING_NONE:
+            logwarn('CB Filtering at axes not possible!')
+
+    def __str__(self):
+        return 'A ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
+
+    def __repr__(self):
+        return str(self)
+
+
+class VirtualAxis(Actuator):
+    def __init__(self, positive_id, negative_id, use_axis, name='unknown', callback_fct=None):
+        Actuator.__init__(self, name, callback_fct)
+        self.value = 0.0
+        self.positive_id = positive_id
+        self.negative_id = negative_id
+        self.use_axis = use_axis
+
+    def set_value(self, msg):
+        try:
+            if self.use_axis:
+                self.value = abs(msg.axes[self.positive_id]) - abs(msg.axes[self.negative_id])
+            else:
+                self.value = abs(msg.buttons[self.positive_id]) - abs(msg.buttons[self.negative_id])
+
         except:
             logerr("[" + Actuator.__str__(self) + "] axis id '", self.axis_id, "' not found")
 

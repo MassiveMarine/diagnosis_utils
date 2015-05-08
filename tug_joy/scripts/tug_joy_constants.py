@@ -2,6 +2,8 @@
 
 # Controller names
 CONTROLLER_NAME_PS3 = 'ps3'
+CONTROLLER_NAME_XBOX360 = 'xbox360'
+CONTROLLER_NAME_LOGITECH_RUMBLR_PAD_2 = 'logitech_ruble_pad_2'
 CONTROLLER_NAME_DEFAULT = 'default'
 
 # CB filter types
@@ -43,11 +45,15 @@ class AXIS:
     CROSS_1_AXIS_UP = 'cross_1_axis_up'
     CROSS_1_AXIS_DOWN = 'cross_1_axis_down'
     CROSS_1_AXIS_RIGHT = 'cross_1_axis_right'
+    CROSS_1_AXIS_HORIZONTAL = 'cross_1_axis_horizontal'
+    CROSS_1_AXIS_VERTICAL = 'cross_1_axis_vertical'
 
     CROSS_2_AXIS_LEFT = 'cross_2_axis_left'
     CROSS_2_AXIS_UP = 'cross_2_axis_up'
     CROSS_2_AXIS_DOWN = 'cross_2_axis_down'
     CROSS_2_AXIS_RIGHT = 'cross_2_axis_right'
+    CROSS_2_AXIS_HORIZONTAL = 'cross_2_axis_horizontal'
+    CROSS_2_AXIS_VERTICAL = 'cross_2_axis_vertical'
 
     STICK_AXIS_LEFT_HORIZONTAL = 'stick_axis_left_horizontal'
     STICK_AXIS_LEFT_VERTICAL = 'stick_axis_left_vertical'
@@ -60,6 +66,15 @@ class AXIS:
     SHOULDER_AXIS_LOWER_RIGHT = 'shoulder_axis_lower_right'
     SHOULDER_AXIS_UPPER_RIGHT = 'shoulder_axis_upper_right'
     SHOULDER_AXIS_MIDDLE_RIGHT = 'shoulder_axis_middle_right'
+
+    ACCELERATION_X = 'acceleration_x'
+    ACCELERATION_Y = 'acceleration_y'
+    ACCELERATION_Z = 'acceleration_z'
+
+    GYROSCOPE_ROLL = 'gyroscope_roll'
+    GYROSCOPE_PITCH = 'gyroscope_pitch'
+    GYROSCOPE_YAW = 'gyroscope_yaw'
+
 
 class STICK:
     # General sticks names

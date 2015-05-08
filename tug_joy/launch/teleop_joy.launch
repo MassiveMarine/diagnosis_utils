@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <node pkg="tug_joy" type="tug_joy_node" name="teleop_joy" >
-        <remap from="cmd_vel" to="cmd_vel"/>
-    </node>
+    <node pkg="tug_joy" type="tug_joy.py" name="tug_joy_node" output="screen"/>
 	
     <node pkg="joy" type="joy_node" name="joy_node" >
      <param name="dev" type="string" value="/dev/input/js0" />
