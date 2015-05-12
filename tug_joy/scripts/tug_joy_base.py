@@ -23,33 +23,65 @@ class Mapping:
     def __repr__(self):
         return str(self)
 
+#
+# class Manager:
+#     class __Manager:
+#         def __init__(self, ):
+#             self.counter = 0
+#     instance = None
+#
+#     def __init__(self):
+#         pass
+#         if not Manager.instance:
+#             Manager.instance = Manager.__Manager()
+#
+#     def test(self):
+#         self.instance.counter += 1
+#         print 'test: ' + str(self.instance.counter)
 
 class Manager:
 
+    class __Manager:
+        def __init__(self, contoller_name, rate, cb_at_break_once, cb_at_break_continuous, cb_at_exit):
+            self.actuators = dict()
+            # self.init_sticks(contoller_name)
+            self.rate = rospy.Rate(rate)
+            self.new_mapping = []
+            self.cb_at_break_once = cb_at_break_once
+            self.cb_at_break_once_already_called = False
+            self.cb_at_break_continuous = cb_at_break_continuous
+            self.cb_at_exit = cb_at_exit
+
+    instance = None
+
     def __init__(self, contoller_name=CONTROLLER.CONTROLLER_NAME_DEFAULT, rate=20, cb_at_break_once=None, cb_at_break_continuous=None, cb_at_exit=None):
-        self.actuators = dict()
-        self.init_sticks(contoller_name)
-        self.rate = rospy.Rate(rate)
-        self.new_mapping = []
-        self.cb_at_break_once = cb_at_break_once
-        self.cb_at_break_once_already_called = False
-        self.cb_at_break_continuous = cb_at_break_continuous
-        self.cb_at_exit = cb_at_exit
+
+        if not Manager.instance:
+            Manager.instance = Manager.__Manager(contoller_name, rate, cb_at_break_once, cb_at_break_continuous, cb_at_exit)
+            self.init_sticks(contoller_name)
+        # self.actuators = dict()
+        # self.init_sticks(contoller_name)
+        # self.rate = rospy.Rate(rate)
+        # self.new_mapping = []
+        # self.cb_at_break_once = cb_at_break_once
+        # self.cb_at_break_once_already_called = False
+        # self.cb_at_break_continuous = cb_at_break_continuous
+        # self.cb_at_exit = cb_at_exit
 
     def init_sticks(self, contoller_name):
         if contoller_name == CONTROLLER.CONTROLLER_NAME_PS3:
-            self.actuators.update(PS3Mapping.mapping)
+            Manager.instance.actuators.update(PS3Mapping.mapping)
         elif contoller_name == CONTROLLER.CONTROLLER_NAME_LOGITECH_RUMBLE_PAD_2:
-            self.actuators.update(LogitechRumblePad2Mapping.mapping)
+            Manager.instance.actuators.update(LogitechRumblePad2Mapping.mapping)
         elif contoller_name == CONTROLLER.CONTROLLER_NAME_XBOX360:
-            self.actuators.update(XBox360Mapping.mapping)
+            Manager.instance.actuators.update(XBox360Mapping.mapping)
         else:
-            self.actuators.update(DefaultMapping.mapping)
+            Manager.instance.actuators.update(DefaultMapping.mapping)
 
     def run(self, joy_sub):
         # waiting for publisher subscriber connection
         while not rospy.is_shutdown() and joy_sub.get_num_connections() < 1:
-            self.rate.sleep()
+            Manager.instance.rate.sleep()
 
         if rospy.is_shutdown():
             return
@@ -57,8 +89,8 @@ class Manager:
         while not rospy.is_shutdown():
             # os.system('clear')
             if joy_sub.get_num_connections() > 0:
-                self.cb_at_break_once_already_called = False
-                for name, actuator in self.actuators.iteritems():
+                Manager.instance.cb_at_break_once_already_called = False
+                for name, actuator in Manager.instance.actuators.iteritems():
                     try:
 
                         if not actuator or not actuator.callback_fct:
@@ -73,54 +105,54 @@ class Manager:
                         rospy.logerr("[Manager] Error while executing callbacks")
 
                 # change to new mapping if a callback changed it
-                if len(self.new_mapping) > 0:
-                    self.set_function_mapping(self.new_mapping, True)
-                    self.new_mapping = []
+                if len(Manager.instance.new_mapping) > 0:
+                    self.set_function_mapping(Manager.instance.new_mapping, True)
+                    Manager.instance.new_mapping = []
             else:
-                if not self.cb_at_break_once_already_called and self.cb_at_break_once:
-                    self.cb_at_break_once()
-                    self.cb_at_break_once_already_called = True
-                if self.cb_at_break_continuous:
-                    self.cb_at_break_continuous()
+                if not Manager.instance.cb_at_break_once_already_called and Manager.instance.cb_at_break_once:
+                    Manager.instance.cb_at_break_once()
+                    Manager.instance.cb_at_break_once_already_called = True
+                if Manager.instance.cb_at_break_continuous:
+                    Manager.instance.cb_at_break_continuous()
 
             # print '---------------------------------------------------------------------'
-            self.rate.sleep()
+            Manager.instance.rate.sleep()
 
-        if self.cb_at_break_continuous:
-            self.cb_at_exit()
+        if Manager.instance.cb_at_break_continuous:
+            Manager.instance.cb_at_exit()
 
     def set_function_mapping(self, new_mappings, force_mapping_change=False):
         if force_mapping_change:
             for new_mapping in new_mappings:
-                if not get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option) in self.actuators.iterkeys():
+                if not get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option) in Manager.instance.actuators.iterkeys():
                     rospy.logwarn("[" + str(new_mapping.actuator_name) + "] Actuator not found!")
                     continue
 
-                if not self.actuators[get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option)]:
+                if not Manager.instance.actuators[get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option)]:
                     rospy.logwarn("[" + str(new_mapping.actuator_name) + "] No actuator mapped!")
                     continue
 
-                self.actuators[get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option)].set_cb(new_mapping.callback_fct, new_mapping.cb_filter_option)
+                Manager.instance.actuators[get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option)].set_cb(new_mapping.callback_fct, new_mapping.cb_filter_option)
         else:
             for new_mapping in new_mappings:
-                self.new_mapping.append(new_mapping)
+                Manager.instance.new_mapping.append(new_mapping)
 
     def add_virtual_stick(self, up_name, right_name, down_name, left_name, callback_fct, name, invert_axes=[1.0, 1.0]):
 
-        if not all(key in self.actuators.keys() for key in [up_name, right_name, down_name, left_name]):
+        if not all(key in Manager.instance.actuators.keys() for key in [up_name, right_name, down_name, left_name]):
             rospy.logwarn("[" + name + "] one or more necessary actuator(s) not found!")
             return
 
-        if not self.actuators[up_name] or not self.actuators[right_name] or not self.actuators[down_name] or not self.actuators[left_name]:
+        if not Manager.instance.actuators[up_name] or not Manager.instance.actuators[right_name] or not Manager.instance.actuators[down_name] or not Manager.instance.actuators[left_name]:
             rospy.logwarn("[" + name + "] one or more necessary actuator(s) not mapped!")
             return
 
-        self.actuators.update({name: VirtualStick(self.actuators[up_name],   self.actuators[right_name],
-                                                  self.actuators[down_name], self.actuators[left_name],
+        Manager.instance.actuators.update({name: VirtualStick(Manager.instance.actuators[up_name],   Manager.instance.actuators[right_name],
+                                                  Manager.instance.actuators[down_name], Manager.instance.actuators[left_name],
                                                   invert_axes, name, callback_fct)})
 
     def joy_callback(self, msg):
-        for key, actuator in self.actuators.iteritems():
+        for key, actuator in Manager.instance.actuators.iteritems():
             if not actuator:
                 continue
 
@@ -130,7 +162,7 @@ class Manager:
             except:
                 rospy.logerr("[" + actuator.name + "] set_value error!")
 
-        for key, actuator in self.actuators.iteritems():
+        for key, actuator in Manager.instance.actuators.iteritems():
             if not actuator:
                 continue
 

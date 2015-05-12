@@ -77,12 +77,12 @@ if __name__ == "__main__":
     rospy.init_node('tug_joy', anonymous=True)
 
     try:
-        manager = Manager(CONTROLLER.CONTROLLER_NAME_DEFAULT, 20,
-                          manager_break_once_cb,
-                          manager_break_continuous_cb,
-                          manager_exit_cb)
+        Manager(CONTROLLER.CONTROLLER_NAME_DEFAULT, 20,
+                manager_break_once_cb,
+                manager_break_continuous_cb,
+                manager_exit_cb)
         #
-        manager.set_function_mapping(startup_config())
+        Manager().set_function_mapping(startup_config())
 
         # manager.set_function_mapping([Mapping(BUTTONS.CROSS_1_BUTTON_LEFT, button_cb),
         #                               Mapping(BUTTONS.CROSS_1_BUTTON_RIGHT, button_cb),
@@ -208,12 +208,12 @@ if __name__ == "__main__":
         #                           BUTTONS.CROSS_1_BUTTON_LEFT,
         #                           stick1_cb, 'avstick1', [1.0, 1.0])
 
-        joy_sub = rospy.Subscriber("joy", Joy, manager.joy_callback)
-        manager.run(joy_sub)
+        joy_sub = rospy.Subscriber("joy", Joy, Manager().joy_callback)
+        Manager().run(joy_sub)
 
     except KeyboardInterrupt:
-        manager.stop()
+        Manager().stop()
         pass
     except rospy.ROSInterruptException:
-        manager.stop()
+        Manager().stop()
         pass
