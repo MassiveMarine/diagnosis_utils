@@ -38,7 +38,7 @@ class Button(Actuator):
         self.callback_filtering = callback_filtering
 
     def __str__(self):
-        return 'B ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value) + ' filter: ' + self.callback_filtering
+        return ' B ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value) + ' filter: ' + self.callback_filtering
 
     def __repr__(self):
         return str(self)
@@ -53,7 +53,7 @@ class VirtualButton(Actuator):
 
     def set_value(self, msg):
         try:
-            new_value = msg.axes[self.axis_id]
+            new_value = round(msg.axes[self.axis_id])
             if self.response_at_positive:
                 new_value = max(new_value, 0)
             else:
@@ -95,7 +95,7 @@ class Axis(Actuator):
             logwarn('CB Filtering at axes not possible!')
 
     def __str__(self):
-        return 'A ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
+        return ' A ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
 
     def __repr__(self):
         return str(self)
@@ -111,10 +111,24 @@ class VirtualAxis(Actuator):
 
     def set_value(self, msg):
         try:
-            if self.use_axis:
-                self.value = abs(msg.axes[self.positive_id]) - abs(msg.axes[self.negative_id])
-            else:
-                self.value = abs(msg.buttons[self.positive_id]) - abs(msg.buttons[self.negative_id])
+            if self.positive_id is not None and self.negative_id is None:
+                if self.use_axis:
+                    self.value = abs(max(msg.axes[self.positive_id], 0.0))
+                else:
+                    self.value = abs(msg.buttons[self.positive_id])
+
+            elif self.positive_id is None and self.negative_id is not None:
+                if self.use_axis:
+                    self.value = abs(min(msg.axes[self.negative_id], 0.0))
+                else:
+                    self.value = abs(msg.buttons[self.negative_id])
+
+            elif self.positive_id is not None and self.negative_id is not None:
+                if self.use_axis:
+                    self.value = abs(msg.axes[self.positive_id]) - abs(msg.axes[self.negative_id])
+                else:
+                    self.value = abs(msg.buttons[self.positive_id]) - abs(msg.buttons[self.negative_id])
+
 
         except:
             logerr("[" + Actuator.__str__(self) + "] axis id '", self.axis_id, "' not found")
@@ -126,7 +140,7 @@ class VirtualAxis(Actuator):
             logwarn('CB Filtering at axes not possible!')
 
     def __str__(self):
-        return 'A ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
+        return 'VA ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
 
     def __repr__(self):
         return str(self)
@@ -154,7 +168,7 @@ class Stick(Actuator):
             logwarn('CB Filtering at sticks not possible!')
 
     def __str__(self):
-        return 'S ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
+        return ' S ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
 
     def __repr__(self):
         return str(self)
@@ -201,7 +215,7 @@ class VirtualStick(Actuator):
             logwarn('CB Filtering at virtual sticks not possible!')
 
     def __str__(self):
-        return 'S ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
+        return 'VS ' + Actuator.__str__(self) + ' h: {0: .3f}'.format(self.horizontal_val) + ' v: {0: .3f}'.format(self.vertical_val)
 
     def __repr__(self):
         return str(self)

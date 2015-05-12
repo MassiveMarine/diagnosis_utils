@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
 import rospy
-from tug_joy_controller_mappings import PS3Mapping
-from tug_joy_controller_mappings import DefaultMapping
-# from tug_joy_controller_mappings import StickMapping
-from tug_joy_controller_mappings import get_correct_name
+from tug_joy_controller_mappings import *
 
 from tug_joy_actuators import VirtualStick
 
 
 from tug_joy_constants import *
+
+import os
 
 
 class Mapping:
@@ -27,7 +26,7 @@ class Mapping:
 
 class Manager:
 
-    def __init__(self, contoller_name=CONTROLLER_NAME_DEFAULT, rate=20, cb_at_break_once=None, cb_at_break_continuous=None, cb_at_exit=None):
+    def __init__(self, contoller_name=CONTROLLER.CONTROLLER_NAME_DEFAULT, rate=20, cb_at_break_once=None, cb_at_break_continuous=None, cb_at_exit=None):
         self.actuators = dict()
         self.init_sticks(contoller_name)
         self.rate = rospy.Rate(rate)
@@ -38,8 +37,12 @@ class Manager:
         self.cb_at_exit = cb_at_exit
 
     def init_sticks(self, contoller_name):
-        if contoller_name == CONTROLLER_NAME_PS3:
+        if contoller_name == CONTROLLER.CONTROLLER_NAME_PS3:
             self.actuators.update(PS3Mapping.mapping)
+        elif contoller_name == CONTROLLER.CONTROLLER_NAME_LOGITECH_RUMBLE_PAD_2:
+            self.actuators.update(LogitechRumblePad2Mapping.mapping)
+        elif contoller_name == CONTROLLER.CONTROLLER_NAME_XBOX360:
+            self.actuators.update(XBox360Mapping.mapping)
         else:
             self.actuators.update(DefaultMapping.mapping)
 
@@ -52,6 +55,7 @@ class Manager:
             return
 
         while not rospy.is_shutdown():
+            # os.system('clear')
             if joy_sub.get_num_connections() > 0:
                 self.cb_at_break_once_already_called = False
                 for name, actuator in self.actuators.iteritems():
@@ -68,10 +72,10 @@ class Manager:
                     except:
                         rospy.logerr("[Manager] Error while executing callbacks")
 
-                    # change to new mapping if a callback changed it
-                    if len(self.new_mapping) > 0:
-                        self.set_function_mapping(self.new_mapping, True)
-                        self.new_mapping = []
+                # change to new mapping if a callback changed it
+                if len(self.new_mapping) > 0:
+                    self.set_function_mapping(self.new_mapping, True)
+                    self.new_mapping = []
             else:
                 if not self.cb_at_break_once_already_called and self.cb_at_break_once:
                     self.cb_at_break_once()
@@ -79,6 +83,7 @@ class Manager:
                 if self.cb_at_break_continuous:
                     self.cb_at_break_continuous()
 
+            # print '---------------------------------------------------------------------'
             self.rate.sleep()
 
         if self.cb_at_break_continuous:
@@ -87,6 +92,14 @@ class Manager:
     def set_function_mapping(self, new_mappings, force_mapping_change=False):
         if force_mapping_change:
             for new_mapping in new_mappings:
+                if not get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option) in self.actuators.iterkeys():
+                    rospy.logwarn("[" + str(new_mapping.actuator_name) + "] Actuator not found!")
+                    continue
+
+                if not self.actuators[get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option)]:
+                    rospy.logwarn("[" + str(new_mapping.actuator_name) + "] No actuator mapped!")
+                    continue
+
                 self.actuators[get_correct_name(new_mapping.actuator_name, new_mapping.cb_filter_option)].set_cb(new_mapping.callback_fct, new_mapping.cb_filter_option)
         else:
             for new_mapping in new_mappings:
@@ -111,12 +124,18 @@ class Manager:
             if not actuator:
                 continue
 
-            if actuator.__class__.__name__ in ['Button', 'Axis', 'Stick', 'VirtualButton', 'VirtualAxis']:
-                actuator.set_value(msg)
+            try:
+                if actuator.__class__.__name__ in ['Button', 'Axis', 'Stick', 'VirtualButton', 'VirtualAxis']:
+                    actuator.set_value(msg)
+            except:
+                rospy.logerr("[" + actuator.name + "] set_value error!")
 
         for key, actuator in self.actuators.iteritems():
             if not actuator:
                 continue
 
-            if actuator.__class__.__name__ in ['VirtualStick']:
-                actuator.set_value(msg)
+            try:
+                if actuator.__class__.__name__ in ['VirtualStick']:
+                    actuator.set_value(msg)
+            except:
+                rospy.logerr("[" + actuator.name + "] set_value error!")

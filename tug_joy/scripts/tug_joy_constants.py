@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
+
 # Controller names
-CONTROLLER_NAME_PS3 = 'ps3'
-CONTROLLER_NAME_XBOX360 = 'xbox360'
-CONTROLLER_NAME_LOGITECH_RUMBLR_PAD_2 = 'logitech_ruble_pad_2'
-CONTROLLER_NAME_DEFAULT = 'default'
+class CONTROLLER:
+    CONTROLLER_NAME_PS3 = 'ps3'
+    CONTROLLER_NAME_XBOX360 = 'xbox360'
+    CONTROLLER_NAME_LOGITECH_RUMBLE_PAD_2 = 'logitech_rumble_pad_2'
+    CONTROLLER_NAME_DEFAULT = 'default'
 
 # CB filter types
 CB_FILTERING_NONE = 'None'
