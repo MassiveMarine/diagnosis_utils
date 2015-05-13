@@ -457,11 +457,11 @@ class DefaultMapping:
         AXIS.CROSS_1_AXIS_VERTICAL:   Axis(5,  'cross_1_axis_vertical'),
 
         AXIS.CROSS_2_AXIS_LEFT:       VirtualAxis(0, None, False, 'cross_2_axis_left'),
-        AXIS.CROSS_2_AXIS_UP:         VirtualAxis(3, None, False, 'cross_2_axis_up'),
-        AXIS.CROSS_2_AXIS_DOWN:       VirtualAxis(1, None, False, 'cross_2_axis_down'),
-        AXIS.CROSS_2_AXIS_RIGHT:      VirtualAxis(2, None, False, 'cross_2_axis_right'),
-        AXIS.CROSS_2_AXIS_HORIZONTAL: VirtualAxis(0, 2, False,  'cross_2_axis_horizontal'),
-        AXIS.CROSS_2_AXIS_VERTICAL:   VirtualAxis(3, 1, False,  'cross_2_axis_vertical'),
+        AXIS.CROSS_2_AXIS_UP:         VirtualAxis(1, None, False, 'cross_2_axis_up'),
+        AXIS.CROSS_2_AXIS_DOWN:       VirtualAxis(2, None, False, 'cross_2_axis_down'),
+        AXIS.CROSS_2_AXIS_RIGHT:      VirtualAxis(3, None, False, 'cross_2_axis_right'),
+        AXIS.CROSS_2_AXIS_HORIZONTAL: VirtualAxis(0, 3, False,  'cross_2_axis_horizontal'),
+        AXIS.CROSS_2_AXIS_VERTICAL:   VirtualAxis(1, 2, False,  'cross_2_axis_vertical'),
 
         AXIS.STICK_AXIS_LEFT_HORIZONTAL:  Axis(0, 'stick_axis_left_horizontal'),
         AXIS.STICK_AXIS_LEFT_VERTICAL:    Axis(1, 'stick_axis_left_vertical'),
