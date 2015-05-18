@@ -68,6 +68,7 @@ def deactivate_setup_2(actuator):
 def stick_cb(actuator):
     rospy.loginfo(str(actuator))
 
+
 def axis_cb(actuator):
     rospy.loginfo(str(actuator))
 
@@ -76,11 +77,19 @@ def axis_cb(actuator):
 #                                                 PREDEFINED CALLBACKS                                                 #
 ########################################################################################################################
 
+def manager_start_cb():
+    """ This callback is called once at start time. It is used to load the
+    initial callback mapping 'startup_config'. It can be used to set the
+    system, robot, or whatever to a defined state. """
+    rospy.logdebug('manager_start_cb')
+    Manager().set_function_mapping(startup_config())
+
+
 def manager_break_once_cb():
     """ This callback is called once if no joy-node-publisher-connection is
     available any more. If connection is lost, it is called once before
     'manager_break_continuous_cb()'. It can be used to set the system, robot,
-    or whatever into a defined state. """
+    or whatever to a defined state. """
     rospy.logdebug('manager_break_once_cb')
 
 
@@ -88,13 +97,13 @@ def manager_break_continuous_cb():
     """ This callback is called continuous if no joy-node-publisher-connection
     is available any more. If connection is lost, it is called after
     'manager_break_once_cb()'. It can be used to set the system, robot, or
-    whatever into a defined state. """
+    whatever to a defined state. """
     rospy.logdebug('manager_break_continuous_cb')
 
 
 def manager_exit_cb():
     """ This callback is called before this node will be killed. It can be used
-    to set the system, robot, or whatever into a defined state. """
+    to set the system, robot, or whatever to a defined state. """
     rospy.logdebug('manager_exit_cb')
 
 ########################################################################################################################

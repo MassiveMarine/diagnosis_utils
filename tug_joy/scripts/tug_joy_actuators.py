@@ -193,8 +193,9 @@ class Stick(Actuator):
 
 
 class VirtualStickOf2(Actuator):
-    def __init__(self, horizontal_actuator, vertical_actuator, name='unknown', callback_fct=None):
+    def __init__(self, horizontal_actuator, vertical_actuator, invert_axes=[1.0, 1.0], name='unknown', callback_fct=None):
         Actuator.__init__(self, name, callback_fct)
+        self.invert_axes = invert_axes
         self.horizontal_val = 0.0
         self.horizontal_actuator = horizontal_actuator
         self.vertical_val = 0.0
@@ -210,7 +211,9 @@ class VirtualStickOf2(Actuator):
 
         try:
             self.horizontal_val = self.horizontal_actuator.value
+            self.horizontal_val *= self.invert_axes[0]
             self.vertical_val = self.vertical_actuator.value
+            self.vertical_val *= self.invert_axes[1]
         except:
             logerr("[" + Actuator.__str__(self) + "] stick name '", self.horizontal_actuator.name, "' or '", self.vertical_actuator.name, "' not found")
 

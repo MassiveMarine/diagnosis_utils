@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 
+"""
+This file contains all used constants of tug_joy.
+"""
 
 # Controller names
 class CONTROLLER:
+    """
+    All known controllers are listed here.
+    IF A NEW CONTROLLER IS ADDED, DON'T FORGET TO ADD IT HERE!!
+    """
     CONTROLLER_NAME_PS3 = 'ps3'
     CONTROLLER_NAME_XBOX360 = 'xbox360'
     CONTROLLER_NAME_LOGITECH_RUMBLE_PAD_2 = 'logitech_rumble_pad_2'
@@ -15,6 +22,9 @@ CB_FILTERING_RELEASE = 'Release'
 
 
 class BUTTONS:
+    """
+    All names that can be used for buttons.
+    """
     # General button names
     CROSS_1_BUTTON_LEFT = 'cross_1_button_left'
     CROSS_1_BUTTON_UP = 'cross_1_button_up'
@@ -42,6 +52,9 @@ class BUTTONS:
 
 
 class AXIS:
+    """
+    All names that can be used for axes.
+    """
     # General axis names
     CROSS_1_AXIS_LEFT = 'cross_1_axis_left'
     CROSS_1_AXIS_UP = 'cross_1_axis_up'
@@ -79,6 +92,9 @@ class AXIS:
 
 
 class STICK:
-    # General sticks names
+    """
+    All names that can be used for sticks.
+    """
+    # General stick names
     STICK_LEFT = 'stick_stick_left'
     STICK_RIGHT = 'stick_stick_right'

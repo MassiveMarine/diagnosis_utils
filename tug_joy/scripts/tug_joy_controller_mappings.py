@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""
+This file contains all mappings between different controllers and general
+actuator names. If a controller does not support some functionality natively,
+it is calculated, but with some inaccuracy, e.g. if a button has no analog
+values between 1 (pressed) and 0 (not pressed) the axis also has only 1 and 0.
+"""
+
 from tug_joy_actuators import Button
 from tug_joy_actuators import VirtualButton
 from tug_joy_actuators import VirtualAxis
@@ -14,6 +21,9 @@ def get_correct_name(actuator_name, filter_option):
 
 
 class PS3Mapping:
+    """
+    Mapping for the PS3 controller
+    """
 
     mapping = {
         # Button mapping general
@@ -133,7 +143,9 @@ class PS3Mapping:
 
 
 class LogitechRumblePad2Mapping:
-
+    """
+    Mapping for the Logitech Rumble Pad 2 controller
+    """
     mapping = {
         # Button mapping general
         BUTTONS.CROSS_1_BUTTON_LEFT:  VirtualButton(4, True, 'cross_1_button_left'),
@@ -252,7 +264,9 @@ class LogitechRumblePad2Mapping:
 
 
 class XBox360Mapping:
-
+    """
+    Mapping for the XBox 360 controller
+    """
     mapping = {
         # Button mapping general
         BUTTONS.CROSS_1_BUTTON_LEFT:  Button(11, 'cross_1_button_left'),
@@ -371,7 +385,9 @@ class XBox360Mapping:
 
 
 class DefaultMapping:
-
+    """
+    Mapping for the default controller of our laboratory
+    """
     mapping = {
         # Button mapping general
         BUTTONS.CROSS_1_BUTTON_LEFT:  VirtualButton(4, True, 'cross_1_button_left'),
