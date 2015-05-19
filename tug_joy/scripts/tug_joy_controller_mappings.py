@@ -370,13 +370,13 @@ class XBox360Mapping:
         AXIS.SHOULDER_AXIS_UPPER_RIGHT:  VirtualAxis(5, None, False, 'shoulder_axis_upper_right'),
         AXIS.SHOULDER_AXIS_MIDDLE_RIGHT: None,
 
-        AXIS.ACCELERATION_X: None,  # Axis(24, 'acceleration_x'),
-        AXIS.ACCELERATION_Y: None,  # Axis(23, 'acceleration_y'),
-        AXIS.ACCELERATION_Z: None,  # Axis(25, 'acceleration_z'),
+        AXIS.ACCELERATION_X: None,
+        AXIS.ACCELERATION_Y: None,
+        AXIS.ACCELERATION_Z: None,
 
         AXIS.GYROSCOPE_ROLL:  None,
         AXIS.GYROSCOPE_PITCH: None,
-        AXIS.GYROSCOPE_YAW:   None,  # Axis(26, 'gyroscope_yaw')
+        AXIS.GYROSCOPE_YAW:   None,
 
         # Stick mapping
         STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),

@@ -51,10 +51,10 @@ class Manager:
         if not Manager.instance:
             Manager.instance = Manager.__Manager(contoller_name, rate, cb_at_break_once,
                                                  cb_at_break_continuous, cb_at_exit)
-            self.init_sticks(contoller_name)
+            self.init_controller(contoller_name)
 
     @staticmethod
-    def init_sticks(contoller_name):
+    def init_controller(contoller_name):
         """
         Load mapping between joy messages and general actuator names. With this
         different controllers are possible, because each button or axis is

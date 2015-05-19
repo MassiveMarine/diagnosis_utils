@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-"""tug_joy_own_config is used to define all needed callbacks and mappings,
+"""
+tug_joy_own_config is used to define all needed callbacks and mappings,
 which are needed for the current environment. There are also some predefined
-callbacks and mappings."""
+callbacks and mappings.
+"""
 
 import rospy
 from tug_joy_constants import *
@@ -15,9 +17,11 @@ from tug_joy_base import Manager
 
 
 def startup_config():
-    """ This is the startup mapping. It will be loaded as first mapping.
+    """
+    This is the startup mapping. It will be loaded as first mapping.
     :return: Array of Mapping objects, that define the Mapping of actuators at
-            startup. """
+             startup.
+    """
     return [Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, activate_setup_1, CB_FILTERING_PRESS),
             Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, deactivate_setup_1, CB_FILTERING_RELEASE),
             Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, activate_setup_2, CB_FILTERING_PRESS),
@@ -31,8 +35,10 @@ def startup_config():
 #             Mapping(BUTTONS.FUNCTION_LEFT, deactivate_setup_1, CB_FILTERING_RELEASE)]                                #
 #                                                                                                                      #
 ########################################################################################################################
-""" If there are mappings which are used several times in the code, they can be
-defined in this section. """
+"""
+If there are mappings which are used several times in the code, they can be
+defined in this section.
+"""
 
 ########################################################################################################################
 #                                                    OWN CALLBACKS                                                     #
@@ -41,8 +47,10 @@ defined in this section. """
 #     # do what ever you want                                                                                          #
 #                                                                                                                      #
 ########################################################################################################################
-""" All callbacks are defined in this section. They can also be used to change
-the current mapping """
+"""
+All callbacks are defined in this section. They can also be used to change
+the current mapping.
+"""
 
 
 def activate_setup_1(actuator):
@@ -78,26 +86,32 @@ def axis_cb(actuator):
 ########################################################################################################################
 
 def manager_start_cb():
-    """ This callback is called once at start time. It is used to load the
+    """
+    This callback is called once at start time. It is used to load the
     initial callback mapping 'startup_config'. It can be used to set the
-    system, robot, or whatever to a defined state. """
+    system, robot, or whatever to a defined state.
+    """
     rospy.logdebug('manager_start_cb')
     Manager().set_function_mapping(startup_config())
 
 
 def manager_break_once_cb():
-    """ This callback is called once if no joy-node-publisher-connection is
+    """
+    This callback is called once if no joy-node-publisher-connection is
     available any more. If connection is lost, it is called once before
     'manager_break_continuous_cb()'. It can be used to set the system, robot,
-    or whatever to a defined state. """
+    or whatever to a defined state.
+    """
     rospy.logdebug('manager_break_once_cb')
 
 
 def manager_break_continuous_cb():
-    """ This callback is called continuous if no joy-node-publisher-connection
+    """
+    This callback is called continuous if no joy-node-publisher-connection
     is available any more. If connection is lost, it is called after
     'manager_break_once_cb()'. It can be used to set the system, robot, or
-    whatever to a defined state. """
+    whatever to a defined state.
+    """
     rospy.logdebug('manager_break_continuous_cb')
 
 
@@ -119,9 +133,11 @@ def manager_exit_cb():
 
 
 def special_actuators():
-    """Define new actuators if you need one. This actuators are virtual, so
+    """
+    Define new actuators if you need one. This actuators are virtual, so
     they do not exist in real and are computed by using already defined
     actuators. An Virtual stick can be created out of 4 actuators or 2
-    actuators for example. """
+    actuators for example.
+    """
     pass
 
