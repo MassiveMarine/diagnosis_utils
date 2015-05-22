@@ -8,8 +8,8 @@ callbacks and mappings.
 
 import rospy
 from tug_joy_constants import *
-# from tug_joy_base import Mapping
 from tug_joy_base import Manager
+from tug_joy_base import CallbackBase
 
 ########################################################################################################################
 #                                                 PREDEFINED MAPPINGS                                                  #
@@ -22,15 +22,6 @@ def startup_config():
     :return: Array of Mapping objects, that define the Mapping of actuators at
              startup.
     """
-    # return [Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, activate_setup_1, CB_FILTERING_PRESS),
-            # Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, deactivate_setup_1, CB_FILTERING_RELEASE),
-            # Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, activate_setup_2, CB_FILTERING_PRESS),
-            # Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, deactivate_setup_2, CB_FILTERING_RELEASE)]
-    # return [Mapping('first_group', cmd_vel_1_.callback),
-    #         Mapping(BUTTONS.CROSS_1_BUTTON_UP, cmd_vel_1_.increase_linear_speed, CB_FILTERING_PRESS),
-    #         Mapping(BUTTONS.CROSS_1_BUTTON_DOWN, cmd_vel_1_.decrease_linear_speed, CB_FILTERING_PRESS),
-    #         Mapping(BUTTONS.CROSS_1_BUTTON_LEFT, cmd_vel_1_.increase_angular_speed, CB_FILTERING_PRESS),
-    #         Mapping(BUTTONS.CROSS_1_BUTTON_RIGHT, cmd_vel_1_.decrease_angular_speed, CB_FILTERING_PRESS)]
 
     return []
 
@@ -167,32 +158,17 @@ def special_actuators():
     pass
 
 
-class Callback:
-    def __init__(self, name, actuators, callback_filtering=CB_FILTERING_NONE):
-        self.name = name
-        self.actuators = actuators
-        self.callback_filtering = callback_filtering
-        self.change_since_last = 'None'
-
-    def callback(self, values_dict):
-        raise ValueError('Callback has to be overloaded')
-
-    def __str__(self):
-        return " Callback '" + str(self.name) + "' Actuators: " + str(self.actuators)
-
-    def __repr__(self):
-        return str(self)
 
 
-class Setup1ActiveCB(Callback):
+class Setup1ActiveCB(CallbackBase):
     def callback(self, values_dict):
         Manager().add_callback(stick_left)
 
-class Setup1DeactiveCB(Callback):
+class Setup1DeactiveCB(CallbackBase):
     def callback(self, values_dict):
         Manager().remove_callback(stick_left)
 
-class StichCB(Callback):
+class StichCB(CallbackBase):
     def callback(self, values_dict):
         print values_dict[AXIS.STICK_AXIS_LEFT_HORIZONTAL]
         # pass
