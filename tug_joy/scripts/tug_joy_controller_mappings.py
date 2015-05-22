@@ -11,13 +11,13 @@ from tug_joy_actuators import Button
 from tug_joy_actuators import VirtualButton
 from tug_joy_actuators import VirtualAxis
 from tug_joy_actuators import Axis
-from tug_joy_actuators import Stick
+# from tug_joy_actuators import Stick
 
 from tug_joy_constants import *
 
-
-def get_correct_name(actuator_name, filter_option):
-    return actuator_name if filter_option == CB_FILTERING_NONE else (actuator_name, filter_option)
+#
+# def get_correct_name(actuator_name, filter_option):
+#     return actuator_name if filter_option == CB_FILTERING_NONE else (actuator_name, filter_option)
 
 
 class PS3Mapping:
@@ -51,55 +51,55 @@ class PS3Mapping:
         BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT:  Button(11, 'shoulder_button_upper_right'),
         BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT: None,
 
-        # Button mapping at pressing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(7, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    Button(4, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(6, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(5, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(15, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(12, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(14, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(13, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(0,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(3,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): Button(16, 'function_center'),
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(1, 'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(2, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   Button(8,  'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(10, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  Button(9,  'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(11, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
-
-        # Button mapping at releasing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(7, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    Button(4, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(6, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(5, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(15, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(12, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(14, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(13, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(0,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(3,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): Button(16, 'function_center'),
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(1, 'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(2, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   Button(8,  'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(10, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  Button(9,  'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(11, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
+        # # Button mapping at pressing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(7, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    Button(4, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(6, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(5, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(15, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(12, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(14, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(13, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(0,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(3,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): Button(16, 'function_center'),
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(1, 'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(2, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   Button(8,  'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(10, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  Button(9,  'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(11, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
+        #
+        # # Button mapping at releasing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(7, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    Button(4, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(6, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(5, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(15, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(12, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(14, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(13, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(0,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(3,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): Button(16, 'function_center'),
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(1, 'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(2, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   Button(8,  'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(10, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  Button(9,  'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(11, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
 
         # Axis mapping
         AXIS.CROSS_1_AXIS_LEFT:       Axis(11, 'cross_1_axis_left'),
@@ -172,55 +172,55 @@ class LogitechRumblePad2Mapping:
         BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT:  Button(5, 'shoulder_button_upper_right'),
         BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT: None,
 
-        # Button mapping at pressing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  VirtualButton(4, True, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    VirtualButton(5, True, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  VirtualButton(5, False, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): VirtualButton(4, False, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(0, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(3, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(1, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(2, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(8,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(9,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): None,
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(10, 'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(11, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   Button(6, 'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(4, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  Button(7, 'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(5, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
-
-        # Button mapping at releasing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  VirtualButton(4, True, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    VirtualButton(5, True, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  VirtualButton(5, False, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): VirtualButton(4, False, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(0, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(3, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(1, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(2, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(8,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(9,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): None,
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(10, 'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(11, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   Button(6, 'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(4, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  Button(7, 'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(5, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
+        # # Button mapping at pressing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  VirtualButton(4, True, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    VirtualButton(5, True, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  VirtualButton(5, False, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): VirtualButton(4, False, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(0, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(3, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(1, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(2, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(8,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(9,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): None,
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(10, 'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(11, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   Button(6, 'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(4, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  Button(7, 'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(5, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
+        #
+        # # Button mapping at releasing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  VirtualButton(4, True, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    VirtualButton(5, True, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  VirtualButton(5, False, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): VirtualButton(4, False, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(0, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(3, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(1, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(2, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(8,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(9,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): None,
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(10, 'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(11, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   Button(6, 'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(4, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  Button(7, 'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(5, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
 
         # Axis mapping
         AXIS.CROSS_1_AXIS_LEFT:       VirtualAxis(4, None, True, 'cross_1_axis_left'),
@@ -293,55 +293,55 @@ class XBox360Mapping:
         BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT:  Button(5, 'shoulder_button_upper_right'),
         BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT: None,
 
-        # Button mapping at pressing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(11, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    Button(13, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(14, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(12, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(2, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(3, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(0, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(1, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(6,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(7,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): Button(8,  'function_center'),
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(9,  'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(10, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   VirtualButton(2, False, 'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(4, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  VirtualButton(5, False, 'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(5, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
-
-        # Button mapping at releasing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(11, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    Button(13, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(14, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(12, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(2, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(3, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(0, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(1, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(6,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(7,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): Button(8,  'function_center'),
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(9,  'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(10, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   VirtualButton(2, False, 'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(4, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  VirtualButton(5, False, 'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(5, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
+        # # Button mapping at pressing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(11, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    Button(13, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(14, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(12, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(2, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(3, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(0, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(1, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(6,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(7,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): Button(8,  'function_center'),
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(9,  'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(10, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   VirtualButton(2, False, 'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(4, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  VirtualButton(5, False, 'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(5, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
+        #
+        # # Button mapping at releasing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(11, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    Button(13, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(14, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(12, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(2, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(3, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(0, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(1, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(6,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(7,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): Button(8,  'function_center'),
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(9,  'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(10, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   VirtualButton(2, False, 'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(4, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  VirtualButton(5, False, 'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(5, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
 
         # Axis mapping
         AXIS.CROSS_1_AXIS_LEFT:       VirtualAxis(11, None, False, 'cross_1_axis_left'),
@@ -414,55 +414,55 @@ class DefaultMapping:
         BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT:  Button(6, 'shoulder_button_upper_right'),
         BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT: None,
 
-        # Button mapping at pressing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  VirtualButton(4, True, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    VirtualButton(5, True, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  VirtualButton(5, False, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): VirtualButton(4, False, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(0, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(1, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(2, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(3, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(8,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(9,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): None,
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(10, 'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(11, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   Button(5, 'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(4, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  Button(7, 'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(6, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
-
-        # Button mapping at releasing
-        (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  VirtualButton(4, True, 'cross_1_button_left'),
-        (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    VirtualButton(5, True, 'cross_1_button_up'),
-        (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  VirtualButton(5, False, 'cross_1_button_down'),
-        (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): VirtualButton(4, False, 'cross_1_button_right'),
-
-        (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(0, 'cross_2_button_left'),
-        (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(1, 'cross_2_button_up'),
-        (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(2, 'cross_2_button_down'),
-        (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(3, 'cross_2_button_right'),
-
-        (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(8,  'function_left'),
-        (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(9,  'function_right'),
-        (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): None,
-
-        (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(10, 'stick_button_left'),
-        (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(11, 'stick_button_right'),
-
-        (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   Button(5, 'shoulder_button_lower_left'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(4, 'shoulder_button_upper_left'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
-        (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  Button(7, 'shoulder_button_lower_right'),
-        (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(6, 'shoulder_button_upper_right'),
-        (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
+        # # Button mapping at pressing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_PRESS):  VirtualButton(4, True, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_PRESS):    VirtualButton(5, True, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_PRESS):  VirtualButton(5, False, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_PRESS): VirtualButton(4, False, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(0, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_PRESS):    Button(1, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_PRESS):  Button(2, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(3, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS):   Button(8,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_PRESS):  Button(9,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_PRESS): None,
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_PRESS):  Button(10, 'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_PRESS): Button(11, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_PRESS):   Button(5, 'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_PRESS):   Button(4, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_PRESS):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_PRESS):  Button(7, 'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_PRESS):  Button(6, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_PRESS): None,
+        #
+        # # Button mapping at releasing
+        # (BUTTONS.CROSS_1_BUTTON_LEFT, CB_FILTERING_RELEASE):  VirtualButton(4, True, 'cross_1_button_left'),
+        # (BUTTONS.CROSS_1_BUTTON_UP, CB_FILTERING_RELEASE):    VirtualButton(5, True, 'cross_1_button_up'),
+        # (BUTTONS.CROSS_1_BUTTON_DOWN, CB_FILTERING_RELEASE):  VirtualButton(5, False, 'cross_1_button_down'),
+        # (BUTTONS.CROSS_1_BUTTON_RIGHT, CB_FILTERING_RELEASE): VirtualButton(4, False, 'cross_1_button_right'),
+        #
+        # (BUTTONS.CROSS_2_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(0, 'cross_2_button_left'),
+        # (BUTTONS.CROSS_2_BUTTON_UP, CB_FILTERING_RELEASE):    Button(1, 'cross_2_button_up'),
+        # (BUTTONS.CROSS_2_BUTTON_DOWN, CB_FILTERING_RELEASE):  Button(2, 'cross_2_button_down'),
+        # (BUTTONS.CROSS_2_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(3, 'cross_2_button_right'),
+        #
+        # (BUTTONS.FUNCTION_LEFT, CB_FILTERING_RELEASE):   Button(8,  'function_left'),
+        # (BUTTONS.FUNCTION_RIGHT, CB_FILTERING_RELEASE):  Button(9,  'function_right'),
+        # (BUTTONS.FUNCTION_CENTER, CB_FILTERING_RELEASE): None,
+        #
+        # (BUTTONS.STICK_BUTTON_LEFT, CB_FILTERING_RELEASE):  Button(10, 'stick_button_left'),
+        # (BUTTONS.STICK_BUTTON_RIGHT, CB_FILTERING_RELEASE): Button(11, 'stick_button_right'),
+        #
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, CB_FILTERING_RELEASE):   Button(5, 'shoulder_button_lower_left'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, CB_FILTERING_RELEASE):   Button(4, 'shoulder_button_upper_left'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_LEFT, CB_FILTERING_RELEASE):  None,
+        # (BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT, CB_FILTERING_RELEASE):  Button(7, 'shoulder_button_lower_right'),
+        # (BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, CB_FILTERING_RELEASE):  Button(6, 'shoulder_button_upper_right'),
+        # (BUTTONS.SHOULDER_BUTTON_MIDDLE_RIGHT, CB_FILTERING_RELEASE): None,
 
         # Axis mapping
         AXIS.CROSS_1_AXIS_LEFT:       VirtualAxis(4, None, True, 'cross_1_axis_left'),

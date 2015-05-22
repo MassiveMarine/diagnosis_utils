@@ -8,7 +8,7 @@ callbacks and mappings.
 
 import rospy
 from tug_joy_constants import *
-from tug_joy_base import Mapping
+# from tug_joy_base import Mapping
 from tug_joy_base import Manager
 
 ########################################################################################################################
@@ -26,11 +26,13 @@ def startup_config():
             # Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, deactivate_setup_1, CB_FILTERING_RELEASE),
             # Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, activate_setup_2, CB_FILTERING_PRESS),
             # Mapping(BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT, deactivate_setup_2, CB_FILTERING_RELEASE)]
-    return [Mapping('first_group', cmd_vel_1_.callback),
-            Mapping(BUTTONS.CROSS_1_BUTTON_UP, cmd_vel_1_.increase_linear_speed, CB_FILTERING_PRESS),
-            Mapping(BUTTONS.CROSS_1_BUTTON_DOWN, cmd_vel_1_.decrease_linear_speed, CB_FILTERING_PRESS),
-            Mapping(BUTTONS.CROSS_1_BUTTON_LEFT, cmd_vel_1_.increase_angular_speed, CB_FILTERING_PRESS),
-            Mapping(BUTTONS.CROSS_1_BUTTON_RIGHT, cmd_vel_1_.decrease_angular_speed, CB_FILTERING_PRESS)]
+    # return [Mapping('first_group', cmd_vel_1_.callback),
+    #         Mapping(BUTTONS.CROSS_1_BUTTON_UP, cmd_vel_1_.increase_linear_speed, CB_FILTERING_PRESS),
+    #         Mapping(BUTTONS.CROSS_1_BUTTON_DOWN, cmd_vel_1_.decrease_linear_speed, CB_FILTERING_PRESS),
+    #         Mapping(BUTTONS.CROSS_1_BUTTON_LEFT, cmd_vel_1_.increase_angular_speed, CB_FILTERING_PRESS),
+    #         Mapping(BUTTONS.CROSS_1_BUTTON_RIGHT, cmd_vel_1_.decrease_angular_speed, CB_FILTERING_PRESS)]
+
+    return []
 
 
 ########################################################################################################################
@@ -58,36 +60,36 @@ the current mapping.
 """
 
 
-def activate_setup_1(actuator):
-    rospy.logdebug(str(actuator))
-    Manager().set_function_mapping([Mapping(STICK.STICK_RIGHT, cmd_vel_1_.callback)])
-
-
-def deactivate_setup_1(actuator):
-    rospy.logdebug(str(actuator))
-    Manager().set_function_mapping([Mapping(STICK.STICK_RIGHT, None)], True)
-
-
-def activate_setup_2(actuator):
-    rospy.logdebug(str(actuator))
-    Manager().set_function_mapping([Mapping(STICK.STICK_LEFT, stick_cb)])
-
-
-def deactivate_setup_2(actuator):
-    rospy.logdebug(str(actuator))
-    Manager().set_function_mapping([Mapping(STICK.STICK_LEFT, None)], True)
-
-
-def stick_cb(actuator):
-    rospy.loginfo(str(actuator))
-
-
-def axis_cb(actuator):
-    rospy.loginfo(str(actuator))
-
-
-def group_cb(actuator):
-    rospy.loginfo(str(actuator))
+# def activate_setup_1(actuator):
+#     rospy.logdebug(str(actuator))
+#     Manager().set_function_mapping([Mapping(STICK.STICK_RIGHT, cmd_vel_1_.callback)])
+#
+#
+# def deactivate_setup_1(actuator):
+#     rospy.logdebug(str(actuator))
+#     Manager().set_function_mapping([Mapping(STICK.STICK_RIGHT, None)], True)
+#
+#
+# def activate_setup_2(actuator):
+#     rospy.logdebug(str(actuator))
+#     Manager().set_function_mapping([Mapping(STICK.STICK_LEFT, stick_cb)])
+#
+#
+# def deactivate_setup_2(actuator):
+#     rospy.logdebug(str(actuator))
+#     Manager().set_function_mapping([Mapping(STICK.STICK_LEFT, None)], True)
+#
+#
+# def stick_cb(actuator):
+#     rospy.loginfo(str(actuator))
+#
+#
+# def axis_cb(actuator):
+#     rospy.loginfo(str(actuator))
+#
+#
+# def group_cb(actuator):
+#     rospy.loginfo(str(actuator))
 
 
 
@@ -104,9 +106,16 @@ def manager_start_cb():
     system, robot, or whatever to a defined state.
     """
     rospy.logdebug('manager_start_cb')
-    cmd_vel_1_.load_parameters('cmd_vel_1/', '/cmd_vel', AXIS.STICK_AXIS_LEFT_VERTICAL,
-                               AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL)
-    Manager().set_function_mapping(startup_config())
+    # cmd_vel_1_.load_parameters('cmd_vel_1/', '/cmd_vel', AXIS.STICK_AXIS_LEFT_VERTICAL,
+    #                            AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL)
+    # Manager().set_function_mapping(startup_config())
+
+    # first_cb.load_parameters([(BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS)])
+    # first_cb.load_parameters([AXIS.STICK_AXIS_LEFT_HORIZONTAL,
+    #                           AXIS.STICK_AXIS_LEFT_VERTICAL])
+    Manager().add_callback(setup_1_active_cb)
+    # Manager().add_callback(setup_2_active_cb)
+    Manager().add_callback(setup_1_deactive_cb)
 
 
 def manager_break_once_cb():
@@ -153,78 +162,129 @@ def special_actuators():
     actuators. An Virtual stick can be created out of 4 actuators or 2
     actuators for example.
     """
-    Manager.add_actuator_group('first_group',
-                               [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL])
+    # Manager.add_actuator_group('first_group',
+    #                            [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL])
     pass
 
 
-class CmdVel:
-    from geometry_msgs.msg import Twist
+class Callback:
+    def __init__(self, name, actuators, callback_filtering=CB_FILTERING_NONE):
+        self.name = name
+        self.actuators = actuators
+        self.callback_filtering = callback_filtering
+        self.change_since_last = 'None'
 
-    def __init__(self):
+    def callback(self, values_dict):
+        raise ValueError('Callback has to be overloaded')
 
-        self.namespace = None
-        self.max_tv_ = None
-        self.max_rv_ = None
-        self.min_tv_ = None
-        self.min_rv_ = None
-        self.basic_tv_ = None
-        self.basic_rv_ = None
+    def __str__(self):
+        return " Callback '" + str(self.name) + "' Actuators: " + str(self.actuators)
 
-        self.actuator_linear_x = None
-        self.actuator_linear_y = None
-        self.actuator_angular_z = None
+    def __repr__(self):
+        return str(self)
 
-        self.cmd_vel_pub_ = None
 
-    def load_parameters(self, namespace, publishing_topic, actuator_linear_x, actuator_linear_y, actuator_angular_z):
-        self.namespace = namespace
+class Setup1ActiveCB(Callback):
+    def callback(self, values_dict):
+        Manager().add_callback(stick_left)
 
-        self.max_tv_ = rospy.get_param('~' + self.namespace + 'MaxTransVel', 1.0)
-        self.max_rv_ = rospy.get_param('~' + self.namespace + 'MinTransVel', 1.0)
-        self.min_tv_ = rospy.get_param('~' + self.namespace + 'MaxRotVel', 1.0)
-        self.min_rv_ = rospy.get_param('~' + self.namespace + 'MinRotVel', 1.0)
-        self.basic_tv_ = rospy.get_param('~' + self.namespace + 'InitTransVel', 1.0)
-        self.basic_rv_ = rospy.get_param('~' + self.namespace + 'InitRotVel', 1.0)
+class Setup1DeactiveCB(Callback):
+    def callback(self, values_dict):
+        Manager().remove_callback(stick_left)
 
-        self.cmd_vel_pub_ = rospy.Publisher(publishing_topic, self.Twist, queue_size=1)
-        self.actuator_linear_x = actuator_linear_x
-        self.actuator_linear_y = actuator_linear_y
-        self.actuator_angular_z = actuator_angular_z
+class StichCB(Callback):
+    def callback(self, values_dict):
+        print values_dict[AXIS.STICK_AXIS_LEFT_HORIZONTAL]
+        # pass
 
-    def increase_linear_speed(self, actuator):
-        self.basic_tv_ += self.max_tv_ / 10
-        if self.basic_tv_ > self.max_tv_:
-            self.basic_tv_ = self.max_tv_
 
-    def decrease_linear_speed(self, actuator):
-        self.basic_tv_ -= self.max_tv_ / 10
-        if self.basic_tv_ < self.min_tv_:
-            self.basic_tv_ = self.min_tv_
+setup_1_active_cb = Setup1ActiveCB('Setup1ActiveCB', [BUTTONS.FUNCTION_LEFT], CB_FILTERING_PRESS)
+setup_1_deactive_cb = Setup1DeactiveCB('Setup1DectiveCB', [BUTTONS.FUNCTION_LEFT], CB_FILTERING_RELEASE)
+#
+stick_left = StichCB('StichCB', [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL])
 
-    def increase_angular_speed(self, actuator):
-        self.basic_rv_ += self.max_rv_ / 10
-        if self.basic_rv_ > self.max_rv_:
-            self.basic_rv_ = self.max_rv_
 
-    def decrease_angular_speed(self, actuator):
-        self.basic_rv_ -= self.max_rv_ / 10
-        if self.basic_rv_ < self.min_rv_:
-            self.basic_tv_ = self.min_rv_
 
-    def callback(self, actuator):
-        new_twist = self.Twist()
-        try:
-            if self.actuator_linear_x:
-                new_twist.linear.x = self.basic_tv_ * actuator.get_value(self.actuator_linear_x)
-            if self.actuator_linear_y:
-                new_twist.linear.y = self.basic_tv_ * actuator.get_value(self.actuator_linear_y)
-            if self.actuator_angular_z:
-                new_twist.angular.z = self.basic_rv_ * actuator.get_value(self.actuator_angular_z)
-            self.cmd_vel_pub_.publish(new_twist)
-        except ValueError as error:
-            rospy.logerr(error)
 
-cmd_vel_1_ = CmdVel()
+
+
+
+
+
+
+
+
+
+
+
+
+# class CmdVel:
+#     from geometry_msgs.msg import Twist
+#
+#     def __init__(self):
+#
+#         self.namespace = None
+#         self.max_tv_ = None
+#         self.max_rv_ = None
+#         self.min_tv_ = None
+#         self.min_rv_ = None
+#         self.basic_tv_ = None
+#         self.basic_rv_ = None
+#
+#         self.actuator_linear_x = None
+#         self.actuator_linear_y = None
+#         self.actuator_angular_z = None
+#
+#         self.cmd_vel_pub_ = None
+#
+#     def load_parameters(self, namespace, publishing_topic, actuator_linear_x, actuator_linear_y, actuator_angular_z):
+#         self.namespace = namespace
+#
+#         self.max_tv_ = rospy.get_param('~' + self.namespace + 'MaxTransVel', 1.0)
+#         self.max_rv_ = rospy.get_param('~' + self.namespace + 'MinTransVel', 1.0)
+#         self.min_tv_ = rospy.get_param('~' + self.namespace + 'MaxRotVel', 1.0)
+#         self.min_rv_ = rospy.get_param('~' + self.namespace + 'MinRotVel', 1.0)
+#         self.basic_tv_ = rospy.get_param('~' + self.namespace + 'InitTransVel', 1.0)
+#         self.basic_rv_ = rospy.get_param('~' + self.namespace + 'InitRotVel', 1.0)
+#
+#         self.cmd_vel_pub_ = rospy.Publisher(publishing_topic, self.Twist, queue_size=1)
+#         self.actuator_linear_x = actuator_linear_x
+#         self.actuator_linear_y = actuator_linear_y
+#         self.actuator_angular_z = actuator_angular_z
+#
+#     def increase_linear_speed(self, actuator):
+#         self.basic_tv_ += self.max_tv_ / 10
+#         if self.basic_tv_ > self.max_tv_:
+#             self.basic_tv_ = self.max_tv_
+#
+#     def decrease_linear_speed(self, actuator):
+#         self.basic_tv_ -= self.max_tv_ / 10
+#         if self.basic_tv_ < self.min_tv_:
+#             self.basic_tv_ = self.min_tv_
+#
+#     def increase_angular_speed(self, actuator):
+#         self.basic_rv_ += self.max_rv_ / 10
+#         if self.basic_rv_ > self.max_rv_:
+#             self.basic_rv_ = self.max_rv_
+#
+#     def decrease_angular_speed(self, actuator):
+#         self.basic_rv_ -= self.max_rv_ / 10
+#         if self.basic_rv_ < self.min_rv_:
+#             self.basic_tv_ = self.min_rv_
+#
+#     def callback(self, actuator):
+#         new_twist = self.Twist()
+#         try:
+#             if self.actuator_linear_x:
+#                 new_twist.linear.x = self.basic_tv_ * actuator.get_value(self.actuator_linear_x)
+#             if self.actuator_linear_y:
+#                 new_twist.linear.y = self.basic_tv_ * actuator.get_value(self.actuator_linear_y)
+#             if self.actuator_angular_z:
+#                 new_twist.angular.z = self.basic_rv_ * actuator.get_value(self.actuator_angular_z)
+#             self.cmd_vel_pub_.publish(new_twist)
+#         except ValueError as error:
+#             rospy.logerr(error)
+#
+# cmd_vel_1_ = CmdVel()
 
 
