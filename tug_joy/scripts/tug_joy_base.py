@@ -4,6 +4,7 @@ import rospy
 from tug_joy_controller_mappings import *
 from tug_joy_actuators import VirtualStickOf4
 from tug_joy_actuators import VirtualStickOf2
+from tug_joy_actuators import Group
 from tug_joy_constants import *
 
 
@@ -209,6 +210,18 @@ class Manager:
         return True
 
     @staticmethod
+    def add_actuator_group(name, actuator_names, callback_fct=None):
+        if not all(key in Manager.instance.actuators.keys() for key in actuator_names):
+            rospy.logwarn("[" + name + "] one or more necessary actuator(s) not found!")
+            return False
+
+        # if not Manager.instance.actuators[horizontal_name] or not Manager.instance.actuators[vertical_name]:
+        #     rospy.logwarn("[" + name + "] one or more necessary actuator(s) not mapped!")
+        #     return False
+
+        Manager.instance.actuators.update({name: Group([Manager.instance.actuators[actuator] for actuator in actuator_names], name, callback_fct)})
+
+    @staticmethod
     def joy_callback(msg):
         """
         Callback which is called if a new joy message is published by the joy node.
@@ -230,7 +243,7 @@ class Manager:
                 continue
 
             try:
-                if actuator.__class__.__name__ in ['VirtualStickOf4', 'VirtualStickOf2']:
+                if actuator.__class__.__name__ in ['VirtualStickOf4', 'VirtualStickOf2', 'Group']:
                     actuator.set_value(msg)
             except:
                 rospy.logerr("[" + actuator.name + "] set_value error!")

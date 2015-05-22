@@ -134,11 +134,11 @@ class PS3Mapping:
 
         AXIS.GYROSCOPE_ROLL:  None,
         AXIS.GYROSCOPE_PITCH: None,
-        AXIS.GYROSCOPE_YAW:   Axis(26, 'gyroscope_yaw'),
+        AXIS.GYROSCOPE_YAW:   Axis(26, 'gyroscope_yaw')
 
         # Stick mapping
-        STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
-        STICK.STICK_RIGHT: Stick(2, 3, 'stick_stick_right')
+        # STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
+        # STICK.STICK_RIGHT: Stick(2, 3, 'stick_stick_right')
     }
 
 
@@ -255,11 +255,11 @@ class LogitechRumblePad2Mapping:
 
         AXIS.GYROSCOPE_ROLL:  None,
         AXIS.GYROSCOPE_PITCH: None,
-        AXIS.GYROSCOPE_YAW:   None,  # Axis(26, 'gyroscope_yaw')
+        AXIS.GYROSCOPE_YAW:   None  # Axis(26, 'gyroscope_yaw')
 
         # Stick mapping
-        STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
-        STICK.STICK_RIGHT: Stick(2, 3, 'stick_stick_right')
+        # STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
+        # STICK.STICK_RIGHT: Stick(2, 3, 'stick_stick_right')
     }
 
 
@@ -376,11 +376,11 @@ class XBox360Mapping:
 
         AXIS.GYROSCOPE_ROLL:  None,
         AXIS.GYROSCOPE_PITCH: None,
-        AXIS.GYROSCOPE_YAW:   None,
+        AXIS.GYROSCOPE_YAW:   None
 
         # Stick mapping
-        STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
-        STICK.STICK_RIGHT: Stick(3, 4, 'stick_stick_right')
+        # STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
+        # STICK.STICK_RIGHT: Stick(3, 4, 'stick_stick_right')
     }
 
 
@@ -497,9 +497,9 @@ class DefaultMapping:
 
         AXIS.GYROSCOPE_ROLL:  None,
         AXIS.GYROSCOPE_PITCH: None,
-        AXIS.GYROSCOPE_YAW:   None,  # Axis(26, 'gyroscope_yaw')
+        AXIS.GYROSCOPE_YAW:   None  # Axis(26, 'gyroscope_yaw')
 
         # Stick mapping
-        STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
-        STICK.STICK_RIGHT: Stick(3, 2, 'stick_stick_right')
+        # STICK.STICK_LEFT:  Stick(0, 1, 'stick_stick_left'),
+        # STICK.STICK_RIGHT: Stick(3, 2, 'stick_stick_right')
     }

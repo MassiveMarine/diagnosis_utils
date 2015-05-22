@@ -91,10 +91,10 @@ class AXIS:
     GYROSCOPE_YAW = 'gyroscope_yaw'
 
 
-class STICK:
-    """
-    All names that can be used for sticks.
-    """
-    # General stick names
-    STICK_LEFT = 'stick_stick_left'
-    STICK_RIGHT = 'stick_stick_right'
+# class STICK:
+#     """
+#     All names that can be used for sticks.
+#     """
+#     # General stick names
+#     STICK_LEFT = 'stick_stick_left'
+#     STICK_RIGHT = 'stick_stick_right'

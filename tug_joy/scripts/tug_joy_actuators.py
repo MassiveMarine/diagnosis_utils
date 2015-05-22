@@ -491,3 +491,58 @@ class VirtualStickOf4(Actuator):
 
     def __repr__(self):
         return str(self)
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Group(Actuator):
+    def __init__(self, actuators, name='unknown', callback_fct=None):
+
+        Actuator.__init__(self, name, callback_fct)
+        self.actuators = actuators
+        self.__values = dict((actuator.name, 0.0) for actuator in actuators)
+
+    def set_value(self, msg):
+
+        if not all(self.actuators):
+            logerr("[" + Actuator.__str__(self) + "] actuator not found")
+            return
+
+        try:
+            for actuator in self.actuators:
+                self.__values[actuator.name] = actuator.value
+
+        except:
+            logerr("[" + Actuator.__str__(self) + "] button/axis not available or do not exist")
+
+    def get_value(self, actuator_name):
+        if actuator_name not in self.__values:
+            raise ValueError("[" + str(self.name) + "] Actuator '" + str(actuator_name) + "' not used in this group!")
+
+        return self.__values[actuator_name]
+
+
+    def set_cb(self, callback_fct, callback_filtering=CB_FILTERING_NONE):
+        """
+        Is called to setup the callback function.
+        :param callback_fct: callback function, which can be set by the user and is called by the manager.
+        :param callback_filtering: This is ignored and always set to 'CB_FILTERING_NONE'.
+        """
+        Actuator.set_cb(self, callback_fct, CB_FILTERING_NONE)
+        if callback_filtering != CB_FILTERING_NONE:
+            logwarn('CB Filtering at actuator groups not possible!')
+
+    def __str__(self):
+        return ' G ' + Actuator.__str__(self) + '\n' + '\n'.join(str(key) + ': ' + str(val) for key, val in self.__values.iteritems())
+
+    def __repr__(self):
+        return str(self)
