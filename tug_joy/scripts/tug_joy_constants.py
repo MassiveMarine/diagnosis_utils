@@ -16,6 +16,7 @@ class CONTROLLER:
     CONTROLLER_NAME_DEFAULT = 'default'
 
 # CB filter types
+CB_FILTERING_DISABLED = 'Disabled'
 CB_FILTERING_NONE = 'None'
 CB_FILTERING_PRESS = 'Press'
 CB_FILTERING_RELEASE = 'Release'

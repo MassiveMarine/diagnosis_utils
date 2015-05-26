@@ -51,39 +51,34 @@ the current mapping.
 """
 
 
-# def activate_setup_1(actuator):
-#     rospy.logdebug(str(actuator))
-#     Manager().set_function_mapping([Mapping(STICK.STICK_RIGHT, cmd_vel_1_.callback)])
-#
-#
-# def deactivate_setup_1(actuator):
-#     rospy.logdebug(str(actuator))
-#     Manager().set_function_mapping([Mapping(STICK.STICK_RIGHT, None)], True)
-#
-#
-# def activate_setup_2(actuator):
-#     rospy.logdebug(str(actuator))
-#     Manager().set_function_mapping([Mapping(STICK.STICK_LEFT, stick_cb)])
-#
-#
-# def deactivate_setup_2(actuator):
-#     rospy.logdebug(str(actuator))
-#     Manager().set_function_mapping([Mapping(STICK.STICK_LEFT, None)], True)
-#
-#
-# def stick_cb(actuator):
-#     rospy.loginfo(str(actuator))
-#
-#
-# def axis_cb(actuator):
-#     rospy.loginfo(str(actuator))
-#
-#
-# def group_cb(actuator):
-#     rospy.loginfo(str(actuator))
+def stick_left_on_cb(values_dict):
+    Manager().add_callback(stick_left)
 
 
+def stick_left_off_cb(values_dict):
+    Manager().remove_callback(stick_left)
 
+
+def stick_right_on_cb(values_dict):
+    Manager().add_callback(stick_right)
+
+
+def stick_right_off_cb(values_dict):
+    Manager().remove_callback(stick_right)
+
+
+def stick_1_cb(values_dict):
+    print values_dict
+
+
+stick_left_on = CallbackBase('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_on_cb, CB_FILTERING_PRESS)
+stick_left_off = CallbackBase('StickLeftOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_off_cb, CB_FILTERING_RELEASE)
+
+stick_right_on = CallbackBase('StickRightOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_on_cb, CB_FILTERING_PRESS)
+stick_right_off = CallbackBase('StickRightOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_off_cb, CB_FILTERING_RELEASE)
+
+stick_left = CallbackBase('StichLeftCB', [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL], stick_1_cb)
+stick_right = CallbackBase('StichRightCB', [AXIS.STICK_AXIS_RIGHT_HORIZONTAL, AXIS.STICK_AXIS_RIGHT_VERTICAL], stick_1_cb)
 
 
 ########################################################################################################################
@@ -104,9 +99,10 @@ def manager_start_cb():
     # first_cb.load_parameters([(BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS)])
     # first_cb.load_parameters([AXIS.STICK_AXIS_LEFT_HORIZONTAL,
     #                           AXIS.STICK_AXIS_LEFT_VERTICAL])
-    Manager().add_callback(setup_1_active_cb)
-    # Manager().add_callback(setup_2_active_cb)
-    Manager().add_callback(setup_1_deactive_cb)
+    Manager().add_callback(stick_left_on)
+    Manager().add_callback(stick_left_off)
+    Manager().add_callback(stick_right_on)
+    Manager().add_callback(stick_right_off)
 
 
 def manager_break_once_cb():
@@ -146,49 +142,16 @@ def manager_exit_cb():
 ########################################################################################################################
 
 
-def special_actuators():
-    """
-    Define new actuators if you need one. This actuators are virtual, so
-    they do not exist in real and are computed by using already defined
-    actuators. An Virtual stick can be created out of 4 actuators or 2
-    actuators for example.
-    """
-    # Manager.add_actuator_group('first_group',
-    #                            [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL])
-    pass
-
-
-
-
-class Setup1ActiveCB(CallbackBase):
-    def callback(self, values_dict):
-        Manager().add_callback(stick_left)
-
-class Setup1DeactiveCB(CallbackBase):
-    def callback(self, values_dict):
-        Manager().remove_callback(stick_left)
-
-class StichCB(CallbackBase):
-    def callback(self, values_dict):
-        print values_dict[AXIS.STICK_AXIS_LEFT_HORIZONTAL]
-        # pass
-
-
-setup_1_active_cb = Setup1ActiveCB('Setup1ActiveCB', [BUTTONS.FUNCTION_LEFT], CB_FILTERING_PRESS)
-setup_1_deactive_cb = Setup1DeactiveCB('Setup1DectiveCB', [BUTTONS.FUNCTION_LEFT], CB_FILTERING_RELEASE)
-#
-stick_left = StichCB('StichCB', [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL])
-
-
-
-
-
-
-
-
-
-
-
+# def special_actuators():
+#     """
+#     Define new actuators if you need one. This actuators are virtual, so
+#     they do not exist in real and are computed by using already defined
+#     actuators. An Virtual stick can be created out of 4 actuators or 2
+#     actuators for example.
+#     """
+#     # Manager.add_actuator_group('first_group',
+#     #                            [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL])
+#     pass
 
 
 

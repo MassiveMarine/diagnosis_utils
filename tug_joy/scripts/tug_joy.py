@@ -26,7 +26,7 @@ if __name__ == "__main__":
                 config.manager_break_continuous_cb,
                 config.manager_exit_cb)
 
-        config.special_actuators()
+        # config.special_actuators()
         config.manager_start_cb()
 
 

@@ -8,14 +8,15 @@ class Actuator:
     """
     Base of all actuators.
     """
-    def __init__(self, name):
+    def __init__(self, name, filtering=CB_FILTERING_DISABLED):
         """
         Constructor of Actuator
         :param name: name of this actuator
         """
         self.name = name
+        self.value = 0.0
         self.__used = False
-        self.change_since_last = CB_FILTERING_NONE
+        self.filtering = filtering
 
     def set_used(self, in_use):
         if in_use and self.__used:
@@ -42,8 +43,7 @@ class Button(Actuator):
         :param button_id: index of this button in the 'buttons'-array of the joy-msg.
         :param name: name of this actuator
         """
-        Actuator.__init__(self, name)
-        self.value = 0.0
+        Actuator.__init__(self, name, CB_FILTERING_NONE)
         self.button_id = button_id
 
     def set_value(self, msg):
@@ -56,7 +56,7 @@ class Button(Actuator):
         try:
             if self.value != msg.buttons[self.button_id]:
                 self.value = msg.buttons[self.button_id]
-                self.change_since_last = (CB_FILTERING_PRESS if self.value == 1 else CB_FILTERING_RELEASE)
+                self.filtering = (CB_FILTERING_PRESS if self.value == 1 else CB_FILTERING_RELEASE)
         except:
             logerr("[" + Actuator.__str__(self) + "] button id '", str(self.button_id), "' not found")
 
@@ -81,8 +81,7 @@ class VirtualButton(Actuator):
                                      False if < -0.5 represents a pressed button
         :param name: name of this actuator
         """
-        Actuator.__init__(self, name)
-        self.value = 0.0
+        Actuator.__init__(self, name, CB_FILTERING_NONE)
         self.axis_id = axis_id
         self.response_at_positive = response_at_positive
 
@@ -104,7 +103,7 @@ class VirtualButton(Actuator):
 
             if self.value != new_value:
                 self.value = new_value
-                self.change_since_last = (CB_FILTERING_PRESS if self.value == 1 else CB_FILTERING_RELEASE)
+                self.filtering = (CB_FILTERING_PRESS if self.value == 1 else CB_FILTERING_RELEASE)
         except:
             logerr("[" + Actuator.__str__(self) + "] virtual button id '", str(self.axis_id), "' not found")
 
@@ -128,7 +127,6 @@ class Axis(Actuator):
         :param name: name of this actuator
         """
         Actuator.__init__(self, name)
-        self.value = 0.0
         self.axis_id = axis_id
 
     def set_value(self, msg):
@@ -169,7 +167,6 @@ class VirtualAxis(Actuator):
         :param name: name of this actuator
         """
         Actuator.__init__(self, name)
-        self.value = 0.0
         self.positive_id = positive_id
         self.negative_id = negative_id
 

@@ -6,13 +6,14 @@ from tug_joy_constants import *
 
 
 class CallbackBase:
-    def __init__(self, name, actuators, callback_filtering=CB_FILTERING_NONE):
+    def __init__(self, name, actuators, callback=None, cb_filtering=CB_FILTERING_NONE):
         self.name = name
         self.actuators = actuators
-        self.callback_filtering = callback_filtering
-        self.change_since_last = 'None'
+        self.cb_filtering = cb_filtering
 
-    def callback(self, values_dict):
+        self.callback = callback if callback else self.callback_base
+
+    def callback_base(self, values_dict):
         raise ValueError('Callback has to be overloaded')
 
     def __str__(self):
@@ -35,7 +36,6 @@ class Manager:
             self.actuators = dict()
             self.callbacks = []
             self.rate = rospy.Rate(rate)
-            self.new_mapping = []
             self.cb_at_break_once = cb_at_break_once
             self.cb_at_break_once_already_called = False
             self.cb_at_break_continuous = cb_at_break_continuous
@@ -92,24 +92,20 @@ class Manager:
                 Manager.inst.cb_at_break_once_already_called = False
 
                 for cb in Manager.inst.callbacks:
-                    if cb.callback_filtering == CB_FILTERING_NONE:
-                        cb.callback(dict((k, v) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
+                    if cb.cb_filtering == CB_FILTERING_NONE:
+                        cb.callback(dict((k, v.value) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
                         continue
 
                     for key, actuator in Manager.inst.actuators.iteritems():
-                        if key not in cb.actuators or actuator.change_since_last != cb.callback_filtering:
+                        if key not in cb.actuators or actuator.filtering != cb.cb_filtering:
                             continue
 
-                        cb.callback(dict((k, v) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
+                        cb.callback(dict((k, v.value) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
 
                 for actuator in Manager.inst.actuators.itervalues():
                     if actuator:
-                        actuator.change_since_last = CB_FILTERING_NONE
+                        actuator.filtering = CB_FILTERING_NONE
 
-                # change to new mapping if a callback changed it
-                if len(Manager.inst.new_mapping) > 0:
-                    self.set_function_mapping(Manager.inst.new_mapping, True)
-                    Manager.inst.new_mapping = []
             else:
                 if not Manager.inst.cb_at_break_once_already_called and Manager.inst.cb_at_break_once:
                     Manager.inst.cb_at_break_once()
@@ -123,13 +119,19 @@ class Manager:
             Manager.inst.cb_at_exit()
 
     @staticmethod
-    def add_callback(callback_fct):
-        if callback_fct not in Manager.inst.callbacks:
-            [v.set_used(True) for k, v in Manager.inst.actuators.iteritems() if k in callback_fct.actuators]
+    def add_callback(cb):
+        if cb not in Manager.inst.callbacks:
 
-            Manager.inst.callbacks.append(callback_fct)
+            for k, v in Manager.inst.actuators.iteritems():
+                if k in cb.actuators and v.filtering == CB_FILTERING_DISABLED and cb.cb_filtering != CB_FILTERING_NONE:
+                    rospy.logwarn("'" + cb.name + "' should be filterd but this is only possible if all actuators are buttons. Filter will be disabled for this callback!")
+                    cb.cb_filtering = CB_FILTERING_NONE
+
+            [v.set_used(True) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators]
+
+            Manager.inst.callbacks.append(cb)
         else:
-            rospy.logwarn("'" + callback_fct.name + "' already in list!")
+            rospy.logwarn("'" + cb.name + "' already in list!")
 
     @staticmethod
     def remove_callback(callback_fct):
