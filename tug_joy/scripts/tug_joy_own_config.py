@@ -1,84 +1,82 @@
 #!/usr/bin/env python
 
 """
-tug_joy_own_config is used to define all needed callbacks and mappings,
-which are needed for the current environment. There are also some predefined
-callbacks and mappings.
+tug_joy_own_config is used to define all needed callbacks, which are needed for the current environment. There are also
+some predefined callbacks.
 """
 
 import rospy
 from tug_joy_constants import *
 from tug_joy_base import Manager
-from tug_joy_base import CallbackBase
-
-########################################################################################################################
-#                                                 PREDEFINED MAPPINGS                                                  #
-########################################################################################################################
-
-
-def startup_config():
-    """
-    This is the startup mapping. It will be loaded as first mapping.
-    :return: Array of Mapping objects, that define the Mapping of actuators at
-             startup.
-    """
-
-    return []
-
-
-########################################################################################################################
-#                                                     OWN MAPPINGS                                                     #
-# def example_config():                                                                                                #
-#     return [Mapping(BUTTONS.FUNCTION_RIGHT, activate_setup_1, CB_FILTERING_PRESS),                                   #
-#             Mapping(BUTTONS.FUNCTION_LEFT, deactivate_setup_1, CB_FILTERING_RELEASE)]                                #
-#                                                                                                                      #
-########################################################################################################################
-"""
-If there are mappings which are used several times in the code, they can be
-defined in this section.
-"""
+from tug_joy_base import Callback
+from tug_joy_std_callbacks import *
 
 ########################################################################################################################
 #                                                    OWN CALLBACKS                                                     #
-# def example_cb(actuator):                                                                                            #
-#     rospy.logdebug(str(actuator))                                                                                    #
-#     # do what ever you want                                                                                          #
+# def example_cb_fct(values_dict):                                                                                     #
+#     pass                                                                                                             #
+#                                                                                                                      #
+# example_cb_object = Callback('Example', [...used actuator...], example_cb_fct, ...filter option...)                  #
 #                                                                                                                      #
 ########################################################################################################################
 """
-All callbacks are defined in this section. They can also be used to change
-the current mapping.
+All callback functions are defined in this section. Do not forget to create the Callback-object. The callback fct can
+also be used to add or remove callbacks of the manager.
 """
 
+cmd_vel_obj = CmdVel(actuator_linear_x=AXIS.STICK_AXIS_LEFT_VERTICAL,
+                     actuator_linear_y=AXIS.STICK_AXIS_LEFT_HORIZONTAL,
+                     actuator_angular_z=AXIS.STICK_AXIS_RIGHT_HORIZONTAL,
+                     namespace='cmd_vel_1/',
+                     publishing_topic='/cmd_vel')
 
-def stick_left_on_cb(values_dict):
-    Manager().add_callback(stick_left)
-
-
-def stick_left_off_cb(values_dict):
-    Manager().remove_callback(stick_left)
-
-
-def stick_right_on_cb(values_dict):
-    Manager().add_callback(stick_right)
-
-
-def stick_right_off_cb(values_dict):
-    Manager().remove_callback(stick_right)
+cmd_vel = []
+cmd_vel.append(Callback('cmd_vel_1', cmd_vel_obj.used_actuators, cmd_vel_obj.callback))
+cmd_vel.append(Callback('cmd_vel_1_lin+', BUTTONS.CROSS_1_BUTTON_UP, cmd_vel_obj.increase_linear_speed_cb, CB_FILTERING_PRESS))
+cmd_vel.append(Callback('cmd_vel_1_lin-', BUTTONS.CROSS_1_BUTTON_DOWN, cmd_vel_obj.decrease_linear_speed_cb, CB_FILTERING_PRESS))
+cmd_vel.append(Callback('cmd_vel_1_ang+', BUTTONS.CROSS_1_BUTTON_LEFT, cmd_vel_obj.increase_angular_speed_cb, CB_FILTERING_PRESS))
+cmd_vel.append(Callback('cmd_vel_1_ang-', BUTTONS.CROSS_1_BUTTON_RIGHT, cmd_vel_obj.decrease_angular_speed_cb, CB_FILTERING_PRESS))
 
 
-def stick_1_cb(values_dict):
-    print values_dict
+def enable_disable_cmd_vel_cb(values_dict):
+    if values_dict[BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT]:
+        Manager().add_callback_list(cmd_vel)
+    else:
+        Manager().remove_callback_list(cmd_vel)
+
+enable_cmd_vel = Callback('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_PRESS)
+disable_cmd_vel = Callback('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_RELEASE)
 
 
-stick_left_on = CallbackBase('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_on_cb, CB_FILTERING_PRESS)
-stick_left_off = CallbackBase('StickLeftOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_off_cb, CB_FILTERING_RELEASE)
-
-stick_right_on = CallbackBase('StickRightOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_on_cb, CB_FILTERING_PRESS)
-stick_right_off = CallbackBase('StickRightOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_off_cb, CB_FILTERING_RELEASE)
-
-stick_left = CallbackBase('StichLeftCB', [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL], stick_1_cb)
-stick_right = CallbackBase('StichRightCB', [AXIS.STICK_AXIS_RIGHT_HORIZONTAL, AXIS.STICK_AXIS_RIGHT_VERTICAL], stick_1_cb)
+# def stick_left_on_cb(values_dict):
+#     Manager().add_callback(stick_left)
+#
+# stick_left_on = Callback('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_on_cb, CB_FILTERING_PRESS)
+#
+#
+# def stick_left_off_cb(values_dict):
+#     Manager().remove_callback(stick_left)
+#
+# stick_left_off = Callback('StickLeftOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_off_cb, CB_FILTERING_RELEASE)
+#
+#
+# def stick_right_on_cb(values_dict):
+#     Manager().add_callback(stick_right)
+#
+# stick_right_on = Callback('StickRightOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_on_cb, CB_FILTERING_PRESS)
+#
+#
+# def stick_right_off_cb(values_dict):
+#     Manager().remove_callback(stick_right)
+#
+# stick_right_off = Callback('StickRightOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_off_cb, CB_FILTERING_RELEASE)
+#
+#
+# def stick_1_cb(values_dict):
+#     print values_dict
+#
+# stick_left = Callback('StichLeftCB', [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL], stick_1_cb)
+# stick_right = Callback('StichRightCB', [AXIS.STICK_AXIS_RIGHT_HORIZONTAL, AXIS.STICK_AXIS_RIGHT_VERTICAL], stick_1_cb)
 
 
 ########################################################################################################################
@@ -87,22 +85,17 @@ stick_right = CallbackBase('StichRightCB', [AXIS.STICK_AXIS_RIGHT_HORIZONTAL, AX
 
 def manager_start_cb():
     """
-    This callback is called once at start time. It is used to load the
-    initial callback mapping 'startup_config'. It can be used to set the
-    system, robot, or whatever to a defined state.
+    This callback is called once at start time. It is used to load the initial callbacks. It can also be used to set
+    the system, robot, or whatever to a defined state.
     """
     rospy.logdebug('manager_start_cb')
-    # cmd_vel_1_.load_parameters('cmd_vel_1/', '/cmd_vel', AXIS.STICK_AXIS_LEFT_VERTICAL,
-    #                            AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL)
-    # Manager().set_function_mapping(startup_config())
-
-    # first_cb.load_parameters([(BUTTONS.FUNCTION_LEFT, CB_FILTERING_PRESS)])
-    # first_cb.load_parameters([AXIS.STICK_AXIS_LEFT_HORIZONTAL,
-    #                           AXIS.STICK_AXIS_LEFT_VERTICAL])
-    Manager().add_callback(stick_left_on)
-    Manager().add_callback(stick_left_off)
-    Manager().add_callback(stick_right_on)
-    Manager().add_callback(stick_right_off)
+    # Manager().add_callback(stick_left_on)
+    # Manager().add_callback(stick_left_off)
+    # Manager().add_callback(stick_right_on)
+    # Manager().add_callback(stick_right_off)
+    # Manager().add_callback_list(cmd_vel)
+    Manager().add_callback(enable_cmd_vel)
+    Manager().add_callback(disable_cmd_vel)
 
 
 def manager_break_once_cb():
@@ -129,101 +122,3 @@ def manager_exit_cb():
     """ This callback is called before this node will be killed. It can be used
     to set the system, robot, or whatever to a defined state. """
     rospy.logdebug('manager_exit_cb')
-
-########################################################################################################################
-#                                                 OWN DEFINED ACTUATORS                                                #
-#                                                                                                                      #
-# Manager().add_virtual_stick_of_4(AXIS.CROSS_1_AXIS_UP, AXIS.CROSS_1_AXIS_RIGHT,                                      #
-#                                  AXIS.CROSS_1_AXIS_DOWN, AXIS.CROSS_1_AXIS_LEFT,                                     #
-#                                  example_cb, 'ex_stick_1', [1.0, 1.0])                                               #
-#                                                                                                                      #
-# Manager().add_virtual_stick_of_2(AXIS.CROSS_2_AXIS_HORIZONTAL, AXIS.CROSS_2_AXIS_VERTICAL, example_cb, 'ex_stick_2') #
-#                                                                                                                      #
-########################################################################################################################
-
-
-# def special_actuators():
-#     """
-#     Define new actuators if you need one. This actuators are virtual, so
-#     they do not exist in real and are computed by using already defined
-#     actuators. An Virtual stick can be created out of 4 actuators or 2
-#     actuators for example.
-#     """
-#     # Manager.add_actuator_group('first_group',
-#     #                            [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL, AXIS.STICK_AXIS_RIGHT_HORIZONTAL])
-#     pass
-
-
-
-
-
-# class CmdVel:
-#     from geometry_msgs.msg import Twist
-#
-#     def __init__(self):
-#
-#         self.namespace = None
-#         self.max_tv_ = None
-#         self.max_rv_ = None
-#         self.min_tv_ = None
-#         self.min_rv_ = None
-#         self.basic_tv_ = None
-#         self.basic_rv_ = None
-#
-#         self.actuator_linear_x = None
-#         self.actuator_linear_y = None
-#         self.actuator_angular_z = None
-#
-#         self.cmd_vel_pub_ = None
-#
-#     def load_parameters(self, namespace, publishing_topic, actuator_linear_x, actuator_linear_y, actuator_angular_z):
-#         self.namespace = namespace
-#
-#         self.max_tv_ = rospy.get_param('~' + self.namespace + 'MaxTransVel', 1.0)
-#         self.max_rv_ = rospy.get_param('~' + self.namespace + 'MinTransVel', 1.0)
-#         self.min_tv_ = rospy.get_param('~' + self.namespace + 'MaxRotVel', 1.0)
-#         self.min_rv_ = rospy.get_param('~' + self.namespace + 'MinRotVel', 1.0)
-#         self.basic_tv_ = rospy.get_param('~' + self.namespace + 'InitTransVel', 1.0)
-#         self.basic_rv_ = rospy.get_param('~' + self.namespace + 'InitRotVel', 1.0)
-#
-#         self.cmd_vel_pub_ = rospy.Publisher(publishing_topic, self.Twist, queue_size=1)
-#         self.actuator_linear_x = actuator_linear_x
-#         self.actuator_linear_y = actuator_linear_y
-#         self.actuator_angular_z = actuator_angular_z
-#
-#     def increase_linear_speed(self, actuator):
-#         self.basic_tv_ += self.max_tv_ / 10
-#         if self.basic_tv_ > self.max_tv_:
-#             self.basic_tv_ = self.max_tv_
-#
-#     def decrease_linear_speed(self, actuator):
-#         self.basic_tv_ -= self.max_tv_ / 10
-#         if self.basic_tv_ < self.min_tv_:
-#             self.basic_tv_ = self.min_tv_
-#
-#     def increase_angular_speed(self, actuator):
-#         self.basic_rv_ += self.max_rv_ / 10
-#         if self.basic_rv_ > self.max_rv_:
-#             self.basic_rv_ = self.max_rv_
-#
-#     def decrease_angular_speed(self, actuator):
-#         self.basic_rv_ -= self.max_rv_ / 10
-#         if self.basic_rv_ < self.min_rv_:
-#             self.basic_tv_ = self.min_rv_
-#
-#     def callback(self, actuator):
-#         new_twist = self.Twist()
-#         try:
-#             if self.actuator_linear_x:
-#                 new_twist.linear.x = self.basic_tv_ * actuator.get_value(self.actuator_linear_x)
-#             if self.actuator_linear_y:
-#                 new_twist.linear.y = self.basic_tv_ * actuator.get_value(self.actuator_linear_y)
-#             if self.actuator_angular_z:
-#                 new_twist.angular.z = self.basic_rv_ * actuator.get_value(self.actuator_angular_z)
-#             self.cmd_vel_pub_.publish(new_twist)
-#         except ValueError as error:
-#             rospy.logerr(error)
-#
-# cmd_vel_1_ = CmdVel()
-
-

@@ -12,20 +12,38 @@ class Actuator:
         """
         Constructor of Actuator
         :param name: name of this actuator
+        :param filtering:
+                CB_FILTERING_NONE     -> callback is enabled for this actuator. This parameter saves
+                                         the information if last change (press -> release  or release -> press)
+                CB_FILTERING_DISABLED -> callback is disabled for this actuator.
         """
         self.name = name
         self.value = 0.0
-        self.__used = False
+        self.__used = 0
         self.filtering = filtering
 
     def set_used(self, in_use):
-        if in_use and self.__used:
-            logwarn("[" + Actuator.__str__(self) + "] Is used more than once!")
+        """
+        Mark this actuator used or unused by one loaded callback
+        :param in_use: True if actuator is now used
+                       False if actuator is now used
+        """
 
-        self.__used = in_use
+        if self.__used > 0 and in_use:
+            logwarn("[" + Actuator.__str__(self) + "] is used more than once!")
+
+        if in_use:
+            self.__used += 1
+        else:
+            self.__used -= 1
 
     def is_used(self):
-        return self.__is_used
+        """
+        Check if actuator is already used
+        :return: True if actuator is in use by at least on callback
+                 False if actuator is not used
+        """
+        return True if self.__used > 0 else False
 
     def __str__(self):
         return str(self.name)
@@ -58,7 +76,7 @@ class Button(Actuator):
                 self.value = msg.buttons[self.button_id]
                 self.filtering = (CB_FILTERING_PRESS if self.value == 1 else CB_FILTERING_RELEASE)
         except:
-            logerr("[" + Actuator.__str__(self) + "] button id '", str(self.button_id), "' not found")
+            logerr("[" + Actuator.__str__(self) + "] button id '" + str(self.button_id) + "' not found")
 
     def __str__(self):
         return ' B ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
@@ -105,7 +123,7 @@ class VirtualButton(Actuator):
                 self.value = new_value
                 self.filtering = (CB_FILTERING_PRESS if self.value == 1 else CB_FILTERING_RELEASE)
         except:
-            logerr("[" + Actuator.__str__(self) + "] virtual button id '", str(self.axis_id), "' not found")
+            logerr("[" + Actuator.__str__(self) + "] virtual button id '" + str(self.axis_id) + "' not found")
 
     def __str__(self):
         return 'VB ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
@@ -139,7 +157,7 @@ class Axis(Actuator):
         try:
             self.value = msg.axes[self.axis_id]
         except:
-            logerr("[" + Actuator.__str__(self) + "] axis id '", str(self.axis_id), "' not found")
+            logerr("[" + Actuator.__str__(self) + "] axis id '" + str(self.axis_id) + "' not found")
 
     def __str__(self):
         return ' A ' + Actuator.__str__(self) + ' val: {0: .3f}'.format(self.value)
