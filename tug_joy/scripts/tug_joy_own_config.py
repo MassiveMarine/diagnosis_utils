@@ -14,6 +14,7 @@ from tug_joy_std_callbacks import *
 ########################################################################################################################
 #                                                    OWN CALLBACKS                                                     #
 # def example_cb_fct(values_dict):                                                                                     #
+#     # values_dict[ACTUATORNAME] = value_of_actuator                                                                  #
 #     pass                                                                                                             #
 #                                                                                                                      #
 # example_cb_object = Callback('Example', [...used actuator...], example_cb_fct, ...filter option...)                  #
@@ -23,60 +24,59 @@ from tug_joy_std_callbacks import *
 All callback functions are defined in this section. Do not forget to create the Callback-object. The callback fct can
 also be used to add or remove callbacks of the manager.
 """
+# Cmd vel
+cmd_vel = CmdVel(actuator_linear_x=AXIS.STICK_AXIS_LEFT_VERTICAL,
+                 actuator_linear_y="",
+                 actuator_angular_z=AXIS.STICK_AXIS_LEFT_HORIZONTAL,
+                 namespace='cmd_vel_1/',
+                 publishing_topic='/cmd_vel')
 
-cmd_vel_obj = CmdVel(actuator_linear_x=AXIS.STICK_AXIS_LEFT_VERTICAL,
-                     actuator_linear_y=AXIS.STICK_AXIS_LEFT_HORIZONTAL,
-                     actuator_angular_z=AXIS.STICK_AXIS_RIGHT_HORIZONTAL,
-                     namespace='cmd_vel_1/',
-                     publishing_topic='/cmd_vel')
-
-cmd_vel = []
-cmd_vel.append(Callback('cmd_vel_1', cmd_vel_obj.used_actuators, cmd_vel_obj.callback))
-cmd_vel.append(Callback('cmd_vel_1_lin+', BUTTONS.CROSS_1_BUTTON_UP, cmd_vel_obj.increase_linear_speed_cb, CB_FILTERING_PRESS))
-cmd_vel.append(Callback('cmd_vel_1_lin-', BUTTONS.CROSS_1_BUTTON_DOWN, cmd_vel_obj.decrease_linear_speed_cb, CB_FILTERING_PRESS))
-cmd_vel.append(Callback('cmd_vel_1_ang+', BUTTONS.CROSS_1_BUTTON_LEFT, cmd_vel_obj.increase_angular_speed_cb, CB_FILTERING_PRESS))
-cmd_vel.append(Callback('cmd_vel_1_ang-', BUTTONS.CROSS_1_BUTTON_RIGHT, cmd_vel_obj.decrease_angular_speed_cb, CB_FILTERING_PRESS))
+cmd_vel_cbs = [Callback('cmd_vel_1', cmd_vel.used_actuators, cmd_vel.callback),
+               Callback('cmd_vel_1_lin+', BUTTONS.CROSS_1_BUTTON_UP, cmd_vel.increase_linear_speed_cb, CB_FILTERING_PRESS),
+               Callback('cmd_vel_1_lin-', BUTTONS.CROSS_1_BUTTON_DOWN, cmd_vel.decrease_linear_speed_cb, CB_FILTERING_PRESS),
+               Callback('cmd_vel_1_ang+', BUTTONS.CROSS_1_BUTTON_LEFT, cmd_vel.increase_angular_speed_cb, CB_FILTERING_PRESS),
+               Callback('cmd_vel_1_ang-', BUTTONS.CROSS_1_BUTTON_RIGHT, cmd_vel.decrease_angular_speed_cb, CB_FILTERING_PRESS)]
 
 
 def enable_disable_cmd_vel_cb(values_dict):
     if values_dict[BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT]:
-        Manager().add_callback_list(cmd_vel)
+        Manager().add_callback_list(cmd_vel_cbs)
     else:
-        Manager().remove_callback_list(cmd_vel)
+        Manager().remove_callback_list(cmd_vel_cbs)
+        cmd_vel.stop_cb(values_dict)
 
-enable_cmd_vel = Callback('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_PRESS)
-disable_cmd_vel = Callback('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_RELEASE)
+enable_cmd_vel = Callback('Cmd_Vel_On', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_PRESS)
+disable_cmd_vel = Callback('Cmd_Vel_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_RELEASE)
+
+# sensor head
+yaw_cmd = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_HORIZONTAL,
+                         namespace='sh_yaw/',
+                         publishing_topic='/sh_yaw_controller/command')
+
+pitch_cmd = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_VERTICAL,
+                           namespace='sh_pitch/',
+                           publishing_topic='/sh_pitch_controller/command',
+                           inverse=True)
 
 
-# def stick_left_on_cb(values_dict):
-#     Manager().add_callback(stick_left)
-#
-# stick_left_on = Callback('StickLeftOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_on_cb, CB_FILTERING_PRESS)
-#
-#
-# def stick_left_off_cb(values_dict):
-#     Manager().remove_callback(stick_left)
-#
-# stick_left_off = Callback('StickLeftOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], stick_left_off_cb, CB_FILTERING_RELEASE)
-#
-#
-# def stick_right_on_cb(values_dict):
-#     Manager().add_callback(stick_right)
-#
-# stick_right_on = Callback('StickRightOnCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_on_cb, CB_FILTERING_PRESS)
-#
-#
-# def stick_right_off_cb(values_dict):
-#     Manager().remove_callback(stick_right)
-#
-# stick_right_off = Callback('StickRightOffCB', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], stick_right_off_cb, CB_FILTERING_RELEASE)
-#
-#
-# def stick_1_cb(values_dict):
-#     print values_dict
-#
-# stick_left = Callback('StichLeftCB', [AXIS.STICK_AXIS_LEFT_HORIZONTAL, AXIS.STICK_AXIS_LEFT_VERTICAL], stick_1_cb)
-# stick_right = Callback('StichRightCB', [AXIS.STICK_AXIS_RIGHT_HORIZONTAL, AXIS.STICK_AXIS_RIGHT_VERTICAL], stick_1_cb)
+def set_sh_to_init(value_dict):
+    pitch_cmd.set_to_init(value_dict)
+    yaw_cmd.set_to_init(value_dict)
+
+sh_cmd_cbs = [Callback('sh_yaw', [yaw_cmd.actuator_], yaw_cmd.callback),
+              Callback('sh_pitch', [pitch_cmd.actuator_], pitch_cmd.callback),
+              Callback('sh_init', [BUTTONS.SHOULDER_BUTTON_LOWER_LEFT], set_sh_to_init, CB_FILTERING_PRESS)]
+
+
+def enable_disable_sh_cb(values_dict):
+    if values_dict[BUTTONS.SHOULDER_BUTTON_UPPER_LEFT]:
+        Manager().add_callback_list(sh_cmd_cbs)
+    else:
+        Manager().remove_callback_list(sh_cmd_cbs)
+
+enable_sh_cmd = Callback('Sh_Cmd_On', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], enable_disable_sh_cb, CB_FILTERING_PRESS)
+disable_sh_cmd = Callback('Sh_Cmd_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], enable_disable_sh_cb, CB_FILTERING_RELEASE)
+
 
 
 ########################################################################################################################
@@ -87,6 +87,7 @@ def manager_start_cb():
     """
     This callback is called once at start time. It is used to load the initial callbacks. It can also be used to set
     the system, robot, or whatever to a defined state.
+    USE THIS FUNCTION TO REGISTER ALL CALLBACKS, WHICH ARE USED AFTER STARTUP.
     """
     rospy.logdebug('manager_start_cb')
     # Manager().add_callback(stick_left_on)
@@ -96,6 +97,8 @@ def manager_start_cb():
     # Manager().add_callback_list(cmd_vel)
     Manager().add_callback(enable_cmd_vel)
     Manager().add_callback(disable_cmd_vel)
+    Manager().add_callback(enable_sh_cmd)
+    Manager().add_callback(disable_sh_cmd)
 
 
 def manager_break_once_cb():

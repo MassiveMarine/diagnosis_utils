@@ -3,6 +3,37 @@
 import rospy
 
 
+def limit(src, min_, max_):
+    return max(min_, min(src, max_))
+
+
+class AngularCommand:
+    from std_msgs.msg import Float64
+
+    def __init__(self, actuator, namespace, publishing_topic, inverse=False):
+        self.namespace_ = namespace
+        self.init_angle_ = rospy.get_param('~' + self.namespace_ + 'init_angel', 0.0)
+        self.min_ = rospy.get_param('~' + self.namespace_ + 'minimum_angle', -2.0)
+        self.max_ = rospy.get_param('~' + self.namespace_ + 'maximum_angle',  2.0)
+        self.std_delta_ = rospy.get_param('~' + self.namespace_ + 'std_delta',  0.02)
+        self.actuator_ = actuator
+        self.inverse = -1.0 if inverse else 1.0
+
+        self.pup_ = rospy.Publisher(publishing_topic, self.Float64, queue_size=1)
+
+        self.init_angle_ = limit(self.init_angle_, self.min_, self.max_)
+        self.current_angle_ = self.init_angle_
+
+    def set_to_init(self, value_dict):
+        self.current_angle_ = self.init_angle_
+        self.pup_.publish(self.Float64(self.init_angle_))
+
+    def callback(self, value_dict):
+        self.current_angle_ += self.std_delta_ * value_dict[self.actuator_] * self.inverse
+        self.current_angle_ = limit(self.current_angle_, self.min_, self.max_)
+        self.pup_.publish(self.Float64(self.current_angle_))
+
+
 class CmdVel:
     from geometry_msgs.msg import Twist
 
@@ -49,6 +80,10 @@ class CmdVel:
         self.basic_rv_ -= self.max_rv_ / 10
         if self.basic_rv_ < self.min_rv_:
             self.basic_rv_ = self.min_rv_
+
+    def stop_cb(self, value_dict):
+        new_twist = self.Twist()
+        self.cmd_vel_pub_.publish(new_twist)
 
     def callback(self, value_dict):
         new_twist = self.Twist()
