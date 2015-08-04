@@ -6,10 +6,10 @@ RobotControl::RobotControl() :
     node_handle_("~"),
     robot_hardware_(),
     controller_manager_(&robot_hardware_,ros::NodeHandle(node_handle_, "controllers")),
-    pm_controlled_device_driver_(new PluginManager()),
-    pm_device_driver_(new PluginManager()),
-    pm_preprocessor_(new PluginManager()),
-    pm_postprocessor_(new PluginManager())
+    pm_controlled_device_driver_(new PluginManager<RegularPlugin>()),
+    pm_device_driver_(new PluginManager<RegularPlugin>()),
+    pm_preprocessor_(new PluginManager<RegularPlugin>()),
+    pm_postprocessor_(new PluginManager<RegularPlugin>())
 {
 }
 
@@ -40,7 +40,7 @@ void RobotControl::loadAndInitPlugins()
 
 void RobotControl::loadAndInitPlugin(PluginManagerPtr pm, std::string prefix)
 {
-  tug_plugin_manager::RegularPluginPtr new_plugin;
+  RegularPluginPtr new_plugin;
 
   ros::NodeHandle node_handle(node_handle_, prefix);
   XmlRpc::XmlRpcValue params;
@@ -66,25 +66,29 @@ void RobotControl::loadAndInitPlugin(PluginManagerPtr pm, std::string prefix)
 
 void RobotControl::runRobotControlLoop()
 {
+  ROS_DEBUG("run robot control loop");
   ros::Rate loop_rate(robot_control_loop_rate_);
   ros::Time last_time = ros::Time::now();
 
+  ROS_DEBUG("before while");
   while (ros::ok())
   {
+   ROS_DEBUG("get current time and elapsed time");
     ros::Time current_time = ros::Time::now();
     ros::Duration elapsed_time = current_time - last_time;
     last_time = current_time;
 
     try
     {
+      ROS_DEBUG("read controlled devices");
       readControlledDevice(current_time, elapsed_time);
-
+      ROS_DEBUG("perform preprocessing");
       doPreprocessing(current_time, elapsed_time);
-
+      ROS_DEBUG("update controller");
       controller_manager_.update(current_time, elapsed_time);
-
+      ROS_DEBUG("perform postprocessing");
       doPostprocessing(current_time, elapsed_time);
-
+      ROS_DEBUG("write controlled devices");
       writeControlledDevice(current_time, elapsed_time);
 
     }
@@ -102,17 +106,21 @@ void RobotControl::runRobotControlLoop()
 
 void RobotControl::readControlledDevice(const ros::Time& time, const ros::Duration& period)
 {
-  std::vector<PluginSpec> list = pm_controlled_device_driver_->getPluginList();
+  ROS_DEBUG("read controolled devices called");
+  std::vector<PluginSpecInst> list = pm_controlled_device_driver_->getPluginList();
+  ROS_DEBUG_STREAM("got list with size " << list.size());
   for (unsigned int i = 0; i < list.size(); i++)
   {
+    ROS_DEBUG_STREAM("itterate through list at position " << i);
     ControlledDeviceDriverPtr driver = controlledDeviceDriverPtrCast(list.at(i).instance);
+    ROS_DEBUG("casted drive");
     if (driver)
       driver->read(time, period);
   }
 }
 void RobotControl::writeControlledDevice(const ros::Time& time, const ros::Duration& period)
 {
-  std::vector<PluginSpec> list = pm_controlled_device_driver_->getPluginList();
+  std::vector<PluginSpecInst> list = pm_controlled_device_driver_->getPluginList();
   for (unsigned int i = 0; i < list.size(); i++)
   {
     ControlledDeviceDriverPtr driver = controlledDeviceDriverPtrCast(list.at(i).instance);
@@ -123,7 +131,7 @@ void RobotControl::writeControlledDevice(const ros::Time& time, const ros::Durat
 
 void RobotControl::doPreprocessing(const ros::Time& time, const ros::Duration& period)
 {
-  std::vector<PluginSpec> postprocessor_list = pm_postprocessor_->getPluginList();
+  std::vector<PluginSpecInst> postprocessor_list = pm_postprocessor_->getPluginList();
   for (unsigned int i = 0; i < postprocessor_list.size(); i++)
   {
     PostprocessorPtr processor = postprocessorPtrCast(postprocessor_list.at(i).instance);
@@ -133,7 +141,7 @@ void RobotControl::doPreprocessing(const ros::Time& time, const ros::Duration& p
 }
 void RobotControl::doPostprocessing(const ros::Time& time, const ros::Duration& period)
 {
-  std::vector<PluginSpec> preprocessor_list = pm_preprocessor_->getPluginList();
+  std::vector<PluginSpecInst> preprocessor_list = pm_preprocessor_->getPluginList();
   for (unsigned int i = 0; i < preprocessor_list.size(); i++)
   {
     PreprocessorPtr processor = preprocessorPtrCast(preprocessor_list.at(i).instance);
