@@ -20,6 +20,7 @@ namespace tug_robot_control
 {
 using tug_plugin_manager::PluginManager;
 using tug_plugin_manager::PluginSpec;
+using tug_plugin_manager::RegularPlugin;
 
 using tug_robot_control::PluginBase;
 using tug_robot_control::ControlledDeviceDriver;
@@ -31,7 +32,9 @@ typedef boost::shared_ptr<ControlledDeviceDriver> ControlledDeviceDriverPtr;
 typedef boost::shared_ptr<Preprocessor> PreprocessorPtr;
 typedef boost::shared_ptr<Postprocessor> PostprocessorPtr;
 
-typedef boost::shared_ptr<PluginManager> PluginManagerPtr;
+typedef boost::shared_ptr<PluginManager<RegularPlugin> > PluginManagerPtr;
+typedef boost::shared_ptr<RegularPlugin>  RegularPluginPtr;
+typedef PluginSpec<RegularPlugin> PluginSpecInst;
 
 class RobotControl
 {
@@ -55,22 +58,24 @@ private:
   void doPostprocessing(const ros::Time& time, const ros::Duration& period);
   void doPreprocessing(const ros::Time& time, const ros::Duration& period);
 
-  PluginBasePtr pluginBasePtrCast(tug_plugin_manager::RegularPluginPtr ptr)
+  PluginBasePtr pluginBasePtrCast(RegularPluginPtr ptr)
   {
     return boost::dynamic_pointer_cast<PluginBase>(ptr);
   }
 
-  ControlledDeviceDriverPtr controlledDeviceDriverPtrCast(tug_plugin_manager::RegularPluginPtr ptr)
+  ControlledDeviceDriverPtr controlledDeviceDriverPtrCast(RegularPluginPtr ptr)
   {
+    ROS_DEBUG("controlledDeviceDriverPtrCast called");
+    ROS_DEBUG_STREAM("cast pointer " << ptr << " to controlled device driver");
     return boost::dynamic_pointer_cast<ControlledDeviceDriver>(ptr);
   }
 
-  PostprocessorPtr postprocessorPtrCast(tug_plugin_manager::RegularPluginPtr ptr)
+  PostprocessorPtr postprocessorPtrCast(RegularPluginPtr ptr)
   {
     return boost::dynamic_pointer_cast<Postprocessor>(ptr);
   }
 
-  PreprocessorPtr preprocessorPtrCast(tug_plugin_manager::RegularPluginPtr ptr)
+  PreprocessorPtr preprocessorPtrCast(RegularPluginPtr ptr)
   {
     return boost::dynamic_pointer_cast<Preprocessor>(ptr);
   }
