@@ -5,7 +5,6 @@
 #include <pluginlib/class_loader.h>
 #include <ros/console.h>
 
-#include <tug_plugin_manager/plugin_base.h>
 #include <tug_plugin_manager/plugin_spec.h>
 #include <tug_plugin_manager/plugin_manager_exceptions.h>
 
@@ -14,11 +13,7 @@ namespace tug_plugin_manager
     template <class T> class PluginManager
     {
         public:
-            PluginManager() :
-                    plugin_loader_("tug_plugin_manager", "tug_plugin_manager::RegularPlugin")
-            { }
-
-            PluginManager(std::string package, std::string base_class) : plugin_loader_(package, base_class)
+            PluginManager(const std::string& package, const std::string& base_class) : plugin_loader_(package, base_class)
             { }
 
             virtual ~PluginManager()
