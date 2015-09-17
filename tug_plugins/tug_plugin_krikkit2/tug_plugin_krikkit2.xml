@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<library path="lib/libtug_plugin_krikkit2">
+  <class type="tug_plugin_krikkit2::Krikkit2" 
+         base_class_type="tug_plugin_manager::RegularPlugin">
+    <description>
+      some description
+    </description>
+  </class>
+</library>

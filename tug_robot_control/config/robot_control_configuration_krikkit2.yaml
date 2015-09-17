@@ -1,0 +1,4 @@
+device_drivers:
+    krikkit2:
+        type: tug_plugin_krikkit2::Krikkit2
+

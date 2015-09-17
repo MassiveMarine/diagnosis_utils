@@ -1,0 +1,6 @@
+<library path="lib/libtug_can_nic_drivers">
+  <class type="tug_can_nic_drivers::SocketCanNicDriver" base_class_type="tug_can_interface::CanNicDriver">
+    <description>CanNicDriver for SocketCAN devices.</description>
+  </class>
+</library>
+
