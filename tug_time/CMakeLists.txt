@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(tug_timers)
+project(tug_time)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -99,7 +99,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES tug_timers
+ LIBRARIES tug_time
 #  CATKIN_DEPENDS roscpp
 #  DEPENDS system_lib
 )
@@ -117,24 +117,25 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(tug_timers
-        src/Timer.cpp)
+add_library(tug_time
+        src/Timer.cpp
+        src/Timeout.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(tug_timers ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(tug_time ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(tug_timers_node src/tug_timers_node.cpp)
+#add_executable(tug_timeout_node src/Timeout.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(tug_timers_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(tug_timers_node
-#   ${catkin_LIBRARIES}
+# target_link_libraries(tug_timeout_node
+#   ${catkin_LIBRARIES} tug_time
 # )
 
 #############
@@ -152,7 +153,7 @@ add_library(tug_timers
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS tug_timers tug_timers_node
+# install(TARGETS tug_time tug_timers_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

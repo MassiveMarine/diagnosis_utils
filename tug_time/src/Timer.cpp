@@ -2,7 +2,7 @@
 // Created by clemens on 24.09.15.
 //
 
-#include <tug_timers/Timer.h>
+#include <tug_time/Timer.h>
 #include <ros/ros.h>
 
 Timer::Timer() : wait_period_(100 * 1000)
