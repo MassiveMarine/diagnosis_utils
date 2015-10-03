@@ -10,64 +10,97 @@
 
 namespace tug_plugin_manager
 {
-    template <class T> class PluginManager
+template <class T>
+class PluginManager
+{
+public:
+  typedef boost::shared_ptr<T> PluginPtr;
+  typedef PluginSpec<T> PluginSpecT;
+  typedef std::vector<PluginSpecT> PluginList;
+  typedef typename PluginList::iterator PluginListIterator;
+
+  PluginManager(const std::string& package, const std::string& base_class)
+    : plugin_loader_(package, base_class)
+  {
+  }
+
+  virtual ~PluginManager()
+  {
+  }
+
+  PluginPtr loadPlugin(const std::string& name, const std::string& type)
+  {
+    ROS_INFO("Will load plugin '%s' of type '%s'", name.c_str(), type.c_str());
+
+    PluginPtr plugin;
+
+    if (getPluginInstanceByName(name))
+      throw PluginAlreadyInListException(
+          "The plugin '" + name + "' was already loaded inside the plugin manager");
+
+    plugin = plugin_loader_.createInstance(type);
+
+    if (!plugin)
+      throw PluginCannotBeCreatedException("Could not create object of plugin '" + name + "'");
+
+    plugin_list_.push_back(PluginSpecT(name, type, plugin));
+
+    //  ROS_INFO("Now %d plugin(s) is/are loaded!", (int)plugin_list_.size() );
+
+    return plugin;
+  }
+
+  /**
+   * Removes the named plugin from the list.
+   *
+   * Note that this will only unload the plugin if there are no other shared
+   * pointers to the plugin.
+   *
+   * Does nothing if there is no plugin with the given name.
+   *
+   * \return true if the plugin existed, false otherwise.
+   */
+  bool removePlugin(const std::string& name)
+  {
+    for (PluginListIterator it = plugin_list_.begin(); it != plugin_list_.end(); ++it)
     {
-        public:
-            PluginManager(const std::string& package, const std::string& base_class) : plugin_loader_(package, base_class)
-            { }
+      if (it->name == name)
+      {
+        plugin_list_.erase(it);
+        return true;
+      }
+    }
 
-            virtual ~PluginManager()
-            { }
+    return false;
+  }
 
-            boost::shared_ptr<T> loadPlugin(const std::string& name, const std::string& type)
-            {
-                ROS_INFO("Will load plugin '%s' of type '%s'", name.c_str(), type.c_str());
+  PluginPtr getPluginInstanceByName(const std::string& name) const
+  {
+    for (size_t i = 0; i < plugin_list_.size(); ++i)
+      if (plugin_list_[i].name == name)
+        return plugin_list_[i].instance;
 
-                boost::shared_ptr<T> newPluginInstance;
+    return PluginPtr();
+  }
 
-                if (getPluginInstanceByName(name))
-                    throw(PluginAlreadyInListException(
-                            std::string("The plugin '").append(name.c_str()).append("' was already loaded inside the plugin manager")));
+  std::vector<std::string> getPluginNames() const
+  {
+    std::vector<std::string> names_list;
+    for (size_t i = 0; i < plugin_list_.size(); ++i)
+      names_list.push_back(plugin_list_[i].name);
 
-                newPluginInstance = plugin_loader_.createInstance(type);
+    return names_list;
+  }
 
-                if (!newPluginInstance)
-                    throw(PluginCannotBeCreatedException(std::string("Could not create object of plugin '").append(name.c_str()).append("'")));
+  const PluginList& getPluginList() const
+  {
+    return plugin_list_;
+  }
 
-                plugin_list_.push_back(PluginSpec<T>(name, type, newPluginInstance));
-
-                //  ROS_INFO("Now %d plugin(s) is/are loaded!", (int)plugin_list_.size() );
-
-                return newPluginInstance;
-            }
-
-            boost::shared_ptr<T> getPluginInstanceByName(const std::string& name)
-            {
-                for (size_t i = 0; i < plugin_list_.size(); ++i)
-                    if (plugin_list_[i].name == name)
-                        return plugin_list_[i].instance;
-
-                return boost::shared_ptr<T>();
-            }
-
-            const std::vector<std::string> getPluginNames()
-            {
-                std::vector<std::string> names_list;
-                for (size_t i = 0; i < plugin_list_.size(); ++i)
-                    names_list.push_back(plugin_list_[i].name);
-
-                return names_list;
-            }
-
-            std::vector<PluginSpec<T> > getPluginList()
-            {
-                return plugin_list_;
-            }
-
-        private:
-            pluginlib::ClassLoader<T> plugin_loader_;
-            std::vector<PluginSpec<T> > plugin_list_;
-    };
+protected:
+  pluginlib::ClassLoader<T> plugin_loader_;
+  PluginList plugin_list_;
+};
 
 }
 
