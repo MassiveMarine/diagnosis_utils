@@ -6,6 +6,7 @@ project(tug_time)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  roslint
 )
 
 ## System dependencies are found with CMake's conventions
@@ -185,3 +186,5 @@ add_library(tug_time
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+roslint_cpp()
+roslint_add_test()

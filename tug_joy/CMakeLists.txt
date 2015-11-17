@@ -4,7 +4,7 @@ project(tug_joy)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED rospy geometry_msgs sensor_msgs)
+find_package(catkin REQUIRED rospy geometry_msgs sensor_msgs roslint)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -154,3 +154,5 @@ catkin_package(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+roslint_python()
+roslint_add_test()

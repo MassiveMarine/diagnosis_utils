@@ -4,7 +4,7 @@ project(tug_plugin_manager)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED pluginlib)
+find_package(catkin REQUIRED pluginlib roslint)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -160,3 +160,5 @@ target_link_libraries(tug_plugin_manager
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+roslint_cpp()
+roslint_add_test()
