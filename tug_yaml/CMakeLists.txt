@@ -186,5 +186,6 @@ add_library(tug_yaml
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+set(ROSLINT_CPP_OPTS "--filter=-runtime/int")
 roslint_cpp()
 roslint_add_test()
