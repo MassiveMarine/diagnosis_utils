@@ -22,7 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <boost/thread/condition.hpp>
 
 template <class T>
-class TestHelper : public ::testing::Test
+class PublisherTester
 {
     ros::NodeHandle nh_;
     ros::Subscriber the_sub_;
@@ -33,19 +33,16 @@ class TestHelper : public ::testing::Test
     T buffered_content_;
     boost::condition got_message_condition_;
 
-protected:
-    TestHelper() : spinner_(2), should_use_suscriber_content_(false)
-    { }
-
-    virtual ~TestHelper()
+public:
+    PublisherTester(std::string topic_name) : spinner_(2), should_use_suscriber_content_(false)
     {
-      spinner_.stop();
+      the_sub_ = nh_.subscribe(topic_name, 1, &PublisherTester<T>::SubCB, this);
+      spinner_.start();
     }
 
-    void init(std::string topic_name)
+    virtual ~PublisherTester()
     {
-      the_sub_ = nh_.subscribe(topic_name, 1, &TestHelper<T>::SubCB, this);
-      spinner_.start();
+      spinner_.stop();
     }
 
     void SubCB(const typename T::ConstPtr& msg)

@@ -100,7 +100,7 @@ find_package(catkin REQUIRED
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES tug_testing
+  LIBRARIES tug_testing
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -117,9 +117,9 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(tug_testing
-#   src/${PROJECT_NAME}/tug_testing.cpp
-# )
+add_library(tug_testing
+        src/ParameterHelper.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -134,9 +134,9 @@ include_directories(
 # add_dependencies(tug_testing_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(tug_testing_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(tug_testing
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
