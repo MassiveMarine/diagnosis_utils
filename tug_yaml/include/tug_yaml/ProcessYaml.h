@@ -64,6 +64,20 @@ public:
 };
 
 template<>
+class TypeHelper<unsigned long long>
+{
+public:
+    static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeInt;
+};
+
+template<>
+class TypeHelper<long long>
+{
+public:
+    static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeInt;
+};
+
+template<>
 class TypeHelper<std::string>
 {
 public:
@@ -116,6 +130,26 @@ public:
 
 template<typename _T>
 class CastHelper<_T, long>
+{
+public:
+    static _T performCast(XmlRpc::XmlRpcValue xml_value)
+    {
+      return static_cast<_T>(static_cast<int>(xml_value));
+    }
+};
+
+template<typename _T>
+class CastHelper<_T, unsigned long long>
+{
+public:
+    static _T performCast(XmlRpc::XmlRpcValue xml_value)
+    {
+      return static_cast<_T>(static_cast<int>(xml_value));
+    }
+};
+
+template<typename _T>
+class CastHelper<_T, long long>
 {
 public:
     static _T performCast(XmlRpc::XmlRpcValue xml_value)
