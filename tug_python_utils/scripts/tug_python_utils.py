@@ -3,17 +3,22 @@
 
 class YamlHelper():
     @staticmethod
-    def get_param(config, name):
+    def get_param(config, name, default=None):
         if name in config:
             return config[name]
+
+        if default is None:
+            return default
+
         print "ERROR"
         raise KeyError("'" + str(name) + "' not found in config!")
-        
+
     @staticmethod
     def get_param_with_default(config, name, default):
-        if name in config:
-            return config[name]
-        return default
+        return YamlHelper.get_param(config=config, name=name, default=default)
+        # if name in config:
+        #     return config[name]
+        # return default
         
     @staticmethod
     def has_key(config, name):
