@@ -34,15 +34,18 @@ class AngularCommand:
         self.pup_.publish(self.Float64(self.init_angle_))
 
     def callback_absolute(self, value_dict):
-        frequency = Manager().inst.frequency
-        self.current_angle_ += self.std_delta_ * value_dict[self.actuator] / frequency * self.inverse
+        #frequency = Manager().inst.frequency
+        self.current_angle_ += self.std_delta_ * value_dict[self.actuator] * self.inverse
         self.current_angle_ = limit(self.current_angle_, self.min_, self.max_)
         self.pup_.publish(self.Float64(self.current_angle_))
 
     def callback_relative(self, value_dict):
-        frequency = Manager().inst.frequency
-        self.current_angle_ = value_dict[self.actuator] * self.max_speed_ / frequency * self.inverse
+        #frequency = Manager().inst.frequency
+        self.current_angle_ = value_dict[self.actuator] * self.max_speed_ * self.inverse
         self.pup_.publish(self.Float64(self.current_angle_))
+
+    def stop_cb(self, value_dict):
+        self.pup_.publish(self.Float64(0.0))
 
 
 class CmdVel:
