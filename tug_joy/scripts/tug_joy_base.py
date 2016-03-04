@@ -54,6 +54,7 @@ class Manager:
         def __init__(self, rate, cb_at_start, cb_at_break_once, cb_at_break_continuous, cb_at_exit):
             self.actuators = dict()
             self.callbacks = []
+            self.frequency = rate
             self.rate = rospy.Rate(rate)
             self.cb_at_start = cb_at_start
             self.cb_at_break_once = cb_at_break_once

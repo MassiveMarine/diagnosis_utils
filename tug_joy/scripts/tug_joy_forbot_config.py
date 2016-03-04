@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+
+"""
+tug_joy_own_config is used to define all needed callbacks, which are needed for the current environment. There are also
+some predefined callbacks.
+"""
+
+import rospy
+from tug_joy_constants import *
+from tug_joy_base import Manager
+from tug_joy_base import Callback
+from tug_joy_std_callbacks import *
+
+########################################################################################################################
+#                                                    OWN CALLBACKS                                                     #
+# def example_cb_fct(values_dict):                                                                                     #
+#     # values_dict[ACTUATORNAME] = value_of_actuator                                                                  #
+#     pass                                                                                                             #
+#                                                                                                                      #
+# example_cb_object = Callback('Example', [...used actuator...], example_cb_fct, ...filter option...)                  #
+#                                                                                                                      #
+########################################################################################################################
+"""
+All callback functions are defined in this section. Do not forget to create the Callback-object. The callback fct can
+also be used to add or remove callbacks of the manager.
+"""
+
+print "loading forbot config"
+
+# Cmd vel
+cmd_vel = CmdVel(actuator_linear_x=AXIS.STICK_AXIS_LEFT_VERTICAL,
+                 actuator_linear_y="",
+                 actuator_angular_z=AXIS.STICK_AXIS_LEFT_HORIZONTAL,
+                 namespace='cmd_vel_1/',
+                 publishing_topic='/cmd_vel')
+
+cmd_vel_cb = Callback(name='cmd_vel_1', actuators=cmd_vel.used_actuators, callback_fct=cmd_vel.callback)
+
+
+def enable_disable_cmd_vel_cb(values_dict):
+    if values_dict[BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT]:
+        Manager().add_callback(cmd_vel_cb)
+    else:
+        stop_cmd_vel(values_dict)
+
+
+def stop_cmd_vel(values_dict):
+    Manager().remove_callback(cmd_vel_cb)
+    cmd_vel.stop_cb(values_dict)
+
+enable_cmd_vel = Callback('Cmd_Vel_On', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_PRESS)
+disable_cmd_vel = Callback('Cmd_Vel_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_RELEASE)
+
+
+# arm cmds
+arm_1_joint = AngularCommand(actuator=AXIS.STICK_AXIS_LEFT_HORIZONTAL, namespace="", publishing_topic="/schunk/arm_1_joint", absolute_mode=False)
+arm_2_joint = AngularCommand(actuator=AXIS.STICK_AXIS_LEFT_VERTICAL, namespace="", publishing_topic="/schunk/arm_2_joint", absolute_mode=False)
+arm_3_joint = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_VERTICAL, namespace="", publishing_topic="/schunk/arm_3_joint", absolute_mode=False)
+arm_4_joint = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_HORIZONTAL, namespace="", publishing_topic="/schunk/arm_4_joint", absolute_mode=False)
+arm_5_joint = AngularCommand(actuator=AXIS.CROSS_1_AXIS_VERTICAL, namespace="", publishing_topic="/schunk/arm_5_joint", absolute_mode=False)
+arm_6_joint = AngularCommand(actuator=AXIS.CROSS_1_AXIS_HORIZONTAL, namespace="", publishing_topic="/schunk/arm_6_joint", absolute_mode=False)
+
+arm_joints = [Callback(name='arm_1_joint', actuators=arm_1_joint.actuator, callback_fct=arm_1_joint.callback),
+              Callback(name='arm_2_joint', actuators=arm_2_joint.actuator, callback_fct=arm_2_joint.callback),
+              Callback(name='arm_3_joint', actuators=arm_3_joint.actuator, callback_fct=arm_3_joint.callback),
+              Callback(name='arm_4_joint', actuators=arm_4_joint.actuator, callback_fct=arm_4_joint.callback),
+              Callback(name='arm_5_joint', actuators=arm_5_joint.actuator, callback_fct=arm_5_joint.callback),
+              Callback(name='arm_6_joint', actuators=arm_6_joint.actuator, callback_fct=arm_6_joint.callback),
+              ]
+
+
+def enable_disable_arm_cb(values_dict):
+    if values_dict[BUTTONS.SHOULDER_BUTTON_UPPER_LEFT]:
+        Manager().add_callback_list(arm_joints)
+    else:
+        stop_arm(values_dict)
+
+
+def stop_arm(values_dict):
+    Manager().remove_callback_list(arm_joints)
+    # arm_1_joint.stop_cb(values_dict)
+
+enable_arm = Callback('Arm_On', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], enable_disable_arm_cb, CB_FILTERING_PRESS)
+disable_arm = Callback('Arm_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], enable_disable_arm_cb, CB_FILTERING_RELEASE)
+
+
+# switch between arm and robot
+def select_robot_cb(values_dict):
+    print "select_robot_cb"
+    Manager().remove_callback(enable_arm)
+    Manager().remove_callback(disable_arm)
+    stop_arm(values_dict)
+
+    Manager().add_callback(enable_cmd_vel)
+    Manager().add_callback(disable_cmd_vel)
+
+
+def select_arm_cb(values_dict):
+    print "select_arm_cb"
+    Manager().remove_callback(enable_cmd_vel)
+    Manager().remove_callback(disable_cmd_vel)
+    stop_cmd_vel(values_dict)
+
+    Manager().add_callback(enable_arm)
+    Manager().add_callback(disable_arm)
+
+
+
+select_robot = Callback('Select_Robot', [BUTTONS.FUNCTION_RIGHT], select_robot_cb, CB_FILTERING_PRESS)
+select_arm = Callback('Select_ARM', [BUTTONS.FUNCTION_LEFT], select_arm_cb, CB_FILTERING_PRESS)
+
+########################################################################################################################
+#                                                 PREDEFINED CALLBACKS                                                 #
+########################################################################################################################
+
+def manager_start_cb():
+    """
+    This callback is called once at start time. It is used to load the initial callbacks. It can also be used to set
+    the system, robot, or whatever to a defined state.
+    USE THIS FUNCTION TO REGISTER ALL CALLBACKS, WHICH ARE USED AFTER STARTUP.
+    """
+    rospy.logdebug('manager_start_cb')
+    Manager().add_callback(select_robot)
+    Manager().add_callback(select_arm)
+
+
+def manager_break_once_cb():
+    """
+    This callback is called once if no joy-node-publisher-connection is
+    available any more. If connection is lost, it is called once before
+    'manager_break_continuous_cb()'. It can be used to set the system, robot,
+    or whatever to a defined state.
+    """
+    rospy.logdebug('manager_break_once_cb')
+
+
+def manager_break_continuous_cb():
+    """
+    This callback is called continuous if no joy-node-publisher-connection
+    is available any more. If connection is lost, it is called after
+    'manager_break_once_cb()'. It can be used to set the system, robot, or
+    whatever to a defined state.
+    """
+    rospy.logdebug('manager_break_continuous_cb')
+
+
+def manager_exit_cb():
+    """ This callback is called before this node will be killed. It can be used
+    to set the system, robot, or whatever to a defined state. """
+    rospy.logdebug('manager_exit_cb')
