@@ -13,13 +13,14 @@ from sensor_msgs.msg import Joy
 from tug_joy_base import Manager
 from tug_joy_constants import *
 
-import tug_joy_own_config as config
+import importlib
+joy_config_filename = rospy.get_param('~configuration_python_file', 'tug_joy_own_config')
+config = importlib.import_module(joy_config_filename)
+
 
 if __name__ == "__main__":
-    # rospy.init_node('tug_joy', anonymous=True)
-
     joy_topic_name = rospy.get_param('~joy_topic_name', '/joy')
-    joy_manager_frequency = rospy.get_param('~joy_manager_frequency', '/joy')
+    joy_manager_frequency = rospy.get_param('~joy_manager_frequency')
     controller_name = rospy.get_param('~joy_controller_name', CONTROLLER.CONTROLLER_NAME_DEFAULT)
     rospy.loginfo('Loaded controller is ' + controller_name)
 
