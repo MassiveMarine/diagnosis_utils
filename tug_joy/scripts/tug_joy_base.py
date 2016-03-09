@@ -10,6 +10,7 @@ class Callback:
     The Callback is used to create a new callback object, which contains the
     callback function, the used actuator and a callback filter.
     """
+
     def __init__(self, name, actuators, callback_fct, cb_filtering=CB_FILTERING_NONE):
         """
         Constructor of Callback
@@ -51,6 +52,7 @@ class Manager:
         """
         Singleton pattern for manager class.
         """
+
         def __init__(self, rate, cb_at_start, cb_at_break_once, cb_at_break_continuous, cb_at_exit):
             self.actuators = dict()
             self.callbacks = []
@@ -124,14 +126,16 @@ class Manager:
 
                 for cb in Manager.inst.callbacks:
                     if cb.cb_filtering == CB_FILTERING_NONE:
-                        cb.callback(dict((k, v.value) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
+                        cb.callback(
+                            dict((k, v.value) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
                         continue
 
                     for key, actuator in Manager.inst.actuators.iteritems():
                         if key not in cb.actuators or actuator.filtering != cb.cb_filtering:
                             continue
 
-                        cb.callback(dict((k, v.value) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
+                        cb.callback(
+                            dict((k, v.value) for k, v in Manager.inst.actuators.iteritems() if k in cb.actuators))
 
                 for actuator in Manager.inst.actuators.itervalues():
                     if actuator:
@@ -206,4 +210,3 @@ class Manager:
                 continue
 
             actuator.set_value(msg)
-

@@ -19,11 +19,11 @@ class YamlHelper():
         # if name in config:
         #     return config[name]
         # return default
-        
+
     @staticmethod
     def has_key(config, name):
         return name in config
-        
+
     @staticmethod
     def has_param(config, name):
         return name in config

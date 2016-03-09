@@ -14,14 +14,16 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TUG_OBSERVERS_TESTHELPER_H
-#define TUG_OBSERVERS_TESTHELPER_H
+#ifndef TUG_TESTING_PUBLISHERTESTER_H
+#define TUG_TESTING_PUBLISHERTESTER_H
 
 #include <ros/ros.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <utility>
+#include <string>
 
-template <class T>
+template<class T>
 class PublisherTester
 {
     ros::NodeHandle nh_;
@@ -34,7 +36,7 @@ class PublisherTester
     boost::condition got_message_condition_;
 
 public:
-    PublisherTester(std::string topic_name) : spinner_(2), should_use_suscriber_content_(false)
+    explicit PublisherTester(std::string topic_name) : spinner_(2), should_use_suscriber_content_(false)
     {
       the_sub_ = nh_.subscribe(topic_name, 1, &PublisherTester<T>::SubCB, this);
       spinner_.start();
@@ -45,7 +47,7 @@ public:
       spinner_.stop();
     }
 
-    void SubCB(const typename T::ConstPtr& msg)
+    void SubCB(const typename T::ConstPtr &msg)
     {
       ROS_DEBUG("got message");
       boost::mutex::scoped_lock the_lock(the_mutex_);
@@ -83,7 +85,6 @@ public:
 
       return result;
     }
-
 };
 
-#endif  // TUG_OBSERVERS_TESTHELPER_H
+#endif  // TUG_TESTING_PUBLISHERTESTER_H

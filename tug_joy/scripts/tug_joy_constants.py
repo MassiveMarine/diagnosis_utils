@@ -4,12 +4,13 @@
 This file contains all used constants of tug_joy.
 """
 
-# Controller names
+
 class CONTROLLER:
     """
     All known controllers are listed here.
     IF A NEW CONTROLLER IS ADDED, DON'T FORGET TO ADD IT HERE!!
     """
+    # Controller names
     CONTROLLER_NAME_PS3 = 'ps3'
     CONTROLLER_NAME_XBOX360 = 'xbox360'
     CONTROLLER_NAME_LOGITECH_RUMBLE_PAD_2 = 'logitech_rumble_pad_2'
