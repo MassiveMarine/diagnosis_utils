@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 import rospy
+from tug_joy_base import Manager
 
 
 def limit(src, min_, max_):
     return max(min_, min(src, max_))
 
-from tug_joy_base import Manager
 
 class AngularCommand:
     from std_msgs.msg import Float64
@@ -15,9 +15,9 @@ class AngularCommand:
         self.namespace_ = namespace
         self.init_angle_ = rospy.get_param('~' + self.namespace_ + 'init_angel', 0.0)
         self.min_ = rospy.get_param('~' + self.namespace_ + 'minimum_angle', -2.0)
-        self.max_ = rospy.get_param('~' + self.namespace_ + 'maximum_angle',  2.0)
-        self.std_delta_ = rospy.get_param('~' + self.namespace_ + 'std_delta',  0.02)
-        self.max_speed_ = rospy.get_param('~' + self.namespace_ + 'max_speed',  1.0)
+        self.max_ = rospy.get_param('~' + self.namespace_ + 'maximum_angle', 2.0)
+        self.std_delta_ = rospy.get_param('~' + self.namespace_ + 'std_delta', 0.02)
+        self.max_speed_ = rospy.get_param('~' + self.namespace_ + 'max_speed', 1.0)
         self.actuator = actuator
         self.inverse = -1.0 if inverse else 1.0
 
@@ -34,13 +34,13 @@ class AngularCommand:
         self.pup_.publish(self.Float64(self.init_angle_))
 
     def callback_absolute(self, value_dict):
-        #frequency = Manager().inst.frequency
+        # frequency = Manager().inst.frequency
         self.current_angle_ += self.std_delta_ * value_dict[self.actuator] * self.inverse
         self.current_angle_ = limit(self.current_angle_, self.min_, self.max_)
         self.pup_.publish(self.Float64(self.current_angle_))
 
     def callback_relative(self, value_dict):
-        #frequency = Manager().inst.frequency
+        # frequency = Manager().inst.frequency
         self.current_angle_ = value_dict[self.actuator] * self.max_speed_ * self.inverse
         self.pup_.publish(self.Float64(self.current_angle_))
 
@@ -115,5 +115,3 @@ class CmdVel:
 
         except ValueError as error:
             rospy.logerr(error)
-
-

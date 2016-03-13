@@ -73,19 +73,35 @@ def stop_cmd_vel(values_dict):
     Manager().remove_callback(cmd_vel_cb)
     cmd_vel.stop_cb(values_dict)
 
-enable_cmd_vel = Callback('Cmd_Vel_On', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_PRESS)
-disable_cmd_vel = Callback('Cmd_Vel_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb, CB_FILTERING_RELEASE)
 
+enable_cmd_vel = Callback('Cmd_Vel_On', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb,
+                          CB_FILTERING_PRESS)
+disable_cmd_vel = Callback('Cmd_Vel_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb,
+                           CB_FILTERING_RELEASE)
 
 # arm cmds
-arm_1_joint = AngularCommand(actuator=AXIS.STICK_AXIS_LEFT_HORIZONTAL, namespace="", publishing_topic="/arm_1_joint_velocity_controller/command", inverse=True, absolute_mode=False)
-arm_2_joint = AngularCommand(actuator=AXIS.STICK_AXIS_LEFT_VERTICAL, namespace="", publishing_topic="/arm_2_joint_velocity_controller/command", inverse=True, absolute_mode=False)
-arm_3_joint = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_VERTICAL, namespace="", publishing_topic="/arm_3_joint_velocity_controller/command", inverse=False, absolute_mode=False)
-arm_4_joint = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_HORIZONTAL, namespace="", publishing_topic="/arm_4_joint_velocity_controller/command", inverse=True, absolute_mode=False)
-arm_5_joint = AngularCommand(actuator=AXIS.CROSS_1_AXIS_VERTICAL, namespace="", publishing_topic="/arm_5_joint_velocity_controller/command", inverse=False, absolute_mode=False)
-arm_6_joint = AngularCommand(actuator=AXIS.CROSS_1_AXIS_HORIZONTAL, namespace="", publishing_topic="/arm_6_joint_velocity_controller/command", inverse=True, absolute_mode=False)
+arm_1_joint = AngularCommand(actuator=AXIS.STICK_AXIS_LEFT_HORIZONTAL, namespace="",
+                             publishing_topic="/arm_1_joint_velocity_controller/command", inverse=True,
+                             absolute_mode=False)
+arm_2_joint = AngularCommand(actuator=AXIS.STICK_AXIS_LEFT_VERTICAL, namespace="",
+                             publishing_topic="/arm_2_joint_velocity_controller/command", inverse=True,
+                             absolute_mode=False)
+arm_3_joint = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_VERTICAL, namespace="",
+                             publishing_topic="/arm_3_joint_velocity_controller/command", inverse=False,
+                             absolute_mode=False)
+arm_4_joint = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_HORIZONTAL, namespace="",
+                             publishing_topic="/arm_4_joint_velocity_controller/command", inverse=True,
+                             absolute_mode=False)
+arm_5_joint = AngularCommand(actuator=AXIS.CROSS_1_AXIS_VERTICAL, namespace="",
+                             publishing_topic="/arm_5_joint_velocity_controller/command", inverse=False,
+                             absolute_mode=False)
+arm_6_joint = AngularCommand(actuator=AXIS.CROSS_1_AXIS_HORIZONTAL, namespace="",
+                             publishing_topic="/arm_6_joint_velocity_controller/command", inverse=True,
+                             absolute_mode=False)
 
 gripper_action_client = None
+
+
 def call_gripper_action(position):
     global gripper_action_client
     if not gripper_action_client:
@@ -94,12 +110,13 @@ def call_gripper_action(position):
     goal = GripperCommandGoal(command=GripperCommand(position=position))
     gripper_action_client.send_goal(goal)
 
+
 def close_gripper(values_dict):
     call_gripper_action(0.0)
 
+
 def open_gripper(values_dict):
     call_gripper_action(0.11)
-
 
 
 arm_joints = [Callback(name='arm_1_joint', actuators=arm_1_joint.actuator, callback_fct=arm_1_joint.callback),
@@ -108,8 +125,10 @@ arm_joints = [Callback(name='arm_1_joint', actuators=arm_1_joint.actuator, callb
               Callback(name='arm_4_joint', actuators=arm_4_joint.actuator, callback_fct=arm_4_joint.callback),
               Callback(name='arm_5_joint', actuators=arm_5_joint.actuator, callback_fct=arm_5_joint.callback),
               Callback(name='arm_6_joint', actuators=arm_6_joint.actuator, callback_fct=arm_6_joint.callback),
-              Callback(name='gripper_close', actuators=BUTTONS.CROSS_2_BUTTON_UP, callback_fct=close_gripper, cb_filtering=CB_FILTERING_PRESS),
-              Callback(name='gripper_open',  actuators=BUTTONS.CROSS_2_BUTTON_DOWN, callback_fct=open_gripper, cb_filtering=CB_FILTERING_PRESS),
+              Callback(name='gripper_close', actuators=BUTTONS.CROSS_2_BUTTON_UP, callback_fct=close_gripper,
+                       cb_filtering=CB_FILTERING_PRESS),
+              Callback(name='gripper_open', actuators=BUTTONS.CROSS_2_BUTTON_DOWN, callback_fct=open_gripper,
+                       cb_filtering=CB_FILTERING_PRESS),
               ]
 
 arm_cartesian_publisher = rospy.Publisher("/cartesian_controller/arm_cmd_vel", TwistStamped, queue_size=1)
@@ -192,9 +211,9 @@ def select_arm_cb(values_dict):
     Manager().add_callback(arm_go_home)
 
 
-
 select_robot = Callback('Select_Robot', [BUTTONS.FUNCTION_RIGHT], select_robot_cb, CB_FILTERING_PRESS)
 select_arm = Callback('Select_ARM', [BUTTONS.FUNCTION_LEFT], select_arm_cb, CB_FILTERING_PRESS)
+
 
 ########################################################################################################################
 #                                                 PREDEFINED CALLBACKS                                                 #

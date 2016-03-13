@@ -8,10 +8,10 @@ class YamlHelper():
             return config[name]
 
         if default is None:
-            return default
+            print "ERROR"
+            raise KeyError("'" + str(name) + "' not found in config!")
 
-        print "ERROR"
-        raise KeyError("'" + str(name) + "' not found in config!")
+        return default
 
     @staticmethod
     def get_param_with_default(config, name, default):
@@ -19,11 +19,11 @@ class YamlHelper():
         # if name in config:
         #     return config[name]
         # return default
-        
+
     @staticmethod
     def has_key(config, name):
         return name in config
-        
+
     @staticmethod
     def has_param(config, name):
         return name in config

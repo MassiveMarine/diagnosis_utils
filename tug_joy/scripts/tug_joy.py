@@ -6,17 +6,15 @@ and executes the 'start_cb' which has to be defined by the user in 'tug_joy_own_
 """
 
 import rospy
-
-rospy.init_node('tug_joy', anonymous=True)
-
 from sensor_msgs.msg import Joy
 from tug_joy_base import Manager
 from tug_joy_constants import *
-
 import importlib
+
+rospy.init_node('tug_joy', anonymous=True)
+
 joy_config_filename = rospy.get_param('~configuration_python_file', 'tug_joy_own_config')
 config = importlib.import_module(joy_config_filename)
-
 
 if __name__ == "__main__":
     joy_topic_name = rospy.get_param('~joy_topic_name', '/joy')

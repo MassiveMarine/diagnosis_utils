@@ -8,6 +8,7 @@ class Actuator:
     """
     Base of all actuators.
     """
+
     def __init__(self, name, filtering=CB_FILTERING_DISABLED):
         """
         Constructor of Actuator
@@ -55,6 +56,7 @@ class Button(Actuator):
     1 (pressed) or 0 (not pressed). It extracts its data from the 'buttons'-
     array of the joy-msg.
     """
+
     def __init__(self, button_id, name):
         """
         Constructor of Button derived from Actuator
@@ -91,6 +93,7 @@ class VirtualButton(Actuator):
     1 (pressed) or 0 (not pressed). It extracts its data from the 'axis'-
     array of the joy-msg and rounds the float values to simulate buttons.
     """
+
     def __init__(self, axis_id, response_at_positive, name):
         """
         Constructor of Button derived from Actuator
@@ -138,6 +141,7 @@ class Axis(Actuator):
     values between -1.0 and 1.0. It extracts its data from the 'axis'-array
     of the joy-msg.
     """
+
     def __init__(self, axis_id, name):
         """
         Constructor of Axis derived from Actuator
@@ -172,6 +176,7 @@ class VirtualAxis(Actuator):
     values between -1.0 and 1.0. It extracts its data from two inputs, which
     can be buttons or axes.
     """
+
     def __init__(self, positive_id, negative_id, use_axis, name):
         """
         Constructor of Axis derived from Actuator
