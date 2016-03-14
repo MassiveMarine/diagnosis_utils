@@ -40,6 +40,8 @@ print "loading forbot config"
 
 rospy.wait_for_service(SWITCH_CONTROLLERS_SERVICE, 10.0)
 switch_controllers_service = rospy.ServiceProxy(SWITCH_CONTROLLERS_SERVICE, SwitchController)
+
+
 def switch_controllers(start_controllers, stop_controllers):
     global switch_controllers_service
     try:
@@ -106,7 +108,7 @@ def call_gripper_action(position):
     global gripper_action_client
     if not gripper_action_client:
         gripper_action_client = actionlib.SimpleActionClient("/gripper_controller/gripper_cmd", GripperCommandAction)
-        gripper_action_client.wait_for_server(rospy.Duration(1.0))
+        gripper_action_client.wait_for_server(rospy.Duration(1))
     goal = GripperCommandGoal(command=GripperCommand(position=position))
     gripper_action_client.send_goal(goal)
 
@@ -132,6 +134,8 @@ arm_joints = [Callback(name='arm_1_joint', actuators=arm_1_joint.actuator, callb
               ]
 
 arm_cartesian_publisher = rospy.Publisher("/cartesian_controller/arm_cmd_vel", TwistStamped, queue_size=1)
+
+
 def move_arm_cartesian(values_dict):
     global arm_cartesian_publisher
     msg = TwistStamped()
@@ -147,6 +151,8 @@ arm_cartesian = [Callback(name='cartesian', actuators=[AXIS.STICK_AXIS_LEFT_HORI
 
 
 move_group = moveit_commander.MoveGroupCommander("lwa4p_arm")
+
+
 def arm_go_home_cb(values_dict):
     global move_group
     if values_dict[BUTTONS.SHOULDER_BUTTON_LOWER_LEFT] and values_dict[BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT]:
@@ -156,7 +162,8 @@ def arm_go_home_cb(values_dict):
         if plan:
             move_group.execute(plan)
 
-arm_go_home = Callback(name='arm_go_home', actuators=[BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT],
+arm_go_home = Callback(name='arm_go_home',
+                       actuators=[BUTTONS.SHOULDER_BUTTON_LOWER_LEFT, BUTTONS.SHOULDER_BUTTON_LOWER_RIGHT],
                        callback_fct=arm_go_home_cb, cb_filtering=CB_FILTERING_PRESS)
 
 
@@ -184,8 +191,10 @@ def stop_arm(values_dict):
     arm_6_joint.stop_cb(values_dict)
     switch_controllers(MOVEIT_CONTROLLERS, CARTESIAN_CONTROLLERS + JOINT_VELOCITY_CONTROLLERS)
 
-enable_arm = Callback('Arm_On', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_arm_cb, CB_FILTERING_PRESS)
-disable_arm = Callback('Arm_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_arm_cb, CB_FILTERING_RELEASE)
+enable_arm = Callback('Arm_On', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT],
+                      enable_disable_arm_cb, CB_FILTERING_PRESS)
+disable_arm = Callback('Arm_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT, BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT],
+                       enable_disable_arm_cb, CB_FILTERING_RELEASE)
 
 
 # switch between arm and robot
