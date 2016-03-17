@@ -18,6 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define TUG_YAML_PROCESSYAML_H
 
 #include <ros/param.h>
+#include <ros/node_handle.h>
 #include <string>
 #include <vector>
 
@@ -232,6 +233,16 @@ public:
     }
 };
 
+template<>
+class GetValueHelper<XmlRpc::XmlRpcValue, XmlRpc::XmlRpcValue>
+{
+public:
+    static XmlRpc::XmlRpcValue getValue(XmlRpc::XmlRpcValue::Type type, XmlRpc::XmlRpcValue xml_value)
+    {
+      return xml_value;
+    }
+};
+
 class ProcessYaml
 {
 public:
@@ -288,6 +299,50 @@ public:
       return getValue<_T>(name, TypeHelper<_T>::Type, xml_value, default_value);
     }
 
+    static bool hasValue(std::string name, ros::NodeHandle nh)
+    {
+      return nh.hasParam(name);
+    }
+
+    template<typename _T>
+    static _T getValue(std::string name, XmlRpc::XmlRpcValue::Type type, ros::NodeHandle nh)
+    {
+      if (!nh.hasParam(name))
+      {
+        ROS_FATAL_STREAM(name << " is not a paramter");
+        std::stringstream error_stream;
+        error_stream << name << " is not a paramter";
+        throw std::invalid_argument(error_stream.str());
+      }
+
+      XmlRpc::XmlRpcValue value;
+      nh.getParam(name, value);
+
+      return getValue<_T>(type, value);
+    }
+
+    template<typename _T>
+    static _T getValue(std::string name, ros::NodeHandle nh)
+    {
+      return getValue<_T>(name, TypeHelper<_T>::Type, nh);
+    }
+
+    template<typename _T>
+    static _T getValue(std::string name, XmlRpc::XmlRpcValue::Type type, ros::NodeHandle nh,
+                       _T default_value)
+    {
+      if (!nh.hasParam(name))
+        return default_value;
+
+      return getValue<_T>(name, type, nh);
+    }
+
+    template<typename _T>
+    static _T getValue(std::string name, ros::NodeHandle nh, _T default_value)
+    {
+      return getValue<_T>(name, TypeHelper<_T>::Type, nh, default_value);
+    }
+
     template<typename _T, typename _R>
     static _T getCastedValue(XmlRpc::XmlRpcValue::Type type, XmlRpc::XmlRpcValue xml_value)
     {
@@ -334,6 +389,45 @@ public:
     static _T getCastedValue(std::string name, XmlRpc::XmlRpcValue xml_value, _T default_value)
     {
       return getCastedValue<_T, _R>(name, TypeHelper<_T>::Type, xml_value, default_value);
+    }
+
+    template<typename _T, typename _R>
+    static _T getCastedValue(std::string name, XmlRpc::XmlRpcValue::Type type, ros::NodeHandle nh)
+    {
+      if (!nh.hasParam(name))
+      {
+        ROS_FATAL_STREAM(name << " is not a paramter");
+        std::stringstream error_stream;
+        error_stream << name << " is not a paramter";
+        throw std::invalid_argument(error_stream.str());
+      }
+
+      XmlRpc::XmlRpcValue value;
+      nh.getParam(name, value);
+
+      return getCastedValue<_T, _R>(type, value);
+    }
+
+    template<typename _T, typename _R>
+    static _T getCastedValue(std::string name, ros::NodeHandle nh)
+    {
+      return getCastedValue<_T, _R>(name, TypeHelper<_T>::Type, nh);
+    }
+
+    template<typename _T, typename _R>
+    static _T getCastedValue(std::string name, XmlRpc::XmlRpcValue::Type type, ros::NodeHandle nh,
+                             _T default_value)
+    {
+      if (!nh.hasParam(name))
+        return default_value;
+
+      return getCastedValue<_T, _R>(name, type, nh);
+    }
+
+    template<typename _T, typename _R>
+    static _T getCastedValue(std::string name, ros::NodeHandle nh, _T default_value)
+    {
+      return getCastedValue<_T, _R>(name, TypeHelper<_T>::Type, nh, default_value);
     }
 };
 
