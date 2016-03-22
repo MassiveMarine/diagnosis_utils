@@ -31,12 +31,12 @@ class PublisherTester
     ros::AsyncSpinner spinner_;
 
     boost::mutex the_mutex_;
-    bool should_use_suscriber_content_;
+    bool should_use_subscriber_content_;
     T buffered_content_;
     boost::condition got_message_condition_;
 
 public:
-    explicit PublisherTester(std::string topic_name) : spinner_(2), should_use_suscriber_content_(false)
+    explicit PublisherTester(std::string topic_name) : spinner_(2), should_use_subscriber_content_(false)
     {
       the_sub_ = nh_.subscribe(topic_name, 1, &PublisherTester<T>::SubCB, this);
       spinner_.start();
@@ -51,7 +51,7 @@ public:
     {
       ROS_DEBUG("got message");
       boost::mutex::scoped_lock the_lock(the_mutex_);
-      if (should_use_suscriber_content_)
+      if (should_use_subscriber_content_)
       {
         ROS_DEBUG("buffer mesage");
         buffered_content_ = *msg;
@@ -62,8 +62,10 @@ public:
     std::pair<T, bool> getMessage(boost::function<void()> function_to_call, double time_to_wait)
     {
       boost::mutex::scoped_lock the_lock(the_mutex_);
-      should_use_suscriber_content_ = true;
+      should_use_subscriber_content_ = true;
       ROS_DEBUG("call function");
+      while(the_sub_.getNumPublishers() < 1);
+        //TODO(cmuehlbacher): add timeout
       function_to_call();
 
       ROS_DEBUG("function called");
@@ -76,12 +78,12 @@ public:
       }
       else
       {
-        ROS_DEBUG("got mesgage return the mesage");
+        ROS_DEBUG("got message - return the message");
         result.first = buffered_content_;
         result.second = true;
       }
 
-      should_use_suscriber_content_ = false;
+      should_use_subscriber_content_ = false;
 
       return result;
     }
