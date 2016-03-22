@@ -3,6 +3,7 @@ compile_with_test:
     - source ci/setup_ws.sh
     - catkin_make
     - catkin_make run_tests 
-
+    - catkin_test_results --verbose
+    - catkin_test_results
   tags:
     - sim0
