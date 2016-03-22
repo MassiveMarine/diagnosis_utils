@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <boost/thread/condition.hpp>
 #include <utility>
 #include <string>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 template<class T>
 class PublisherTester
@@ -34,9 +35,11 @@ class PublisherTester
     bool should_use_subscriber_content_;
     T buffered_content_;
     boost::condition got_message_condition_;
+    unsigned int spin_time_;
 
 public:
-    explicit PublisherTester(std::string topic_name) : spinner_(2), should_use_subscriber_content_(false)
+    explicit PublisherTester(std::string topic_name) : spinner_(2), should_use_subscriber_content_(false),
+                                                       spin_time_(500)
     {
       the_sub_ = nh_.subscribe(topic_name, 1, &PublisherTester<T>::SubCB, this);
       spinner_.start();
@@ -63,15 +66,26 @@ public:
     {
       boost::mutex::scoped_lock the_lock(the_mutex_);
       should_use_subscriber_content_ = true;
-      ROS_DEBUG("call function");
-      while (the_sub_.getNumPublishers() < 1)
-      { }
-      // TODO(cmuehlbacher): add timeout
-
-      function_to_call();
-
-      ROS_DEBUG("function called");
       std::pair<T, bool> result;
+
+      ROS_DEBUG("wait for publisher");
+      boost::posix_time::ptime wake_up_time = boost::posix_time::microsec_clock::local_time() +
+              boost::posix_time::milliseconds(time_to_wait * 1000.);
+      while (the_sub_.getNumPublishers() < 1)
+      {
+        if (wake_up_time < boost::posix_time::microsec_clock::local_time())
+        {
+          ROS_DEBUG("timeout to wait for publisher");
+          result.second = false;
+          return result;
+        }
+        boost::this_thread::sleep(boost::posix_time::millisec(spin_time_));
+      }
+
+      ROS_DEBUG("call function");
+      function_to_call();
+      ROS_DEBUG("function called");
+
       boost::posix_time::time_duration timeout = boost::posix_time::milliseconds(time_to_wait * 1000.);
       if (!got_message_condition_.timed_wait(the_lock, timeout))
       {
