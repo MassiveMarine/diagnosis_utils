@@ -86,6 +86,13 @@ public:
 };
 
 template<>
+class TypeHelper<float>
+{
+public:
+    static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeDouble;
+};
+
+template<>
 class TypeHelper<double>
 {
 public:
@@ -156,6 +163,16 @@ public:
     static _T performCast(XmlRpc::XmlRpcValue xml_value)
     {
       return static_cast<_T>(static_cast<int>(xml_value));
+    }
+};
+
+template<typename _T>
+class CastHelper<_T, float>
+{
+public:
+    static _T performCast(XmlRpc::XmlRpcValue xml_value)
+    {
+      return static_cast<_T>(static_cast<double>(xml_value));
     }
 };
 
