@@ -64,8 +64,10 @@ public:
       boost::mutex::scoped_lock the_lock(the_mutex_);
       should_use_subscriber_content_ = true;
       ROS_DEBUG("call function");
-      while(the_sub_.getNumPublishers() < 1);
+      while (the_sub_.getNumPublishers() < 1)
+      { }
         //TODO(cmuehlbacher): add timeout
+
       function_to_call();
 
       ROS_DEBUG("function called");
