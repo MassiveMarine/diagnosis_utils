@@ -66,7 +66,7 @@ public:
       ROS_DEBUG("call function");
       while (the_sub_.getNumPublishers() < 1)
       { }
-        //TODO(cmuehlbacher): add timeout
+      // TODO(cmuehlbacher): add timeout
 
       function_to_call();
 
