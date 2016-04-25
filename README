@@ -1,0 +1,9 @@
+UTILS
+=====
+
+## Installation
+
+Some pre-requirements:
+
+    sudo apt-get install ros-indigo-rostest ros-indigo-roslint
+    sudo apt-get install protobuf-compiler libprotobuf-dev libprotoc-dev python-protobuf
