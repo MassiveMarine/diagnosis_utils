@@ -2,8 +2,22 @@ compile_with_test:
   script:
     - source ci/setup_ws.sh
     - catkin_make
-    - catkin_make run_tests 
+    - catkin_make run_tests -j 1
     - catkin_test_results --verbose
     - catkin_test_results
   tags:
     - sim0
+  except:
+    - ci
+
+compile_with_test:
+  script:
+    - source ci/setup_ws.sh
+    - catkin_make
+    - catkin_make run_tests -j 1
+    - catkin_test_results --verbose
+    - catkin_test_results
+  tags:
+    - sim3
+  except:
+    - ci
