@@ -29,8 +29,7 @@ cmd_vel = CmdVel(actuator_linear_x=AXIS.STICK_AXIS_LEFT_VERTICAL,
                  actuator_linear_y="",
                  actuator_angular_z=AXIS.STICK_AXIS_LEFT_HORIZONTAL,
                  namespace='cmd_vel_1/',
-                 publishing_topic='/cmd_vel',
-                 trans_vel=0.1, rot_vel=0.3)
+                 publishing_topic='/cmd_vel')
 
 cmd_vel_cbs = [Callback('cmd_vel_1', cmd_vel.used_actuators, cmd_vel.callback),
                Callback('cmd_vel_1_lin+', BUTTONS.CROSS_1_BUTTON_UP, cmd_vel.increase_linear_speed_cb,
@@ -56,6 +55,38 @@ enable_cmd_vel = Callback('Cmd_Vel_On', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], e
 disable_cmd_vel = Callback('Cmd_Vel_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_RIGHT], enable_disable_cmd_vel_cb,
                            CB_FILTERING_RELEASE)
 
+# sensor head
+yaw_cmd = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_HORIZONTAL,
+                         namespace='sh_yaw/',
+                         publishing_topic='/sh_yaw_controller/command')
+
+pitch_cmd = AngularCommand(actuator=AXIS.STICK_AXIS_RIGHT_VERTICAL,
+                           namespace='sh_pitch/',
+                           publishing_topic='/sh_pitch_controller/command',
+                           inverse=True)
+
+
+def set_sh_to_init(value_dict):
+    pitch_cmd.set_to_init(value_dict)
+    yaw_cmd.set_to_init(value_dict)
+
+
+sh_cmd_cbs = [Callback('sh_yaw', [yaw_cmd.actuator_], yaw_cmd.callback),
+              Callback('sh_pitch', [pitch_cmd.actuator_], pitch_cmd.callback),
+              Callback('sh_init', [BUTTONS.SHOULDER_BUTTON_LOWER_LEFT], set_sh_to_init, CB_FILTERING_PRESS)]
+
+
+def enable_disable_sh_cb(values_dict):
+    if values_dict[BUTTONS.SHOULDER_BUTTON_UPPER_LEFT]:
+        Manager().add_callback_list(sh_cmd_cbs)
+    else:
+        Manager().remove_callback_list(sh_cmd_cbs)
+
+
+enable_sh_cmd = Callback('Sh_Cmd_On', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], enable_disable_sh_cb, CB_FILTERING_PRESS)
+disable_sh_cmd = Callback('Sh_Cmd_Off', [BUTTONS.SHOULDER_BUTTON_UPPER_LEFT], enable_disable_sh_cb,
+                          CB_FILTERING_RELEASE)
+
 
 ########################################################################################################################
 #                                                 PREDEFINED CALLBACKS                                                 #
@@ -75,6 +106,8 @@ def manager_start_cb():
     # Manager().add_callback_list(cmd_vel)
     Manager().add_callback(enable_cmd_vel)
     Manager().add_callback(disable_cmd_vel)
+    Manager().add_callback(enable_sh_cmd)
+    Manager().add_callback(disable_sh_cmd)
 
 
 def manager_break_once_cb():
