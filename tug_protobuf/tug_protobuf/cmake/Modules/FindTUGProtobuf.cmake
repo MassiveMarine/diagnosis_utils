@@ -105,6 +105,16 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+find_library(PROTO_C protoc /usr/local/lib)
+
+if(PROTO_C)
+    message("proto buffer lib installed")
+    set(PROTO_BUF_FOUND true)
+else()
+    set(PROTO_BUF_FOUND false)
+    message("Error: NO proto buffer lib installed")
+endif()
+
 # function(PROTOBUF_GENERATE SRCS HDRS PYS)
 function(PROTOBUF_GENERATE)
   

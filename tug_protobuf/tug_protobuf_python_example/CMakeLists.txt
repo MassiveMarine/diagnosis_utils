@@ -6,6 +6,7 @@ project(tug_protobuf_python_example)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   tug_protobuf_example_msg
+  tug_protobuf
 )
 
 ## System dependencies are found with CMake's conventions

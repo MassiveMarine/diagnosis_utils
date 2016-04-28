@@ -23,13 +23,16 @@ find_package(catkin REQUIRED COMPONENTS
 ## required to generate protobuf msgs
 INCLUDE(FindTUGProtobuf)
 FIND_PACKAGE(TUGProtobuf REQUIRED)
-INCLUDE_DIRECTORIES(${TUGProtobuf_INCLUDE_DIR})
 
-## generate protobuf messages from the 'msg' folder
-## * if no .proto file is given, all .proto files in the msg folder are generated
-##    protobuf_generate()
-##    protobuf_generate(example_msg.proto)
-protobuf_generate(example_msg.proto)
+if(PROTO_BUF_FOUND)
+    INCLUDE_DIRECTORIES(${TUGProtobuf_INCLUDE_DIR})
+
+    ## generate protobuf messages from the 'msg' folder
+    ## * if no .proto file is given, all .proto files in the msg folder are generated
+    ##    protobuf_generate()
+    ##    protobuf_generate(example_msg.proto)
+    protobuf_generate(example_msg.proto)
+endif()
 
 ################################################
 ## Declare ROS messages, services and actions ##
