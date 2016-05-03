@@ -122,6 +122,8 @@ add_library(tug_yaml
    src/ProcessYaml.cpp
 )
 
+target_compile_options(tug_yaml PRIVATE -Wformat -Wall -Wextra -Werror)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

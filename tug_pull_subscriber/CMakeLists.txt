@@ -121,6 +121,8 @@ add_library(tug_pull_subscriber
   src/PullSubscriber.cpp
 )
 
+target_compile_options(tug_pull_subscriber PRIVATE -Wformat -Wall -Wextra -Werror)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

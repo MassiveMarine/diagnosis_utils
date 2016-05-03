@@ -142,6 +142,7 @@ if(PROTO_BUF_FOUND)
       ${catkin_LIBRARIES}
       tug_protobuf_example_msg_proto
     )
+    target_compile_options(tug_protobuf_cpp_example_node PRIVATE -Wformat -Wall -Wextra -Werror)
 endif()
 #############
 ## Install ##

@@ -110,6 +110,8 @@ target_link_libraries(tug_plugin_manager
    ${catkin_LIBRARIES}
 )
 
+target_compile_options(tug_plugin_manager PRIVATE -Wformat -Wall -Wextra -Werror)
+
 #############
 ## Install ##
 #############

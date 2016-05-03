@@ -121,6 +121,8 @@ include_directories(
 add_library(tug_time
         src/Timer.cpp
         src/Timeout.cpp)
+        
+target_compile_options(tug_time PRIVATE -Wformat -Wall -Wextra -Werror)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

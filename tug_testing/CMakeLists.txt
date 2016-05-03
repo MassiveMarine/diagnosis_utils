@@ -138,6 +138,7 @@ target_link_libraries(tug_testing
   ${catkin_LIBRARIES}
 )
 
+target_compile_options(tug_testing PRIVATE -Wformat -Wall -Wextra -Werror)
 #############
 ## Install ##
 #############

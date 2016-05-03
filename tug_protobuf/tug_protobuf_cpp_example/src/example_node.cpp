@@ -4,7 +4,7 @@
 #include <tug_protobuf_example_msg/example_msg.pb.h>
 
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
   std::cout << "tug_protobuf_cpp_example_node" << std::endl;
 
