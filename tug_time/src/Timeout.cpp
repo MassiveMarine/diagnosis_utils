@@ -16,13 +16,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <tug_time/Timeout.h>
 #include <ros/ros.h>
+#include <boost/date_time/date.hpp>
 
 Timeout::Timeout(boost::posix_time::time_duration timeout, boost::function<bool()> timeout_call_back) :
-        timeout_(timeout),
-        call_back_(timeout_call_back),
-        pause_thread_(false)
+        timeout_(timeout), call_back_(timeout_call_back), pause_thread_(false)
 {
     background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
+}
+
+Timeout::Timeout(double timeout, boost::function<bool()> timeout_call_back) :
+        call_back_(timeout_call_back), pause_thread_(false)
+{
+  double seconds = static_cast<double>(static_cast<int64_t>(timeout));
+  double milli_seconds = (timeout - seconds) * 1000.;
+
+  timeout_ = boost::posix_time::seconds(static_cast<int64_t>(seconds)) +
+    boost::posix_time::milliseconds(static_cast<int64_t>(milli_seconds));
+  background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
 }
 
 void Timeout::run()
@@ -43,4 +53,29 @@ void Timeout::set()
     boost::mutex::scoped_lock lock(the_mutex_);
     pause_thread_ = false;
     the_condition_.notify_one();
+}
+
+void Timeout::setTimeOut(boost::posix_time::time_duration timeout)
+{
+  boost::mutex::scoped_lock lock(the_mutex_);
+  timeout_ = timeout;
+
+  pause_thread_ = false;
+  the_condition_.notify_one();
+}
+
+void Timeout::setTimeOut(double timeout)
+{
+  boost::mutex::scoped_lock lock(the_mutex_);
+  double seconds = static_cast<double>(static_cast<int64_t>(timeout));
+  double milli_seconds = (timeout - seconds) * 1000.;
+
+  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__ << ":" << __LINE__ <<
+    " seconds:" << seconds << " and milli seconds" << milli_seconds);
+
+  timeout_ = boost::posix_time::seconds(static_cast<int64_t>(seconds)) +
+    boost::posix_time::milliseconds(static_cast<int64_t>(milli_seconds));
+
+  pause_thread_ = false;
+  the_condition_.notify_one();
 }

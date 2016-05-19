@@ -33,8 +33,11 @@ class Timeout
 
 public:
     Timeout(boost::posix_time::time_duration timeout, boost::function<bool()> timeout_call_back);
+    Timeout(double timeout, boost::function<bool()> timeout_call_back);
     void run();
     void set();
+    void setTimeOut(boost::posix_time::time_duration timeout);
+    void setTimeOut(double timeout);
 };
 
 #endif  // TUG_TIME_TIMEOUT_H
