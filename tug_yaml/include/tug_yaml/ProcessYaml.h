@@ -37,6 +37,20 @@ public:
 };
 
 template<>
+class TypeHelper<unsigned short>
+{
+public:
+  static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeInt;
+};
+
+template<>
+class TypeHelper<short>
+{
+public:
+  static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeInt;
+};
+
+template<>
 class TypeHelper<unsigned int>
 {
 public:
@@ -114,6 +128,26 @@ public:
     {
       return static_cast<_T>(static_cast<_R>(xml_value));
     }
+};
+
+template<typename _T>
+class CastHelper<_T, unsigned short>
+{
+public:
+  static _T performCast(XmlRpc::XmlRpcValue xml_value)
+  {
+    return static_cast<_T>(static_cast<int>(xml_value));
+  }
+};
+
+template<typename _T>
+class CastHelper<_T, short>
+{
+public:
+  static _T performCast(XmlRpc::XmlRpcValue xml_value)
+  {
+    return static_cast<_T>(static_cast<int>(xml_value));
+  }
 };
 
 template<typename _T>
@@ -254,7 +288,7 @@ template<>
 class GetValueHelper<XmlRpc::XmlRpcValue, XmlRpc::XmlRpcValue>
 {
 public:
-    static XmlRpc::XmlRpcValue getValue(XmlRpc::XmlRpcValue::Type /*type*/, XmlRpc::XmlRpcValue xml_value)
+    static XmlRpc::XmlRpcValue getValue(XmlRpc::XmlRpcValue::Type type, XmlRpc::XmlRpcValue xml_value)
     {
       return xml_value;
     }
