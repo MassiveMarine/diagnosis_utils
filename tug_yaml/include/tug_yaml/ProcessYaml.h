@@ -288,7 +288,7 @@ template<>
 class GetValueHelper<XmlRpc::XmlRpcValue, XmlRpc::XmlRpcValue>
 {
 public:
-    static XmlRpc::XmlRpcValue getValue(XmlRpc::XmlRpcValue::Type type, XmlRpc::XmlRpcValue xml_value)
+    static XmlRpc::XmlRpcValue getValue(XmlRpc::XmlRpcValue::Type, XmlRpc::XmlRpcValue xml_value)
     {
       return xml_value;
     }
