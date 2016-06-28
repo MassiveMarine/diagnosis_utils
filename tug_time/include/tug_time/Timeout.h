@@ -32,10 +32,12 @@ class Timeout
     bool pause_thread_;
 
 public:
+    Timeout(boost::function<bool()> timeout_call_back);
     Timeout(boost::posix_time::time_duration timeout, boost::function<bool()> timeout_call_back);
     Timeout(double timeout, boost::function<bool()> timeout_call_back);
     void run();
     void set();
+    void stop();
     void setTimeOut(boost::posix_time::time_duration timeout);
     void setTimeOut(double timeout);
 };

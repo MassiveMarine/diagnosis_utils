@@ -18,6 +18,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <ros/ros.h>
 #include <boost/date_time/date.hpp>
 
+Timeout::Timeout(boost::function<bool()> timeout_call_back) : call_back_(timeout_call_back), pause_thread_(true)
+{
+  background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
+}
+
 Timeout::Timeout(boost::posix_time::time_duration timeout, boost::function<bool()> timeout_call_back) :
         timeout_(timeout), call_back_(timeout_call_back), pause_thread_(false)
 {
@@ -52,6 +57,13 @@ void Timeout::set()
 {
     boost::mutex::scoped_lock lock(the_mutex_);
     pause_thread_ = false;
+    the_condition_.notify_one();
+}
+
+void Timeout::stop()
+{
+    boost::mutex::scoped_lock lock(the_mutex_);
+    pause_thread_ = true;
     the_condition_.notify_one();
 }
 
