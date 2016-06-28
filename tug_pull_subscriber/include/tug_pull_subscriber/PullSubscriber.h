@@ -37,12 +37,12 @@ class PullSubscriber
 
     void theCB(const T& msg)
     {
-      ROS_INFO_STREAM("got the call back");
+      ROS_DEBUG_STREAM("got the call back");
       boost::mutex::scoped_lock the_lock(subscriber_mutex_);
 
       if (!got_message_ || needs_new_message_)
       {
-        ROS_INFO_STREAM("saveing the map");
+        ROS_DEBUG_STREAM("saveing the message");
         msg_ = msg;
         got_message_ = true;
         needs_new_message_ = false;
