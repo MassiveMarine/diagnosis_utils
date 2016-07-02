@@ -1,45 +1,47 @@
 #ifndef _TUG_BRESENHAM__CIRCLE_ITERATOR_H_
 #define _TUG_BRESENHAM__CIRCLE_ITERATOR_H_
 
+#include <cstdlib>
+#include <tug_bresenham/basic_circle_iterator.h>
+
+
+
 namespace tug_bresenham
 {
 
 /**
- * Implementation of the Bresenham circle algorithm in iterator form.
+ * Implementation of the Bresenham circle algorithm in iterator form (more
+ * simple-to-use version than BasicCircleIterator).
  *
- * Due to the nature of the algorithm, results are returned as the coordinates
- * of points (dx, dy) on a circle of the given radius centered at (0, 0), for
- * the first quadrant. To get a full circle, you have to consider all four
- * combinations of (+-dx, +-dy). Note that (dx, dy) will be invalid values
- * once isFinished() returns true.
+ * Due to the nature of the algorithm, results are returned for each quadrant
+ * in turns. Note that (x, y) will be invalid values once isFinished() returns
+ * true.
  */
 class CircleIterator
 {
 public:
-  CircleIterator(int radius);
+  CircleIterator(int center_x, int center_y, int radius);
 
   void operator++();
   void operator++(int);
 
-  inline int getDx() const
-  {
-    return dx_;
-  }
-
-  inline int getDy() const
-  {
-    return dy_;
-  }
+  int getX() const;
+  int getY() const;
 
   bool isFinished() const;
 
 protected:
-  void advance();
+  static const size_t NUM_QUADRANTS = 4;
 
-  int dx_;
-  int dy_;
-  long r_squared_;
-  long error_;
+  void advance();
+  void computeCoordinates();
+
+  int center_x_;
+  int center_y_;
+  int x_[NUM_QUADRANTS];
+  int y_[NUM_QUADRANTS];
+  size_t quadrant_;
+  BasicCircleIterator basic_it_;
 };
 
 }

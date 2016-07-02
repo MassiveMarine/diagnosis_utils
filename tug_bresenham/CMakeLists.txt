@@ -40,6 +40,7 @@ include_directories(
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
+  src/basic_circle_iterator.cpp include/${PROJECT_NAME}/basic_circle_iterator.h
   src/circle_iterator.cpp include/${PROJECT_NAME}/circle_iterator.h
   src/line_iterator.cpp include/${PROJECT_NAME}/line_iterator.h
 )
