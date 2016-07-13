@@ -21,6 +21,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <ros/node_handle.h>
 #include <string>
 #include <vector>
+#include <set>
+#include <list>
+#include <queue>
 
 template<typename _T>
 class TypeHelper
@@ -115,6 +118,27 @@ public:
 
 template<typename _T>
 class TypeHelper<std::vector<_T> >
+{
+public:
+    static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeArray;
+};
+
+template<typename _T>
+class TypeHelper<std::set<_T> >
+{
+public:
+    static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeArray;
+};
+
+template<typename _T>
+class TypeHelper<std::list<_T> >
+{
+public:
+    static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeArray;
+};
+
+template<typename _T>
+class TypeHelper<std::queue<_T> >
 {
 public:
     static const XmlRpc::XmlRpcValue::Type Type = XmlRpc::XmlRpcValue::TypeArray;
@@ -281,6 +305,87 @@ public:
         result.push_back(getValue(xml_value[i]));
 
       return result;
+    }
+};
+
+template<typename _T, typename _R>
+class GetValueHelper<std::set<_T>, std::set<_R> >
+{
+    static _T getValue(XmlRpc::XmlRpcValue xml_value)
+    {
+        return GetValueHelper<_T, _R>::getValue(TypeHelper<_T>::Type, xml_value);
+    }
+
+public:
+    static std::set<_T> getValue(XmlRpc::XmlRpcValue::Type type, XmlRpc::XmlRpcValue xml_value)
+    {
+        if (xml_value.getType() != type)
+        {
+            ROS_FATAL_STREAM(" has wrong type should have " << type << " and has " << xml_value.getType());
+            std::stringstream error_stream;
+            error_stream << " has wrong type should have " << type << " and has " << xml_value.getType();
+            throw std::invalid_argument(error_stream.str());
+        }
+
+        std::set<_T> result;
+        for (int i = 0; i < xml_value.size(); ++i)
+            result.push_back(getValue(xml_value[i]));
+
+        return result;
+    }
+};
+
+template<typename _T, typename _R>
+class GetValueHelper<std::list<_T>, std::list<_R> >
+{
+    static _T getValue(XmlRpc::XmlRpcValue xml_value)
+    {
+        return GetValueHelper<_T, _R>::getValue(TypeHelper<_T>::Type, xml_value);
+    }
+
+public:
+    static std::list<_T> getValue(XmlRpc::XmlRpcValue::Type type, XmlRpc::XmlRpcValue xml_value)
+    {
+        if (xml_value.getType() != type)
+        {
+            ROS_FATAL_STREAM(" has wrong type should have " << type << " and has " << xml_value.getType());
+            std::stringstream error_stream;
+            error_stream << " has wrong type should have " << type << " and has " << xml_value.getType();
+            throw std::invalid_argument(error_stream.str());
+        }
+
+        std::list<_T> result;
+        for (int i = 0; i < xml_value.size(); ++i)
+            result.push_back(getValue(xml_value[i]));
+
+        return result;
+    }
+};
+
+template<typename _T, typename _R>
+class GetValueHelper<std::queue<_T>, std::queue<_R> >
+{
+    static _T getValue(XmlRpc::XmlRpcValue xml_value)
+    {
+        return GetValueHelper<_T, _R>::getValue(TypeHelper<_T>::Type, xml_value);
+    }
+
+public:
+    static std::queue<_T> getValue(XmlRpc::XmlRpcValue::Type type, XmlRpc::XmlRpcValue xml_value)
+    {
+        if (xml_value.getType() != type)
+        {
+            ROS_FATAL_STREAM(" has wrong type should have " << type << " and has " << xml_value.getType());
+            std::stringstream error_stream;
+            error_stream << " has wrong type should have " << type << " and has " << xml_value.getType();
+            throw std::invalid_argument(error_stream.str());
+        }
+
+        std::queue<_T> result;
+        for (int i = 0; i < xml_value.size(); ++i)
+            result.push_back(getValue(xml_value[i]));
+
+        return result;
     }
 };
 
