@@ -18,7 +18,7 @@ source ./devel/setup.sh
 
 ln -s $REPO_PATH ./src/
 
-catkin_make
+catkin_make > /dev/null 2> /dev/null
 source ./devel/setup.sh
 rm build/ devel/ -r
 
