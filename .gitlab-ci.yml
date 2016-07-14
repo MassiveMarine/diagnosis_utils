@@ -1,11 +1,12 @@
 compile_with_test_sim0:
   script:
+    - bash
     - source ci/setup_ws.sh
     - catkin_make
     - catkin_make run_tests -j 1
     - catkin_test_results --verbose
     - catkin_test_results
-    - tug_static_code_checking_helper/scripts/analyze.sh
+    - ci/perform_static_code_checking.sh
   tags:
     - sim0
   except:
