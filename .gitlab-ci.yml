@@ -5,7 +5,7 @@ compile_with_test_sim0:
     - catkin_make run_tests -j 1
     - catkin_test_results --verbose
     - catkin_test_results
-    - $HOME/ci/scripts/perform_static_code_checking.sh
+    - bash $HOME/ci/scripts/perform_static_code_checking.sh
   tags:
     - sim0
   except:
