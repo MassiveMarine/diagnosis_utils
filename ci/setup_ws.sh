@@ -18,7 +18,11 @@ source ./devel/setup.sh
 
 ln -s $REPO_PATH ./src/
 
-catkin_make > /dev/null 2> /dev/null
+rm build/ devel/ -r
+mkdir build
+cd build
+cmake ../src -DCMAKE_INSTALL_PREFIX=../install -DCATKIN_DEVEL_PREFIX=../devel
+cd ..
 source ./devel/setup.sh
 rm build/ devel/ -r
 
