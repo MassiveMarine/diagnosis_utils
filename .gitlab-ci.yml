@@ -5,6 +5,7 @@ compile_with_test:
     - catkin_make run_tests -j 1
     - catkin_test_results --verbose
     - catkin_test_results
+    - tug_static_code_checking_helper/scripts/analyze.sh
   tags:
     - sim0
   except:
