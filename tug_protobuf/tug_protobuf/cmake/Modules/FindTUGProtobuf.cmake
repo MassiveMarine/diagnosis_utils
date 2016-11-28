@@ -197,6 +197,7 @@ function(PROTOBUF_GENERATE)
   set_source_files_properties(${SRCS} ${HDRS} PROPERTIES GENERATED TRUE)
   add_library(${PROJECT_NAME}_proto ${HDRS} ${SRCS})
   target_link_libraries(${PROJECT_NAME}_proto protobuf)
+  target_compile_options(${PROJECT_NAME}_proto INTERFACE -I${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION})
 endfunction()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
