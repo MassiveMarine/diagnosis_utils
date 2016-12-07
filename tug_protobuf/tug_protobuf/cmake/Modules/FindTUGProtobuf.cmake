@@ -107,7 +107,7 @@
 
 find_library(PROTO_C protoc /usr/local/lib)
 
-if(PROTO_C)
+if(PROTO_C AND PROTOBUF_PROTOC_EXECUTABLE)
     message("proto buffer lib installed")
     set(PROTO_BUF_FOUND true)
 else()
