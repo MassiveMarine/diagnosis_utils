@@ -1,4 +1,5 @@
 #include <tug_bresenham/basic_circle_iterator.h>
+#include <stdexcept>
 
 
 
@@ -8,7 +9,11 @@ namespace tug_bresenham
 BasicCircleIterator::BasicCircleIterator(int radius)
   : dx_(0), dy_(radius), r_squared_(static_cast<long>(radius) * radius)
 {
-  error_ = r_squared_ - (2 * r_squared_ - 1) * r_squared_;
+  if (radius < 1)
+  {
+    throw std::invalid_argument(std::string(__func__) + ": radius must be >= 1");
+  }
+  error_ = r_squared_ - (2 * radius - 1) * r_squared_;
 }
 
 void BasicCircleIterator::operator++()
@@ -34,13 +39,13 @@ void BasicCircleIterator::advance()
 
     if (error_2 < ((2 * dx_ + 1) * r_squared_))
     {
-      dx_++;
+      ++dx_;
       error_ += (2 * dx_ + 1) * r_squared_;
     }
 
     if (error_2 > -((2 * dy_ - 1) * r_squared_))
     {
-      dy_--;
+      --dy_;
       error_ -= (2 * dy_ - 1) * r_squared_;
     }
   }
