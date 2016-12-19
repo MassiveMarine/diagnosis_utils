@@ -7,13 +7,18 @@ namespace tug_bresenham
 {
 
 BasicCircleIterator::BasicCircleIterator(int radius)
-  : dx_(0), dy_(radius), r_squared_(static_cast<long>(radius) * radius)
+  : dx_(0), dy_(radius), r_squared_(static_cast<ErrorInt>(radius) * radius),
+    error_(static_cast<ErrorInt>(1 - radius) * 2 * r_squared_)
 {
   if (radius < 1)
   {
     throw std::invalid_argument(std::string(__func__) + ": radius must be >= 1");
   }
-  error_ = r_squared_ - (2 * radius - 1) * r_squared_;
+  if ((r_squared_ / radius) != radius ||
+      (error_ / r_squared_ / 2) != (1 - radius))
+  {
+    throw std::invalid_argument(std::string(__func__) + ": radius is too large for computations");
+  }
 }
 
 void BasicCircleIterator::operator++()
@@ -35,7 +40,7 @@ void BasicCircleIterator::advance()
 {
   if (!isFinished())
   {
-    long error_2 = 2 * error_;
+    ErrorInt error_2 = 2 * error_;
 
     if (error_2 < ((2 * dx_ + 1) * r_squared_))
     {
