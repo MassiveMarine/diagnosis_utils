@@ -56,8 +56,8 @@ static void expectCoords(tug_bresenham::BasicCircleIterator& bci, const CoordsVe
 static void doTestRadius(int radius, int max_iterations, bool& is_finished, int& actual_iterations)
 {
   tug_bresenham::BasicCircleIterator bci(radius);
-  int last_dx = -1;
-  int last_dy = radius;
+  int last_dx = radius;
+  int last_dy = -1;
   int i = 0;
   for (; i < max_iterations && !bci.isFinished(); ++i, ++bci)
   {
@@ -146,7 +146,7 @@ TEST(BasicCircleIterator, testCircle0)
 TEST(BasicCircleIterator, testCircle1)
 {
   tug_bresenham::BasicCircleIterator bci(1);
-  expectCoords(bci, CoordsBuilder(0, 1)(1, 0));
+  expectCoords(bci, CoordsBuilder(1, 0)(0, 1));
 }
 
 
@@ -154,7 +154,7 @@ TEST(BasicCircleIterator, testCircle1)
 TEST(BasicCircleIterator, testCircle2)
 {
   tug_bresenham::BasicCircleIterator bci(2);
-  expectCoords(bci, CoordsBuilder(0, 2)(1, 2)(2, 1)(2, 0));
+  expectCoords(bci, CoordsBuilder(2, 0)(2, 1)(1, 2)(0, 2));
 }
 
 
@@ -162,7 +162,7 @@ TEST(BasicCircleIterator, testCircle2)
 TEST(BasicCircleIterator, testCircle3)
 {
   tug_bresenham::BasicCircleIterator bci(3);
-  expectCoords(bci, CoordsBuilder(0, 3)(1, 3)(2, 2)(3, 1)(3, 0));
+  expectCoords(bci, CoordsBuilder(3, 0)(3, 1)(2, 2)(1, 3)(0, 3));
 }
 
 
@@ -179,17 +179,8 @@ TEST(BasicCircleIterator, testCircleRadius1To100)
 
 TEST(BasicCircleIterator, testCircleRadiusLarge)
 {
-  // Empirical approximate maximum value for 32-bit machine:
-  testRadius(1100000, 10000);
+  testRadius(std::numeric_limits<int>::max(), 10000);
 }
-
-
-
-TEST(BasicCircleIterator, testCircleRadiusTooLarge)
-{
-  testExpectedException(std::numeric_limits<int>::max());
-}
-
 
 
 

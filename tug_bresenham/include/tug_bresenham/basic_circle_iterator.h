@@ -42,7 +42,6 @@ protected:
 
   int dx_;
   int dy_;
-  ErrorInt r_squared_;
   ErrorInt error_;
 };
 
