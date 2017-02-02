@@ -90,7 +90,7 @@ def create_file(file_name, contents):
     directory = os.path.dirname(file_name)
     if not os.path.isdir(directory):
         print('Creating directory "%s"' % directory)
-        os.mkdir(directory)
+        os.makedirs(directory)
     print('Creating file "%s"' % file_name)
     try:
         with open(file_name, 'w') as f:
