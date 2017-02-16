@@ -53,37 +53,57 @@ static void expectCoords(tug_bresenham::BasicCircleIterator& bci, const CoordsVe
 
 
 
-static void testRadius(int radius)
+static void doTestRadius(int radius, int max_iterations, bool& is_finished, int& actual_iterations)
 {
   tug_bresenham::BasicCircleIterator bci(radius);
-  long i = 0;
-  for (; !bci.isFinished(); ++i, ++bci)
+  int last_dx = radius;
+  int last_dy = -1;
+  int i = 0;
+  for (; i < max_iterations && !bci.isFinished(); ++i, ++bci)
   {
+    int x_distance = bci.getDx() - last_dx;
+    int y_distance = bci.getDy() - last_dy;
+    EXPECT_LE(-1, x_distance);
+    EXPECT_LE(x_distance, 1);
+    EXPECT_LE(-1, y_distance);
+    EXPECT_LE(y_distance, 1);
+    int pixel_distance = std::abs(x_distance) + std::abs(y_distance);
+    EXPECT_LE(1, pixel_distance);
+    EXPECT_LE(pixel_distance, 2);
+
     //std::cerr << "{ x: " << bci.getDx() << "; y: " << bci.getDy() << " }" << std::endl;
     double actual_radius = std::sqrt(std::pow(bci.getDx(), 2.0) +
                                      std::pow(bci.getDy(), 2.0));
     EXPECT_NEAR(radius, actual_radius, 0.5);
+
+    last_dx = bci.getDx();
+    last_dy = bci.getDy();
   }
-  EXPECT_GT(i, radius); // Iterator must return more than <radius> points
-  EXPECT_LE(i, 2L * radius); // Iterator must return less than 2*<radius> points
-  EXPECT_TRUE(bci.isFinished());
+  is_finished = bci.isFinished();
+  actual_iterations = i;
 }
 
 
 
-static void testRadius(int radius, long iterations)
+static void testRadius(int radius)
 {
-  tug_bresenham::BasicCircleIterator bci(radius);
-  long i = 0;
-  for (; i < iterations && !bci.isFinished(); ++i, ++bci)
-  {
-    //std::cerr << "{ x: " << bci.getDx() << "; y: " << bci.getDy() << " }" << std::endl;
-    double actual_radius = std::sqrt(std::pow(bci.getDx(), 2.0) +
-                                     std::pow(bci.getDy(), 2.0));
-    EXPECT_NEAR(radius, actual_radius, 0.5);
-  }
-  EXPECT_EQ(i, iterations);
-  EXPECT_FALSE(bci.isFinished());
+  bool is_finished = false;
+  int actual_iterations = 0;
+  doTestRadius(radius, std::numeric_limits<int>::max(), is_finished, actual_iterations);
+  EXPECT_GT(actual_iterations, radius); // Iterator must return more than <radius> points
+  EXPECT_LE(actual_iterations, 2L * radius); // Iterator must return less than 2*<radius> points
+  EXPECT_TRUE(is_finished);
+}
+
+
+
+static void testRadius(int radius, int iterations)
+{
+  bool is_finished = true;
+  int actual_iterations = 0;
+  doTestRadius(radius, iterations, is_finished, actual_iterations);
+  EXPECT_EQ(actual_iterations, iterations);
+  EXPECT_FALSE(is_finished);
 }
 
 
@@ -126,7 +146,7 @@ TEST(BasicCircleIterator, testCircle0)
 TEST(BasicCircleIterator, testCircle1)
 {
   tug_bresenham::BasicCircleIterator bci(1);
-  expectCoords(bci, CoordsBuilder(0, 1)(1, 0));
+  expectCoords(bci, CoordsBuilder(1, 0)(0, 1));
 }
 
 
@@ -134,7 +154,7 @@ TEST(BasicCircleIterator, testCircle1)
 TEST(BasicCircleIterator, testCircle2)
 {
   tug_bresenham::BasicCircleIterator bci(2);
-  expectCoords(bci, CoordsBuilder(0, 2)(1, 2)(2, 1)(2, 0));
+  expectCoords(bci, CoordsBuilder(2, 0)(2, 1)(1, 2)(0, 2));
 }
 
 
@@ -142,7 +162,7 @@ TEST(BasicCircleIterator, testCircle2)
 TEST(BasicCircleIterator, testCircle3)
 {
   tug_bresenham::BasicCircleIterator bci(3);
-  expectCoords(bci, CoordsBuilder(0, 3)(1, 3)(2, 2)(3, 1)(3, 0));
+  expectCoords(bci, CoordsBuilder(3, 0)(3, 1)(2, 2)(1, 3)(0, 3));
 }
 
 
@@ -157,10 +177,10 @@ TEST(BasicCircleIterator, testCircleRadius1To100)
 
 
 
-/*TEST(BasicCircleIterator, testCircleRadiusIntMax)
+TEST(BasicCircleIterator, testCircleRadiusLarge)
 {
-  testRadius(std::numeric_limits<int>::max() - 2, 100);
-}*/
+  testRadius(std::numeric_limits<int>::max(), 10000);
+}
 
 
 

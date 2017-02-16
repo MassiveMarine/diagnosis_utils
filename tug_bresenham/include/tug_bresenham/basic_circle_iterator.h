@@ -1,6 +1,8 @@
 #ifndef _TUG_BRESENHAM__BASIC_CIRCLE_ITERATOR_H_
 #define _TUG_BRESENHAM__BASIC_CIRCLE_ITERATOR_H_
 
+#include <stdint.h>
+
 namespace tug_bresenham
 {
 
@@ -34,12 +36,13 @@ public:
   bool isFinished() const;
 
 protected:
+  typedef int_least64_t ErrorInt;
+
   void advance();
 
   int dx_;
   int dy_;
-  long r_squared_;
-  long error_;
+  ErrorInt error_;
 };
 
 }
