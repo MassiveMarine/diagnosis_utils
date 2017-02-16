@@ -18,19 +18,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <ros/ros.h>
 #include <boost/date_time/date.hpp>
 
-Timeout::Timeout(boost::function<bool()> timeout_call_back) : call_back_(timeout_call_back), pause_thread_(true)
+Timeout::Timeout(boost::function<bool()> timeout_call_back) : call_back_(timeout_call_back), pause_thread_(true),
+                                                              is_killed_(false)
 {
   background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
 }
 
 Timeout::Timeout(boost::posix_time::time_duration timeout, boost::function<bool()> timeout_call_back) :
-        timeout_(timeout), call_back_(timeout_call_back), pause_thread_(false)
+        timeout_(timeout), call_back_(timeout_call_back), pause_thread_(false), is_killed_(false)
 {
     background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
 }
 
 Timeout::Timeout(double timeout, boost::function<bool()> timeout_call_back) :
-        call_back_(timeout_call_back), pause_thread_(false)
+        call_back_(timeout_call_back), pause_thread_(false), is_killed_(false)
 {
   double seconds = static_cast<double>(static_cast<int64_t>(timeout));
   double milli_seconds = (timeout - seconds) * 1000.;
@@ -40,12 +41,22 @@ Timeout::Timeout(double timeout, boost::function<bool()> timeout_call_back) :
   background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
 }
 
+Timeout::~Timeout()
+{
+    boost::mutex::scoped_lock lock(the_mutex_);
+    is_killed_ = true;
+    the_condition_.notify_one();
+    lock.unlock();
+
+    background_thread_.join();
+}
+
 void Timeout::run()
 {
-    while (ros::ok())
-    {
-        boost::mutex::scoped_lock lock(the_mutex_);
+    boost::mutex::scoped_lock lock(the_mutex_);
 
+    while (ros::ok() && !is_killed_)
+    {
         if (pause_thread_)
             the_condition_.wait(lock);
         else if (!the_condition_.timed_wait(lock, timeout_))
