@@ -329,7 +329,7 @@ public:
 
         std::set<_T> result;
         for (int i = 0; i < xml_value.size(); ++i)
-            result.push_back(getValue(xml_value[i]));
+            result.insert(getValue(xml_value[i]));
 
         return result;
     }
