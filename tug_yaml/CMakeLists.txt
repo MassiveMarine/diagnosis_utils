@@ -100,7 +100,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES tug_yaml
+#  LIBRARIES tug_yaml
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
 )
@@ -118,11 +118,11 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(tug_yaml
-   src/ProcessYaml.cpp
-)
+#add_library(tug_yaml
+#   src/ProcessYaml.cpp
+#)
 
-target_compile_options(tug_yaml PRIVATE -Wformat -Wall -Wextra -Werror)
+#target_compile_options(tug_yaml PRIVATE -Wformat -Wall -Wextra -Werror)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
