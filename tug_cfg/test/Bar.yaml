@@ -1,0 +1,49 @@
+# Params definitions can extend others to foster reuse.
+#_extends: my_pkg/Std
+# or
+#-extends: [my_pkg/Std, my_pkg/Foo]
+
+# Descriptions help users to understand parameters, both when entering parameters in launch files and for dynamically
+# configuring nodes.
+rate: { type: double, default: 1.0, description: "The rate" }
+
+# Parameters must have at least a name and a type.
+duration:
+  type: double
+  default: 1.0
+  description: >
+    An elaborate description.
+
+have_tree: { type: bool, default: false }
+
+# The "dynamic" attribute specifies whether parameters can be changed at runtime. The "level" attribute is for
+# compatibility with dynamic_reconfigure.
+factor: { type: double, min: 0.1, max: 100, default: 10, dynamic: true, level: 4 }
+
+# Units help with documenting and entering values.
+abs_distance: { type: int, unit: 0.1mm, default: 20 }
+rel_distance: { type: double, unit: "%", default: 70 }
+linear_speed: { type: double, unit: m/s, default: 7.2 }
+
+# Choices limit the allowed values to specific ones.
+interpolation_mode: { type: str, choices: [linear, quadratic], default: linear }
+
+# Suggestions allow a UI to present a list of proposed values, but do not limit the allowed values. (Note: "Baud",
+# including "kBaud" and "MBaud", could make sense to have.)
+baud_rate: { type: int, suggestions: [9600, 19200, 38400, 115200], default: 0 }
+plugins: { type: "str[]", default: [] }
+
+# Other params files can be referenced as types. Lists are also possible, just like in ROS message definitions. The
+# "dynamic" attribute means whether items can be added or removed dynamically in this case.
+filters: { type: "my_pkg/Filter[]", default: [] }
+coefficients: { type: "double[][]", default: [[]] }
+
+# Maps (dictionaries) are also supported. "any" is a variant type. (Note that the ROS parameters concept actually only
+# allows strings as keys; however, lists are also possible somehow, so...)
+kvargs: { type: "any[str]", default: {} }
+error_names: { type: "str[int]", default: {} }
+
+# An "ignored" attribute could be used to specify, but ignore other parameters that could also be defined, but aren't
+# relevant. This implicates that checks are done that no other than the specified parameters are given. This would help
+# finding errors like misspelled parameter names.
+#other_lib: { ignored: true }
