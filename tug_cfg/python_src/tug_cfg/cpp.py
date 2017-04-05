@@ -2,15 +2,15 @@ import string
 import textwrap
 from .model import ScalarType, MapType, ListType, CfgType
 
-_TEMPLATE = string.Template('''\
+_HEADER_TEMPLATE = string.Template('''\
 #ifndef _${NAMESPACE}__${CLASS_NAME}_H_
 #define _${NAMESPACE}__${CLASS_NAME}_H_
 
-#include <$gen_namespace/Config.h>
+#include <$gen_namespace/configuration.h>
 
 namespace $namespace
 {
-class $ClassName : public $gen_namespace::Config
+class $ClassName : public $gen_namespace::Configuration
 {
 public:
   $ClassName()
@@ -20,10 +20,15 @@ public:
 
   virtual ~$ClassName() = default;
 
-  virtual void load(tug_cfg::ConfigSource& s) override
+  virtual void load(tug_cfg::ConfigurationSource& s) override
   {
     $load
     enforceConstraints();
+  }
+  
+  virtual void store(tug_cfg::ConfigurationSink& s) override
+  {
+    // TODO
   }
 
   virtual void enforceConstraints() override
@@ -31,11 +36,18 @@ public:
     $enforceConstraints
   }
 
-  $members
+$members
 };
 }  // namespace $namespace
 
 #endif  // _${NAMESPACE}__${CLASS_NAME}_H_
+''')
+
+_MEMBER_TEMPLATE = string.Template('''
+  /**
+   * $doc
+   */
+  $type $name;\
 ''')
 
 
@@ -52,8 +64,8 @@ class CppParam(object):
 
     def _generate_type_name(self, type_):
         if isinstance(type_, ScalarType):
-            if type_.name == ScalarType.ANY:
-                return 'boost::any'
+            # if type_.name == ScalarType.ANY:
+            #     return 'boost::any'
             if type_.name == ScalarType.STR:
                 return 'std::string'
             return type_.name
@@ -63,7 +75,7 @@ class CppParam(object):
         if isinstance(type_, ListType):
             return 'std::vector<%s> ' % (self._generate_type_name(type_.item_type),)
         if isinstance(type_, CfgType):
-            return '%s::%s' % (type_.package_name, type_.cfg_name)
+            return '%s::%sConfig' % (type_.package_name, type_.cfg_name)
         raise TypeError('Configuration model contains unknown type %r' % type_)
 
     def _format_value(self, param, value):
@@ -88,32 +100,39 @@ class Generator(object):
         load = []
         enforce = []
         for p in params:
-            members.append('')
-            members.append('/**')
-            if p.description:
-                members.append(textwrap.fill(p.description, initial_indent=' * ', subsequent_indent='   * '))
+            doc = []
             if p.default is not None:
-                members.append(' * Default: %s' % p.default)
+                doc.append('Default: %s' % p.default)
                 load.append('s.load("%s", %s, %s);' % (p.name, p.name, p.default))
             else:
                 load.append('s.load("%s", %s);' % (p.name, p.name))
             if p.min is not None:
-                members.append(' * Minimum: %s' % p.min)
+                doc.append('Minimum: %s' % p.min)
                 enforce.append('enforceMin("%s", %s, %s);' % (p.name, p.name, p.min))
             if p.max is not None:
-                members.append(' * Maximum: %s' % p.max)
+                doc.append('Maximum: %s' % p.max)
                 enforce.append('enforceMax("%s", %s, %s);' % (p.name, p.name, p.max))
             if p.choices:
+                doc.append('Choices: %s' % ', '.join(p.choices))
                 enforce.append('enforceChoices("%s", %s, {%s});' % (p.name, p.name, ', '.join(p.choices)))
-            members.append(' */')
-            members.append('%s %s;' % (p.type.strip(), p.name))
-        stream.write(_TEMPLATE.substitute(
+            if p.suggestions:
+                doc.append('Suggestions: %s' % ', '.join(p.suggestions))
+            if p.description:
+                if doc:
+                    doc.insert(0, '')  # Add empty line between description and rest of documentation
+                doc.insert(0, p.description)
+            members.append(_MEMBER_TEMPLATE.substitute(
+                doc='\n   * '.join(textwrap.fill(d, subsequent_indent='   * ') for d in doc),
+                type=p.type.strip(),
+                name=p.name,
+            ))
+        stream.write(_HEADER_TEMPLATE.substitute(
             gen_namespace=self.__class__.__module__.split('.')[0],
             NAMESPACE=cfg.package_name.upper(),
             namespace=cfg.package_name,
             CLASS_NAME=class_name.upper(),
             ClassName=class_name,
-            members='\n  '.join(members),
+            members='\n'.join(members),
             initialization=initialization,
             load='\n    '.join(load),
             enforceConstraints='\n    '.join(enforce),

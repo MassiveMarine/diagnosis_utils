@@ -31,17 +31,17 @@ interpolation_mode: { type: str, choices: [linear, quadratic], default: linear }
 # Suggestions allow a UI to present a list of proposed values, but do not limit the allowed values. (Note: "Baud",
 # including "kBaud" and "MBaud", could make sense to have.)
 baud_rate: { type: int, suggestions: [9600, 19200, 38400, 115200], default: 0 }
-plugins: { type: "str[]", default: [] }
+plugins: { type: "str[]" }
 
 # Other params files can be referenced as types. Lists are also possible, just like in ROS message definitions. The
 # "dynamic" attribute means whether items can be added or removed dynamically in this case.
-filters: { type: "my_pkg/Filter[]", default: [] }
-coefficients: { type: "double[][]", default: [[]] }
+filters: { type: "tug_cfg/Bar[]" }
+coefficients: { type: "double[][]" }
 
 # Maps (dictionaries) are also supported. "any" is a variant type. (Note that the ROS parameters concept actually only
 # allows strings as keys; however, lists are also possible somehow, so...)
-kvargs: { type: "any[str]", default: {} }
-error_names: { type: "str[int]", default: {} }
+kvargs: { type: "str[str]" }
+error_names: { type: "str[int]" }
 
 # An "ignored" attribute could be used to specify, but ignore other parameters that could also be defined, but aren't
 # relevant. This implicates that checks are done that no other than the specified parameters are given. This would help

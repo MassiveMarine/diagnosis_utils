@@ -1,5 +1,6 @@
 import os.path
 import re
+import rospkg
 import yaml
 from .model import Cfg, Param, CfgType, ListType, MapType, ScalarType
 
@@ -14,22 +15,30 @@ class ErrorHandler(object):
     def handle_invalid_parameter_name(self, parameter_name):
         print('Warning: parameter "%s" has invalid name; ignored' % (parameter_name,))
 
-    def handle_unknown_attribute(self, parameter_name, attribute_name):
-        print('Warning: parameter "%s" has unknown attribute "%s"; ignored' % (parameter_name, attribute_name))
-
     def handle_invalid_parameter_spec(self, parameter_name):
         print('Warning: specification of parameter "%s" is invalid; ignored' % parameter_name)
 
-    def handle_invalid_attribute_type(self, parameter_name, attribute_name, expected_type):
-        print('Warning: attribute "%s" of parameter "%s" has invalid type; should be %s; ignored'
-              % (attribute_name, parameter_name, expected_type))
+    def handle_unknown_attribute(self, parameter, attribute_name):
+        print('Warning: parameter "%s" has unknown attribute "%s"; ignored' % (parameter.name, attribute_name))
 
-    def handle_invalid_attribute_value(self, parameter_name, attribute_name, attribute_value):
+    def handle_missing_attribute(self, parameter, attribute_name):
+        print('Warning: parameter "%s" of type "%s" requires attribute "%s"'
+              % (parameter.name, parameter.type, attribute_name))
+
+    def handle_unsupported_attribute(self, parameter, attribute_name, msg):
+        print('Warning: parameter "%s" contains unsupported attribute "%s": %s; ignored'
+              % (parameter.name, attribute_name, msg))
+
+    def handle_invalid_attribute_type(self, parameter, attribute_name, expected_type):
+        print('Warning: attribute "%s" of parameter "%s" has invalid type; should be %s; ignored'
+              % (attribute_name, parameter.name, expected_type))
+
+    def handle_invalid_attribute_value(self, parameter, attribute_name, attribute_value):
         print('Warning: attribute "%s" of parameter "%s" has invalid value %r; ignored'
-              % (attribute_name, parameter_name, attribute_value))
+              % (attribute_name, parameter.name, attribute_value))
 
     def handle_unexpected_doc(self, doc):
-        print('Warning: file contains superfluous document; ignored')
+        print('Warning: file contains superfluous YAML document; ignored')
 
 
 class AttributeSpec(object):
@@ -64,10 +73,11 @@ class Loader(object):
 
     def load(self, package_name, file_name):
         result = None
+        package_path = rospkg.RosPack().get_path(package_name)
         cfg_name = os.path.splitext(os.path.basename(file_name))[0]
         if self._CFG_NAME_PATTERN.match(cfg_name):
             try:
-                with open(file_name) as f:
+                with open(os.path.join(package_path, file_name)) as f:
                     docs = list(yaml.safe_load_all(f))
             except Exception as e:
                 self._error_handler.handle_parse_error(e)
@@ -90,24 +100,32 @@ class Loader(object):
                     try:
                         spec = self._ATTRIBUTE_SPECS[k]
                     except KeyError:
-                        self._error_handler.handle_unknown_attribute(name, k)
+                        self._error_handler.handle_unknown_attribute(param, k)
                     else:
                         if isinstance(v, spec.type) and (spec.pattern is None or spec.pattern.match(v)):
                             if k == 'type':
-                                type_ = self._parse_type(v)
-                                if type_:
-                                    setattr(param, k, type_)
-                                else:
-                                    self._error_handler.handle_invalid_attribute_value(name, k, v)
+                                param.type_name = v
+                                param.type = self._parse_type(v)
+                                if not param.type:
+                                    self._error_handler.handle_invalid_attribute_value(param, k, v)
                             else:
                                 setattr(param, k, v)
                         else:
-                            self._error_handler.handle_invalid_attribute_value(name, k, v)
-                if (param.name and param.type and param.default is not None
-                        and not (param.choices and param.suggestions)):
-                    cfg.parameters.append(param)
+                            self._error_handler.handle_invalid_attribute_value(param, k, v)
+                if not param.type:
+                    self._error_handler.handle_missing_attribute(param, 'type')
+                elif isinstance(param.type, ScalarType) and param.default is None:
+                    self._error_handler.handle_missing_attribute(param, 'default')
                 else:
-                    self._error_handler.handle_invalid_parameter_spec(name)
+                    if not isinstance(param.type, ScalarType) and param.default is not None:
+                        self._error_handler.handle_unsupported_attribute(
+                            param, 'default', '"default" is not supported for type "%s"' % param.type)
+                        param.default = None
+                    elif param.choices and param.suggestions:
+                        self._error_handler.handle_unsupported_attribute(
+                            param, 'suggestions', 'parameter cannot have both choices and suggestions')
+                        param.suggestions = None
+                    cfg.parameters.append(param)
             else:
                 self._error_handler.handle_invalid_parameter_name(name)
         return cfg

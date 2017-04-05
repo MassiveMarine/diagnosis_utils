@@ -4,12 +4,13 @@ class Type(object):
 
 
 class ScalarType(Type):
-    ANY = 'any'
+    #ANY = 'any'
     BOOL = 'bool'
     DOUBLE = 'double'
     INT = 'int'
     STR = 'str'
-    ALL_NAMES = (ANY, BOOL, DOUBLE, INT, STR)
+    ALL_NAMES = (#ANY,
+                 BOOL, DOUBLE, INT, STR)
 
     def __init__(self, name):
         if name not in self.ALL_NAMES:
@@ -48,6 +49,7 @@ class Param(object):
     def __init__(self, name):
         super(Param, self).__init__()
         self.name = name
+        self.type_name = None
         self.type = None
         self.unit = None
         self.default = None
