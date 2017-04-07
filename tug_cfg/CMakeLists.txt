@@ -70,10 +70,16 @@ include_directories(
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
+  include/${PROJECT_NAME}/key.h
   src/configuration.cpp include/${PROJECT_NAME}/configuration.h
   src/configuration_sink.cpp include/${PROJECT_NAME}/configuration_sink.h
   src/configuration_source.cpp include/${PROJECT_NAME}/configuration_source.h
-  src/value.cpp include/${PROJECT_NAME}/value.h
+  include/${PROJECT_NAME}/forwards.h
+  src/object.cpp include/${PROJECT_NAME}/object.h
+  src/scalar.cpp include/${PROJECT_NAME}/scalar.h
+  src/struct.cpp include/${PROJECT_NAME}/struct.h
+  src/type.cpp include/${PROJECT_NAME}/type.h
+  src/visitor.cpp include/${PROJECT_NAME}/visitor.h
 )
 
 ## Add cmake target dependencies of the library

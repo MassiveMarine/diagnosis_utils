@@ -1,21 +1,21 @@
 #ifndef _TUG_CFG__CONFIGURATION_H_
 #define _TUG_CFG__CONFIGURATION_H_
 
-#include <tug_cfg/configuration_sink.h>
-#include <tug_cfg/configuration_source.h>
+#include <tug_cfg/forwards.h>
 
 namespace tug_cfg
 {
-
 class Configuration
 {
 public:
   Configuration();
   virtual ~Configuration();
 
-  virtual void load(tug_cfg::ConfigurationSource& s) = 0;
-  virtual void store(tug_cfg::ConfigurationSink& s) = 0;
-  virtual void enforceConstraints() = 0;
+  virtual void load(Visitor& loader, Visitor& constrainer = DefaultConstrainer());
+  virtual void store(ConstVisitor& storer) const;
+
+  virtual void accept(Visitor& s) = 0;
+  virtual void accept(ConstVisitor& s) const = 0;
 
 protected:
   template <typename T, typename M = T>
@@ -44,7 +44,6 @@ protected:
     // TODO
   }
 };
-
 }
 
 #endif
