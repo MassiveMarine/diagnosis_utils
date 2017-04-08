@@ -19,7 +19,6 @@ TEMPLATE_H = string.Template('''\
 
 namespace $namespace
 {
-
 class $ClassName
 {
 public:
@@ -28,11 +27,9 @@ public:
 
 protected:
 };
+}  // namespace $namespace
 
-}
-
-#endif
-
+#endif  // _${NAMESPACE}__${CLASS_NAME}_H_
 ''')
 
 
@@ -41,7 +38,6 @@ TEMPLATE_CPP = string.Template('''\
 
 namespace $namespace
 {
-
 $ClassName::$ClassName()
 {
 }
@@ -49,9 +45,7 @@ $ClassName::$ClassName()
 $ClassName::~$ClassName()
 {
 }
-
-}
-
+}  // namespace $namespace
 ''')
 
 
