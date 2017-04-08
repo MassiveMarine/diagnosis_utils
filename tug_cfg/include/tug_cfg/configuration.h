@@ -2,46 +2,53 @@
 #define _TUG_CFG__CONFIGURATION_H_
 
 #include <tug_cfg/forwards.h>
+#include <tug_cfg/struct.h>
+#include <tug_cfg/key.h>
 
 namespace tug_cfg
 {
 class Configuration
 {
 public:
-  Configuration();
-  virtual ~Configuration();
+  Configuration() = default;
+  virtual ~Configuration() = default;
 
-  virtual void load(Visitor& loader, Visitor& constrainer = DefaultConstrainer());
-  virtual void store(ConstVisitor& storer) const;
+  virtual void constrain();
+  virtual void constrain(Visitor& constrainer) = 0;
+  virtual void load(Visitor& source);
+  virtual void load(Visitor& source, Visitor& constrainer) = 0;
+  virtual void store(ConstVisitor& sink) const = 0;
+};
 
-  virtual void accept(Visitor& s) = 0;
-  virtual void accept(ConstVisitor& s) const = 0;
 
-protected:
-  template <typename T, typename M = T>
-  static void enforceMin(const std::string& name, T& value, M min_value)
+
+template <typename C>
+class ConfigurationImpl : public Configuration, public StructImpl<C>::Instance
+{
+  typedef StructImpl<C> TypeImpl;
+
+  ConfigurationImpl()
+    : TypeImpl(*this)
   {
-    if (value < min_value)
-    {
-      value = min_value;
-      // TODO: warn
-    }
   }
 
-  template <typename T, typename M = T>
-  static void enforceMax(const std::string& name, T& value, M max_value)
+  virtual void constrain(Visitor& constrainer) override
   {
-    if (value > max_value)
-    {
-      value = max_value;
-      // TODO: warn
-    }
+    // We should definitely use accept(void, visitor) here because else, visitor
+    // doesn't know that we are accepting a struct, and cannot check for
+    // superfluous parameters:
+    accept(ScalarKey<void>(), constrainer);
   }
 
-  template <typename T, typename C = T>
-  static void enforceChoices(const std::string& name, T& value, const std::vector<C>& choices)
+  virtual void load(Visitor& source, Visitor& constrainer) override
   {
-    // TODO
+    accept(ScalarKey<void>(), source);
+    accept(ScalarKey<void>(), constrainer);
+  }
+
+  virtual void store(ConstVisitor& sink) const override
+  {
+    accept(ScalarKey<void>(), sink);
   }
 };
 }

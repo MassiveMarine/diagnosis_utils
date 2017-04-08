@@ -1,14 +1,15 @@
 #include <tug_cfg/configuration.h>
+#include <tug_cfg/default_constrainer.h>
 
 namespace tug_cfg
 {
-
-Configuration::Configuration()
+virtual void Configuration::constrain()
 {
+  constrain(DefaultConstrainer());
 }
 
-Configuration::~Configuration()
+virtual void Configuration::load(Visitor& source)
 {
+  load(source, DefaultConstrainer());
 }
-
 }

@@ -74,6 +74,7 @@ add_library(${PROJECT_NAME}
   src/configuration.cpp include/${PROJECT_NAME}/configuration.h
   src/configuration_sink.cpp include/${PROJECT_NAME}/configuration_sink.h
   src/configuration_source.cpp include/${PROJECT_NAME}/configuration_source.h
+  src/default_constrainer.cpp include/${PROJECT_NAME}/default_constrainer.h
   include/${PROJECT_NAME}/forwards.h
   src/object.cpp include/${PROJECT_NAME}/object.h
   src/scalar.cpp include/${PROJECT_NAME}/scalar.h

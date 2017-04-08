@@ -10,17 +10,24 @@ namespace tug_cfg
   typedef std::shared_ptr<const Configuration> ConfigurationConstPtr;
 
   class ConstVisitor;
-  class Constrainer;
+
+  class DefaultConstrainer;
 
   class Key;
+
   class Map;
+  class Map::Instance;
 
   class Object;
   typedef std::shared_ptr<Object> ObjectPtr;
 
   class Struct;
+  class Struct::Instance;
+
   class Type;
+
   class Vector;
+  class Vector::Instance;
 
   class Visitor;
 }  // namespace tug_cfg

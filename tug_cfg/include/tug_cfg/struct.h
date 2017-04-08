@@ -1,6 +1,7 @@
 #ifndef _TUG_CFG__STRUCT_H_
 #define _TUG_CFG__STRUCT_H_
 
+#include <map>
 #include <tug_cfg/object.h>
 #include <tug_cfg/type.h>
 #include <tug_cfg/visitor.h>
@@ -22,15 +23,13 @@ public:
   class FieldInfo
   {
   public:
-    FieldInfo(const Type& type_, const std::string& unit_,
-              const std::string& description_, bool dynamic_, int level_,
-              bool ignored_)
-      : type(type_), unit(unit_), description(description_), dynamic(dynamic_),
+    FieldInfo(const std::string& unit_, const std::string& description_,
+              bool dynamic_, int level_, bool ignored_)
+      : unit(unit_), description(description_), dynamic(dynamic_),
         level(level_), ignored(ignored_)
     {
     }
 
-    Type& type;
     std::string unit;
     std::string description;
     bool dynamic;
@@ -44,10 +43,13 @@ public:
   class ScalarFieldInfo : public FieldInfo
   {
   public:
-    ScalarFieldInfo(const T& default_value_, const T& min_, const T& max_,
+    ScalarFieldInfo(const std::string& unit_, const std::string& description_,
+                    bool dynamic_, int level_, bool ignored_,
+                    const T& default_value_, const T& min_, const T& max_,
                     const std::vector<T>& choices_,
                     const std::vector<T>& suggestions_)
-      : default_value(default_value_), min(min_), max(max_), choices(choices_),
+      : FieldInfo(unit_, description_, dynamic_, level_, ignored_),
+        default_value(default_value_), min(min_), max(max_), choices(choices_),
         suggestions(suggestions_)
     {
     }
@@ -81,59 +83,65 @@ template <typename C>
 class StructImpl : public Struct
 {
 public:
-  class Field;
-  typedef std::vector<const Field&> Fields;
+  class FieldImplBase;
+  typedef std::vector<const FieldImplBase&> Fields;
+
+
 
   class Instance : public Struct::Instance
   {
   public:
-    Instance(const StructImpl<C>& type, C& instance)
-      : type_(type), instance_(instance)
+    Instance(C& instance)
+      : instance_(instance)
     {
     }
 
-    virtual void accept(Key& key, Visitor& visitor)
-    {
-      visitor.visit(key, *this);
-    }
-
-    virtual void accept(const Key& key, ConstVisitor& visitor) const
+    virtual void accept(Key& key, Visitor& visitor) override
     {
       visitor.visit(key, *this);
     }
 
-    virtual void acceptItems(Visitor& visitor)
+    virtual void accept(const Key& key, ConstVisitor& visitor) const override
+    {
+      visitor.visit(key, *this);
+    }
+
+    virtual void acceptItems(Visitor& visitor) override
     {
       Fields::const_iterator it;
-      for (it = type_.fields_.begin(); it != type_.fields_.end(); ++it)
+      const StructImpl<C>& type(C::getType());
+      for (it = type.fields_.begin(); it != type.fields_.end(); ++it)
       {
         it->accept(instance_, visitor);
       }
     }
 
-    virtual void acceptItems(ConstVisitor& visitor) const
+    virtual void acceptItems(ConstVisitor& visitor) const override
     {
       Fields::const_iterator it;
-      for (it = type_.fields_.begin(); it != type_.fields_.end(); ++it)
+      const StructImpl<C>& type(C::getType());
+      for (it = type.fields_.begin(); it != type.fields_.end(); ++it)
       {
         it->accept(instance_, visitor);
       }
     }
 
-    virtual const StructImpl<C>& getType() const;
+    virtual const StructImpl<C>& getType() const override
+    {
+      return C::getType();
+    }
 
   protected:
-    const StructImpl<C>& type_;
     C& instance_;
   };
 
 
 
-  class Field : public Struct::Field
+  class FieldImplBase : public Struct::Field
   {
   public:
-    Field(const std::string& key_, const FieldInfo& info_)
-      : Struct::Field(key_, info_)
+    FieldImplBase(const std::string& key)
+      : Struct::Field(key)
     {
     }
 
@@ -143,51 +151,50 @@ public:
 
 
 
-  template <typename T, typename Type>
-  class FieldImpl : public Field
+  template <typename T, typename TypeT, typename FieldInfoT>
+  class FieldImpl : public FieldImplBase
   {
   public:
-    FieldImpl(const std::string& key_, const FieldInfo& info_, T C::* var_)
-      : Struct::Field(key_, info_), var(var_)
+    FieldImpl(const std::string& key, const FieldInfoT& info, T C::* var)
+      : FieldImplBase(key), info_(info), var_(var)
     {
     }
 
-    virtual void accept(C& instance, Visitor& visitor) const
+    virtual void accept(C& instance, Visitor& visitor) const override
     {
-      visitor.visit(*this, Type::Instance(instance.*var));
+      visitor.visit(*this, typename TypeT::Instance(instance.*var));
     }
 
-    virtual void accept(const C& instance, ConstVisitor& visitor) const
+    virtual void accept(const C& instance, ConstVisitor& visitor) const override
     {
-      visitor.visit(*this, Type::Instance(instance.*var));
+      visitor.visit(*this, typename TypeT::Instance(instance.*var));
     }
 
-    T C::* const var;
+    virtual const FieldInfoT& getInfo() const override
+    {
+      return info_;
+    }
+
+  protected:
+    FieldInfoT info_;
+    T C::* const var_;
   };
 
 
 
   template <typename T>
-  class ScalarField : public Struct::ScalarField<T>
+  struct FieldImplTypes
   {
-    ScalarField(const Type& type, const std::string& unit,
-                const std::string& description, bool dynamic, int level,
-                bool ignored, const T& default_value, const T& min,
-                const T& max, const std::vector<T>& choices,
-                const std::vector<T>& suggestions, T C::* var)
-      : Struct::ScalarField(type, unit, description, dynamic, level, ignored,
-                            default_value, min, max, choices, suggestions),
-        var_(var)
-    {
-    }
-
-  protected:
-    T C::* var_;
+    typedef FieldImpl<T, Scalar<T>, ScalarFieldInfo<T>> ScalarField;
+    typedef FieldImpl<std::vector<T>, Vector, FieldInfo> VectorField;
+    typedef FieldImpl<std::map<int, T>, Map, FieldInfo> IntMapField;
+    typedef FieldImpl<std::map<std::string, T>, Map, FieldInfo> StringMapField;
   };
 
 
 
-  StructImpl(const std::string& name, const std::vector<const Field&>& fields)
+
+  StructImpl(const std::string& name, const Fields& fields)
     : name_(name), fields_(fields)
   {
   }
