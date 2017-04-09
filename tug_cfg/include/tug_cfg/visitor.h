@@ -3,7 +3,6 @@
 
 #include <string>
 #include <tug_cfg/forwards.h>
-#include <tug_cfg/scalar.h>
 
 namespace tug_cfg
 {
@@ -13,13 +12,13 @@ public:
   Visitor() = default;
   virtual ~Visitor() = default;
 
-  virtual void visit(Key& key, Map::Instance& value) = 0;
-  virtual void visit(Key& key, Scalar<bool>::Instance& value) = 0;
-  virtual void visit(Key& key, Scalar<double>::Instance& value) = 0;
-  virtual void visit(Key& key, Scalar<int>::Instance& value) = 0;
-  virtual void visit(Key& key, Scalar<std::string>::Instance& value) = 0;
-  virtual void visit(Key& key, Struct::Instance& value) = 0;
-  virtual void visit(Key& key, Vector::Instance& value) = 0;
+  virtual void visit(Key& key, typename Map::Instance& value) = 0;
+  virtual void visit(Key& key, typename Scalar<bool>::Instance& value) = 0;
+  virtual void visit(Key& key, typename Scalar<double>::Instance& value) = 0;
+  virtual void visit(Key& key, typename Scalar<int>::Instance& value) = 0;
+  virtual void visit(Key& key, typename Scalar<std::string>::Instance& value) = 0;
+  virtual void visit(Key& key, typename Struct::Instance& value) = 0;
+  virtual void visit(Key& key, typename Vector::Instance& value) = 0;
   virtual void visit(Key& key, Object& value) = 0;
 };
 
@@ -31,13 +30,13 @@ public:
   ConstVisitor() = default;
   virtual ~ConstVisitor() = default;
 
-  virtual void visit(const Key& key, const Map::Instance& value) = 0;
-  virtual void visit(const Key& key, const Scalar<bool>::Instance& value) = 0;
-  virtual void visit(const Key& key, const Scalar<double>::Instance& value) = 0;
-  virtual void visit(const Key& key, const Scalar<int>::Instance& value) = 0;
-  virtual void visit(const Key& key, const Scalar<std::string>::Instance& value) = 0;
-  virtual void visit(const Key& key, const Struct::Instance& value) = 0;
-  virtual void visit(const Key& key, const Vector::Instance& value) = 0;
+  virtual void visit(const Key& key, const typename Map::Instance& value) = 0;
+  virtual void visit(const Key& key, const typename Scalar<bool>::Instance& value) = 0;
+  virtual void visit(const Key& key, const typename Scalar<double>::Instance& value) = 0;
+  virtual void visit(const Key& key, const typename Scalar<int>::Instance& value) = 0;
+  virtual void visit(const Key& key, const typename Scalar<std::string>::Instance& value) = 0;
+  virtual void visit(const Key& key, const typename Struct::Instance& value) = 0;
+  virtual void visit(const Key& key, const typename Vector::Instance& value) = 0;
   virtual void visit(const Key& key, const Object& value) = 0;
 };
 }

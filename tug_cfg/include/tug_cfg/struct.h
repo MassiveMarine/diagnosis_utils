@@ -91,6 +91,8 @@ public:
   class Instance : public Struct::Instance
   {
   public:
+    typedef StructImpl<C> TypeImpl;
+
     Instance(C& instance)
       : instance_(instance)
     {
@@ -109,7 +111,7 @@ public:
     virtual void acceptItems(Visitor& visitor) override
     {
       Fields::const_iterator it;
-      const StructImpl<C>& type(C::getType());
+      const TypeImpl& type(C::getType());
       for (it = type.fields_.begin(); it != type.fields_.end(); ++it)
       {
         it->accept(instance_, visitor);
@@ -119,14 +121,14 @@ public:
     virtual void acceptItems(ConstVisitor& visitor) const override
     {
       Fields::const_iterator it;
-      const StructImpl<C>& type(C::getType());
+      const TypeImpl& type(C::getType());
       for (it = type.fields_.begin(); it != type.fields_.end(); ++it)
       {
         it->accept(instance_, visitor);
       }
     }
 
-    virtual const StructImpl<C>& getType() const override
+    virtual const TypeImpl& getType() const override
     {
       return C::getType();
     }
@@ -183,12 +185,11 @@ public:
 
 
   template <typename T>
-  struct FieldImplTypes
+  struct FieldTypes
   {
     typedef FieldImpl<T, Scalar<T>, ScalarFieldInfo<T>> ScalarField;
-    typedef FieldImpl<std::vector<T>, Vector, FieldInfo> VectorField;
-    typedef FieldImpl<std::map<int, T>, Map, FieldInfo> IntMapField;
-    typedef FieldImpl<std::map<std::string, T>, Map, FieldInfo> StringMapField;
+    typedef FieldImpl<T, Vector, FieldInfo> VectorField;
+    typedef FieldImpl<T, Map, FieldInfo> MapField;
   };
 
 

@@ -1,3 +1,4 @@
+import math
 import string
 import textwrap
 from .model import ScalarType, MapType, ListType, CfgType
@@ -6,11 +7,12 @@ _HEADER_TEMPLATE = string.Template('''\
 #ifndef _${NAMESPACE}__${CLASS_NAME}_H_
 #define _${NAMESPACE}__${CLASS_NAME}_H_
 
-#include <$gen_namespace/configuration.h>
+#include <limits>
+#include <$gen_namespace/struct.h>
 
 namespace $namespace
 {
-class $ClassName : public $gen_namespace::Configuration
+class $ClassName : public $gen_namespace::StructImpl<$ClassName>::Instance
 {
 public:
   $ClassName()
@@ -18,41 +20,47 @@ public:
   {
   }
 
-  virtual ~$ClassName() = default;
+  static const TypeImpl& getType()
+  {
+    $field_specs
 
-  virtual void load(tug_cfg::ConfigurationSource& s) override
-  {
-    $load
-    enforceConstraints();
-  }
-  
-  virtual void store(tug_cfg::ConfigurationSink& s) override
-  {
-    // TODO
+    static TypeImpl type("$namespace/$Name", {
+      $field_names
+    });
+
+    return type;
   }
 
-  virtual void enforceConstraints() override
-  {
-    $enforceConstraints
-  }
-
-$members
+$fields
 };
 }  // namespace $namespace
 
 #endif  // _${NAMESPACE}__${CLASS_NAME}_H_
 ''')
 
-_MEMBER_TEMPLATE = string.Template('''
+_FIELD_TEMPLATE = string.Template('''
   /**
    * $doc
    */
   $type $name;\
 ''')
 
+_FIELD_SPEC_TEMPLATE = string.Template('''\
+static TypeImpl::FieldTypes<$type>::${Kind}Field $name("$name",
+      tug_cfg::Struct::FieldInfo($unit, $description, $dynamic, $level, $ignored),
+      &$ClassName::$name);\
+''')
+
+_SCALAR_FIELD_SPEC_TEMPLATE = string.Template('''\
+static TypeImpl::FieldTypes<$type>::ScalarField $name("$name",
+      tug_cfg::Struct::ScalarFieldInfo<$type>($unit, $description, $dynamic, $level, $ignored,
+        $default, $min, $max, {$choices}, {$suggestions}),
+      &$ClassName::$name);\
+''')
+
 
 class CppParam(object):
-    def __init__(self, param):
+    def __init__(self, class_name, param):
         self.name = param.name
         self.type = self._generate_type_name(param.type)
         self.default = self._format_value(param, param.default)
@@ -61,6 +69,45 @@ class CppParam(object):
         self.choices = tuple(self._format_value(param, choice) for choice in (param.choices or ()))
         self.suggestions = tuple(self._format_value(param, choice) for choice in (param.suggestions or ()))
         self.description = param.description
+        self.spec = self._generate_spec(class_name, param)
+
+    def _generate_spec(self, class_name, param):
+        if isinstance(param.type, ScalarType):
+            return _SCALAR_FIELD_SPEC_TEMPLATE.substitute(
+                type=self.type,
+                name=self.name,
+                unit=self._format_string(param.unit),
+                description=self._format_string(param.description),
+                dynamic='true' if param.dynamic else 'false',
+                level=param.level or 0,
+                ignored='true' if param.ignored else 'false',
+                default=self._format_value(param, param.default),
+                min=self._format_min_max(param, 'min'),
+                max=self._format_min_max(param, 'max'),
+                choices=', '.join(self.choices),
+                suggestions=', '.join(self.suggestions),
+                ClassName=class_name,
+            )
+        else:
+            if isinstance(param.type, CfgType):
+                kind = 'Struct'
+            elif isinstance(param.type, ListType):
+                kind = 'Vector'
+            elif isinstance(param.type, MapType):
+                kind = 'Map'
+            else:
+                raise ValueError('Unknown parameter type "%s"' % param.type.__class__.__name__)
+            return _FIELD_SPEC_TEMPLATE.substitute(
+                type=self.type,
+                Kind=kind,
+                name=self.name,
+                unit=self._format_string(param.unit),
+                description=self._format_string(param.description),
+                dynamic='true' if param.dynamic else 'false',
+                level=param.level or 0,
+                ignored='true' if param.ignored else 'false',
+                ClassName=class_name,
+            )
 
     def _generate_type_name(self, type_):
         if isinstance(type_, ScalarType):
@@ -83,45 +130,58 @@ class CppParam(object):
             return None
         if isinstance(param.type, ScalarType):
             if param.type.name == ScalarType.BOOL:
-                return 'true' if value else 'false'
+                return self._format_bool(value)
             if param.type.name == ScalarType.STR:
-                return '"%s"' % str(value).replace('"', '\\"')
+                return self._format_string(value)
             return repr(value)
         #raise TypeError('Type %r cannot have values' % param.type)
         return None
+
+    def _format_min_max(self, param, key):
+        if isinstance(param.type, ScalarType):
+            if param.type.name == ScalarType.BOOL:
+                return self._format_bool(key == 'max') # Booleans can't have min or max values
+            elif param.type.name in (ScalarType.DOUBLE, ScalarType.INT):
+                value = getattr(param, key)
+                if value is None:
+                    return 'std::numeric_limits<%s>::%s()' % (self.type, key)
+                elif math.isinf(value):
+                    return '%sstd::numeric_limits<%s>::infinity()' % (('-' if value < 0 else ''), self.type)
+                else:
+                    return str(value)
+            elif param.type.name == ScalarType.STR:
+                return '""'  # Strings can't have min or max values
+
+    def _format_bool(self, value):
+        return 'true' if value else 'false'
+
+    def _format_string(self, value):
+        return '"%s"' % str(value or '').encode('string_escape')
 
 
 class Generator(object):
     def generate(self, stream, cfg):
         class_name = cfg.name + 'Config'
-        params = list(CppParam(p) for p in cfg.parameters)
-        members = []
+        params = list(CppParam(class_name, p) for p in cfg.parameters)
+        fields = []
         initialization = ',\n      '.join('%s(%s)' % (p.name, p.default) for p in params if p.default is not None)
-        load = []
-        enforce = []
         for p in params:
             doc = []
             if p.default is not None:
                 doc.append('Default: %s' % p.default)
-                load.append('s.load("%s", %s, %s);' % (p.name, p.name, p.default))
-            else:
-                load.append('s.load("%s", %s);' % (p.name, p.name))
             if p.min is not None:
                 doc.append('Minimum: %s' % p.min)
-                enforce.append('enforceMin("%s", %s, %s);' % (p.name, p.name, p.min))
             if p.max is not None:
                 doc.append('Maximum: %s' % p.max)
-                enforce.append('enforceMax("%s", %s, %s);' % (p.name, p.name, p.max))
             if p.choices:
                 doc.append('Choices: %s' % ', '.join(p.choices))
-                enforce.append('enforceChoices("%s", %s, {%s});' % (p.name, p.name, ', '.join(p.choices)))
             if p.suggestions:
                 doc.append('Suggestions: %s' % ', '.join(p.suggestions))
             if p.description:
                 if doc:
                     doc.insert(0, '')  # Add empty line between description and rest of documentation
                 doc.insert(0, p.description)
-            members.append(_MEMBER_TEMPLATE.substitute(
+            fields.append(_FIELD_TEMPLATE.substitute(
                 doc='\n   * '.join(textwrap.fill(d, subsequent_indent='   * ') for d in doc),
                 type=p.type.strip(),
                 name=p.name,
@@ -130,10 +190,11 @@ class Generator(object):
             gen_namespace=self.__class__.__module__.split('.')[0],
             NAMESPACE=cfg.package_name.upper(),
             namespace=cfg.package_name,
+            Name=cfg.name,
             CLASS_NAME=class_name.upper(),
             ClassName=class_name,
-            members='\n'.join(members),
+            fields='\n'.join(fields),
             initialization=initialization,
-            load='\n    '.join(load),
-            enforceConstraints='\n    '.join(enforce),
+            field_specs='\n\n    '.join(p.spec for p in params),
+            field_names=textwrap.fill(', '.join(p.name for p in params), width=80, subsequent_indent='      '),
         ))
