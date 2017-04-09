@@ -2,6 +2,7 @@
 #define _TUG_CFG__DEFAULT_CONSTRAINER_H_
 
 #include <tug_cfg/visitor.h>
+#include <vector>
 
 namespace tug_cfg
 {
@@ -11,14 +12,14 @@ public:
   DefaultConstrainer();
   virtual ~DefaultConstrainer();
 
-  virtual void visit(Key& key, Map::Instance& value);
-  virtual void visit(Key& key, Scalar<bool>::Instance& value);
-  virtual void visit(Key& key, Scalar<double>::Instance& value);
-  virtual void visit(Key& key, Scalar<int>::Instance& value);
-  virtual void visit(Key& key, Scalar<std::string>::Instance& value);
-  virtual void visit(Key& key, Struct::Instance& value);
-  virtual void visit(Key& key, Vector::Instance& value);
-  virtual void visit(Key& key, Object& value);
+  virtual void visit(Key& key, AbstractMap& value) override;
+  virtual void visit(Key& key, Scalar<bool>& value) override;
+  virtual void visit(Key& key, Scalar<double>& value) override;
+  virtual void visit(Key& key, Scalar<int>& value) override;
+  virtual void visit(Key& key, Scalar<std::string>& value) override;
+  virtual void visit(Key& key, AbstractStruct& value) override;
+  virtual void visit(Key& key, AbstractVector& value) override;
+  virtual void visit(Key& key, Object& value) override;
 
 protected:
   template <typename T, typename M = T>

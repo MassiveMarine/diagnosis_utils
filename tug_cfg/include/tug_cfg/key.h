@@ -3,6 +3,8 @@
 
 namespace tug_cfg
 {
+template <typename T> class ScalarKey;
+
 class Key
 {
 public:

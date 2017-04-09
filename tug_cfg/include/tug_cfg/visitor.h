@@ -12,13 +12,13 @@ public:
   Visitor() = default;
   virtual ~Visitor() = default;
 
-  virtual void visit(Key& key, typename Map::Instance& value) = 0;
-  virtual void visit(Key& key, typename Scalar<bool>::Instance& value) = 0;
-  virtual void visit(Key& key, typename Scalar<double>::Instance& value) = 0;
-  virtual void visit(Key& key, typename Scalar<int>::Instance& value) = 0;
-  virtual void visit(Key& key, typename Scalar<std::string>::Instance& value) = 0;
-  virtual void visit(Key& key, typename Struct::Instance& value) = 0;
-  virtual void visit(Key& key, typename Vector::Instance& value) = 0;
+  virtual void visit(Key& key, AbstractMap& value) = 0;
+  virtual void visit(Key& key, Scalar<bool>& value) = 0;
+  virtual void visit(Key& key, Scalar<double>& value) = 0;
+  virtual void visit(Key& key, Scalar<int>& value) = 0;
+  virtual void visit(Key& key, Scalar<std::string>& value) = 0;
+  virtual void visit(Key& key, AbstractStruct& value) = 0;
+  virtual void visit(Key& key, AbstractVector& value) = 0;
   virtual void visit(Key& key, Object& value) = 0;
 };
 
@@ -30,13 +30,13 @@ public:
   ConstVisitor() = default;
   virtual ~ConstVisitor() = default;
 
-  virtual void visit(const Key& key, const typename Map::Instance& value) = 0;
-  virtual void visit(const Key& key, const typename Scalar<bool>::Instance& value) = 0;
-  virtual void visit(const Key& key, const typename Scalar<double>::Instance& value) = 0;
-  virtual void visit(const Key& key, const typename Scalar<int>::Instance& value) = 0;
-  virtual void visit(const Key& key, const typename Scalar<std::string>::Instance& value) = 0;
-  virtual void visit(const Key& key, const typename Struct::Instance& value) = 0;
-  virtual void visit(const Key& key, const typename Vector::Instance& value) = 0;
+  virtual void visit(const Key& key, const AbstractMap& value) = 0;
+  virtual void visit(const Key& key, const Scalar<bool>& value) = 0;
+  virtual void visit(const Key& key, const Scalar<double>& value) = 0;
+  virtual void visit(const Key& key, const Scalar<int>& value) = 0;
+  virtual void visit(const Key& key, const Scalar<std::string>& value) = 0;
+  virtual void visit(const Key& key, const AbstractStruct& value) = 0;
+  virtual void visit(const Key& key, const AbstractVector& value) = 0;
   virtual void visit(const Key& key, const Object& value) = 0;
 };
 }

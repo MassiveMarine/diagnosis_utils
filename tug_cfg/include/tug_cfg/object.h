@@ -2,7 +2,6 @@
 #define _TUG_CFG__OBJECT_H_
 
 #include <tug_cfg/forwards.h>
-#include <string>
 
 namespace tug_cfg
 {

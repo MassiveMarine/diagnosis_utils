@@ -4,55 +4,60 @@
 #include <tug_cfg/object.h>
 #include <tug_cfg/type.h>
 #include <tug_cfg/visitor.h>
+#include <typeinfo>
 
 namespace tug_cfg
 {
+class AbstractScalar : public Object
+{
+};
+
 template <typename T>
-class Scalar : public Type
+class Scalar : public AbstractScalar
 {
 public:
-  class Instance : public Object
+  class Type : public tug_cfg::Type
   {
   public:
-    inline Instance(T& value)
-      : value_(value)
+    virtual std::string getName() const override
     {
+      return typeid(T).name();
     }
-
-    inline operator T&()
-    {
-      return value_;
-    }
-
-    inline operator const T&() const
-    {
-      return value_;
-    }
-
-    virtual void accept(Key& key, Visitor& visitor)
-    {
-      visitor.visit(key, *this);
-    }
-
-    virtual void accept(const Key& key, ConstVisitor& visitor) const
-    {
-      visitor.visit(key, *this);
-    }
-
-    virtual const Type& getType()
-    {
-      static Scalar<T> type;
-      return type;
-    }
-
-  protected:
-    T& value_;
   };
 
-  virtual std::string getName() const
+  inline Scalar(T& value)
+    : value_(value)
   {
-    return typeid(T).name();
   }
+
+  inline operator T&()
+  {
+    return value_;
+  }
+
+  inline operator const T&() const
+  {
+    return value_;
+  }
+
+  virtual void accept(Key& key, Visitor& visitor) override
+  {
+    visitor.visit(key, *this);
+  }
+
+  virtual void accept(const Key& key, ConstVisitor& visitor) const override
+  {
+    visitor.visit(key, *this);
+  }
+
+  virtual const Type& getType() const override
+  {
+    static Type type;
+    return type;
+  }
+
+protected:
+  T& value_;
 };
 }
 

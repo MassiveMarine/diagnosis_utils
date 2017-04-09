@@ -2,6 +2,7 @@
 #define _TUG_CFG__STRUCT_H_
 
 #include <map>
+#include <tug_cfg/key.h>
 #include <tug_cfg/object.h>
 #include <tug_cfg/type.h>
 #include <tug_cfg/visitor.h>
@@ -9,26 +10,14 @@
 
 namespace tug_cfg
 {
-class Struct : public Type
+class AbstractStruct : public Object
 {
 public:
-  class Instance : public Object
-  {
-    virtual void acceptItems(Visitor&) = 0;
-    virtual void acceptItems(ConstVisitor&) const = 0;
-  };
-
-
-
   class FieldInfo
   {
   public:
     FieldInfo(const std::string& unit_, const std::string& description_,
-              bool dynamic_, int level_, bool ignored_)
-      : unit(unit_), description(description_), dynamic(dynamic_),
-        level(level_), ignored(ignored_)
-    {
-    }
+              bool dynamic_, int level_, bool ignored_);
 
     std::string unit;
     std::string description;
@@ -75,81 +64,37 @@ public:
 
     const std::string key;
   };
+
+
+
+  virtual void accept(Key& key, Visitor& visitor) override;
+  virtual void accept(const Key& key, ConstVisitor& visitor) const override;
+
+  virtual void acceptItems(Visitor& visitor) = 0;
+  virtual void acceptItems(ConstVisitor& visitor) const = 0;
 };
 
 
 
 template <typename C>
-class StructImpl : public Struct
+class Struct : public AbstractStruct
 {
 public:
-  class FieldImplBase;
-  typedef std::vector<const FieldImplBase&> Fields;
-
-
-
-  class Instance : public Struct::Instance
-  {
-  public:
-    typedef StructImpl<C> TypeImpl;
-
-    Instance(C& instance)
-      : instance_(instance)
-    {
-    }
-
-    virtual void accept(Key& key, Visitor& visitor) override
-    {
-      visitor.visit(key, *this);
-    }
-
-    virtual void accept(const Key& key, ConstVisitor& visitor) const override
-    {
-      visitor.visit(key, *this);
-    }
-
-    virtual void acceptItems(Visitor& visitor) override
-    {
-      Fields::const_iterator it;
-      const TypeImpl& type(C::getType());
-      for (it = type.fields_.begin(); it != type.fields_.end(); ++it)
-      {
-        it->accept(instance_, visitor);
-      }
-    }
-
-    virtual void acceptItems(ConstVisitor& visitor) const override
-    {
-      Fields::const_iterator it;
-      const TypeImpl& type(C::getType());
-      for (it = type.fields_.begin(); it != type.fields_.end(); ++it)
-      {
-        it->accept(instance_, visitor);
-      }
-    }
-
-    virtual const TypeImpl& getType() const override
-    {
-      return C::getType();
-    }
-
-  protected:
-    C& instance_;
-  };
-
-
-
-  class FieldImplBase : public Struct::Field
+  class FieldImplBase : public Field
   {
   public:
     FieldImplBase(const std::string& key)
-      : Struct::Field(key)
+      : Field(key)
     {
     }
 
-    virtual void accept(C& instance, Visitor& visitor) const = 0;
+    virtual void accept(C& instance, Visitor& visitor) = 0;
     virtual void accept(const C& instance, ConstVisitor& visitor) const = 0;
   };
+
+
+
+  typedef const std::vector<FieldImplBase*> Fields;
 
 
 
@@ -162,14 +107,16 @@ public:
     {
     }
 
-    virtual void accept(C& instance, Visitor& visitor) const override
+    virtual void accept(C& instance, Visitor& visitor) override
     {
-      visitor.visit(*this, typename TypeT::Instance(instance.*var));
+      TypeT value(instance.*var_);
+      visitor.visit(*this, value);
     }
 
     virtual void accept(const C& instance, ConstVisitor& visitor) const override
     {
-      visitor.visit(*this, typename TypeT::Instance(instance.*var));
+      const TypeT value(const_cast<T&>(instance.*var_));
+      visitor.visit(*this, value);
     }
 
     virtual const FieldInfoT& getInfo() const override
@@ -179,35 +126,72 @@ public:
 
   protected:
     FieldInfoT info_;
-    T C::* const var_;
+    T C::* var_;
   };
 
 
 
   template <typename T>
-  struct FieldTypes
+  struct ScalarField
   {
-    typedef FieldImpl<T, Scalar<T>, ScalarFieldInfo<T>> ScalarField;
-    typedef FieldImpl<T, Vector, FieldInfo> VectorField;
-    typedef FieldImpl<T, Map, FieldInfo> MapField;
+    typedef FieldImpl<T, Scalar<T>, ScalarFieldInfo<T>> Type;
+  };
+
+  template <typename T>
+  struct VectorField
+  {
+    typedef FieldImpl<T, Vector<typename T::value_type>, FieldInfo> Type;
+  };
+
+  template <typename T>
+  struct MapField
+  {
+    typedef FieldImpl<T, Map<typename T::key_type, typename T::mapped_type>, FieldInfo> Type;
   };
 
 
 
-
-  StructImpl(const std::string& name, const Fields& fields)
-    : name_(name), fields_(fields)
+  class Type : public tug_cfg::Type
   {
+  public:
+    Type(const std::string& name, const Fields& fields)
+      : name_(name), fields_(fields)
+    {
+    }
+
+    virtual std::string getName() const
+    {
+      return name_;
+    }
+
+  protected:
+    friend class Struct<C>;
+
+    const std::string name_;
+    const Fields fields_;
+  };
+
+
+
+  void acceptItems(Visitor& visitor) override
+  {
+    const Fields& fields(static_cast<const Type&>(getType()).fields_);
+    for (typename Fields::const_iterator it = fields.begin();
+         it != fields.end(); ++it)
+    {
+      (*it)->accept(static_cast<C&>(*this), visitor);
+    }
   }
 
-  virtual std::string getName() const
+  void acceptItems(ConstVisitor& visitor) const override
   {
-    return name_;
+    const Fields& fields(static_cast<const Type&>(getType()).fields_);
+    for (typename Fields::const_iterator it = fields.begin();
+         it != fields.end(); ++it)
+    {
+      (*it)->accept(static_cast<const C&>(*this), visitor);
+    }
   }
-
-protected:
-  const std::string name_;
-  const Fields fields_;
 };
 }
 

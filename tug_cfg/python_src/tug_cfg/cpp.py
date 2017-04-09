@@ -8,11 +8,12 @@ _HEADER_TEMPLATE = string.Template('''\
 #define _${NAMESPACE}__${CLASS_NAME}_H_
 
 #include <limits>
+#include <$gen_namespace/scalar.h>
 #include <$gen_namespace/struct.h>
 
 namespace $namespace
 {
-class $ClassName : public $gen_namespace::StructImpl<$ClassName>::Instance
+class $ClassName : public $gen_namespace::Struct<$ClassName>
 {
 public:
   $ClassName()
@@ -20,11 +21,11 @@ public:
   {
   }
 
-  static const TypeImpl& getType()
+  virtual const $gen_namespace::Type& getType() const override
   {
     $field_specs
 
-    static TypeImpl type("$namespace/$Name", {
+    static $ClassName::Type type("$namespace/$Name", {
       $field_names
     });
 
@@ -46,14 +47,14 @@ _FIELD_TEMPLATE = string.Template('''
 ''')
 
 _FIELD_SPEC_TEMPLATE = string.Template('''\
-static TypeImpl::FieldTypes<$type>::${Kind}Field $name("$name",
-      tug_cfg::Struct::FieldInfo($unit, $description, $dynamic, $level, $ignored),
+static ${Kind}Field<$type>::Type $field_name("$name",
+      FieldInfo($unit, $description, $dynamic, $level, $ignored),
       &$ClassName::$name);\
 ''')
 
 _SCALAR_FIELD_SPEC_TEMPLATE = string.Template('''\
-static TypeImpl::FieldTypes<$type>::ScalarField $name("$name",
-      tug_cfg::Struct::ScalarFieldInfo<$type>($unit, $description, $dynamic, $level, $ignored,
+static ScalarField<$type>::Type $field_name("$name",
+      ScalarFieldInfo<$type>($unit, $description, $dynamic, $level, $ignored,
         $default, $min, $max, {$choices}, {$suggestions}),
       &$ClassName::$name);\
 ''')
@@ -75,6 +76,7 @@ class CppParam(object):
         if isinstance(param.type, ScalarType):
             return _SCALAR_FIELD_SPEC_TEMPLATE.substitute(
                 type=self.type,
+                field_name='%s_field' % self.name,
                 name=self.name,
                 unit=self._format_string(param.unit),
                 description=self._format_string(param.description),
@@ -100,6 +102,7 @@ class CppParam(object):
             return _FIELD_SPEC_TEMPLATE.substitute(
                 type=self.type,
                 Kind=kind,
+                field_name='%s_field' % self.name,
                 name=self.name,
                 unit=self._format_string(param.unit),
                 description=self._format_string(param.description),
@@ -196,5 +199,6 @@ class Generator(object):
             fields='\n'.join(fields),
             initialization=initialization,
             field_specs='\n\n    '.join(p.spec for p in params),
-            field_names=textwrap.fill(', '.join(p.name for p in params), width=80, subsequent_indent='      '),
+            field_names=textwrap.fill(', '.join('&%s_field' % p.name for p in params),
+                                      width=80, subsequent_indent='      '),
         ))
