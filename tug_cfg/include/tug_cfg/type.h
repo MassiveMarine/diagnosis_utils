@@ -8,7 +8,6 @@ namespace tug_cfg
 class Type
 {
 public:
-  Type() = default;
   virtual ~Type() = default;
 
   virtual std::string getName() const = 0;  // potentially recursive

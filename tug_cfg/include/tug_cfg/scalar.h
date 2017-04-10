@@ -16,26 +16,28 @@ template <typename T>
 class Scalar : public AbstractScalar
 {
 public:
+  typedef T Value;
+
   class Type : public tug_cfg::Type
   {
   public:
     virtual std::string getName() const override
     {
-      return typeid(T).name();
+      return typeid(Value).name();
     }
   };
 
-  inline Scalar(T& value)
+  inline explicit Scalar(Value& value)
     : value_(value)
   {
   }
 
-  inline operator T&()
+  inline operator Value&()
   {
     return value_;
   }
 
-  inline operator const T&() const
+  inline operator const Value&() const
   {
     return value_;
   }
@@ -57,7 +59,7 @@ public:
   }
 
 protected:
-  T& value_;
+  Value& value_;
 };
 }
 

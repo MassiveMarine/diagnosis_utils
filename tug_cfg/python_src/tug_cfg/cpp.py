@@ -13,48 +13,63 @@ _HEADER_TEMPLATE = string.Template('''\
 
 namespace $namespace
 {
-class $ClassName : public $gen_namespace::Struct<$ClassName>
+class $ClassName
 {
 public:
+$fields
+
+  //============================================================================
+  // Magic starts here
+  //============================================================================
+
+  typedef $gen_namespace::Struct<$ClassName> Struct;
+
   $ClassName()
     : $initialization
   {
   }
-
-  virtual const $gen_namespace::Type& getType() const override
+  
+  operator Struct::Type()
   {
+    return Struct::Type(*this);
+  }
+
+  static const Struct::Type& getDefinition()
+  {
+    using namespace $gen_namespace;
+
     $field_specs
 
-    static $ClassName::Type type("$namespace/$Name", {
+    static Struct::Type type("$namespace/$Name", {
       $field_names
     });
 
     return type;
   }
-
-$fields
 };
 }  // namespace $namespace
 
 #endif  // _${NAMESPACE}__${CLASS_NAME}_H_
 ''')
 
-_FIELD_TEMPLATE = string.Template('''
+_FIELD_TEMPLATE = string.Template('''\
   /**
    * $doc
    */
-  $type $name;\
+  $type $name;
 ''')
 
 _FIELD_SPEC_TEMPLATE = string.Template('''\
-static ${Kind}Field<$type>::Type $field_name("$name",
-      FieldInfo($unit, $description, $dynamic, $level, $ignored),
+static Struct::FieldImpl<$meta_type> $field_name(
+      "$name",
+      Struct::FieldInfo($unit, $description, $dynamic, $level, $ignored),
       &$ClassName::$name);\
 ''')
 
 _SCALAR_FIELD_SPEC_TEMPLATE = string.Template('''\
-static ScalarField<$type>::Type $field_name("$name",
-      ScalarFieldInfo<$type>($unit, $description, $dynamic, $level, $ignored,
+static Struct::FieldImpl<$meta_type> $field_name(
+      "$name",
+      Struct::ScalarFieldInfo<$type>($unit, $description, $dynamic, $level, $ignored,
         $default, $min, $max, {$choices}, {$suggestions}),
       &$ClassName::$name);\
 ''')
@@ -76,6 +91,7 @@ class CppParam(object):
         if isinstance(param.type, ScalarType):
             return _SCALAR_FIELD_SPEC_TEMPLATE.substitute(
                 type=self.type,
+                meta_type=self._generate_meta_type(param.type),
                 field_name='%s_field' % self.name,
                 name=self.name,
                 unit=self._format_string(param.unit),
@@ -91,17 +107,8 @@ class CppParam(object):
                 ClassName=class_name,
             )
         else:
-            if isinstance(param.type, CfgType):
-                kind = 'Struct'
-            elif isinstance(param.type, ListType):
-                kind = 'Vector'
-            elif isinstance(param.type, MapType):
-                kind = 'Map'
-            else:
-                raise ValueError('Unknown parameter type "%s"' % param.type.__class__.__name__)
             return _FIELD_SPEC_TEMPLATE.substitute(
-                type=self.type,
-                Kind=kind,
+                meta_type=self._generate_meta_type(param.type),
                 field_name='%s_field' % self.name,
                 name=self.name,
                 unit=self._format_string(param.unit),
@@ -126,6 +133,17 @@ class CppParam(object):
             return 'std::vector<%s> ' % (self._generate_type_name(type_.item_type),)
         if isinstance(type_, CfgType):
             return '%s::%sConfig' % (type_.package_name, type_.cfg_name)
+        raise TypeError('Configuration model contains unknown type %r' % type_)
+
+    def _generate_meta_type(self, type_):
+        if isinstance(type_, ScalarType):
+            return 'Scalar<%s>' % (self._generate_type_name(type_),)
+        if isinstance(type_, MapType):
+            return 'Map<%s, %s>' % (self._generate_type_name(type_.key_type), self._generate_meta_type(type_.value_type))
+        if isinstance(type_, ListType):
+            return 'Sequence<%s>' % (self._generate_meta_type(type_.item_type),)
+        if isinstance(type_, CfgType):
+            return 'Struct<%s>' % (self._generate_type_name(type_),)
         raise TypeError('Configuration model contains unknown type %r' % type_)
 
     def _format_value(self, param, value):

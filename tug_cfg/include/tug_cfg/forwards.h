@@ -3,18 +3,21 @@
 
 namespace tug_cfg
 {
+  class Collection;
   class AbstractMap;
+  class AbstractScalar;
   class AbstractStruct;
-  class AbstractVector;
+  class AbstractSequence;
   class ConstVisitor;
   class DefaultConstrainer;
+  class ExtensibleCollection;
   class Key;
-  template <typename K, typename V> class Map;
+  template <typename Key, typename ElementMetaT> class Map;
   class Object;
   template <typename T> class Scalar;
   template <typename C> class Struct;
   class Type;
-  template <typename T> class Vector;
+  template <typename ElementMetaT> class Sequence;
   class Visitor;
 }  // namespace tug_cfg
 

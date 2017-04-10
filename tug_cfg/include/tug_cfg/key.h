@@ -46,7 +46,7 @@ template <typename T>
 class ScalarKey : public Key
 {
 public:
-  ScalarKey(const T& key_)
+  explicit ScalarKey(const T& key_)
     : key(key_)
   {
   }

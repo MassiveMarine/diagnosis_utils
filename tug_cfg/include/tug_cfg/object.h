@@ -8,7 +8,6 @@ namespace tug_cfg
 class Object
 {
 public:
-  Object() = default;
   virtual ~Object() = default;
 
   virtual void accept(Key& key, Visitor& visitor) = 0;

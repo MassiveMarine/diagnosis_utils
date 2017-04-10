@@ -1,4 +1,5 @@
 #include <tug_cfg/struct.h>
+#include <tug_cfg/visitor.h>
 
 namespace tug_cfg
 {

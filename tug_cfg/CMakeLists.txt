@@ -70,12 +70,13 @@ include_directories(
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-  include/${PROJECT_NAME}/key.h
+  src/collection.cpp include/${PROJECT_NAME}/collection.h
   src/configuration.cpp include/${PROJECT_NAME}/configuration.h
   src/configuration_sink.cpp include/${PROJECT_NAME}/configuration_sink.h
   src/configuration_source.cpp include/${PROJECT_NAME}/configuration_source.h
   src/default_constrainer.cpp include/${PROJECT_NAME}/default_constrainer.h
   include/${PROJECT_NAME}/forwards.h
+  include/${PROJECT_NAME}/key.h
   src/object.cpp include/${PROJECT_NAME}/object.h
   src/scalar.cpp include/${PROJECT_NAME}/scalar.h
   src/struct.cpp include/${PROJECT_NAME}/struct.h

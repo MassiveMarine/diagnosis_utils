@@ -18,7 +18,7 @@ public:
   virtual void visit(Key& key, Scalar<int>& value) = 0;
   virtual void visit(Key& key, Scalar<std::string>& value) = 0;
   virtual void visit(Key& key, AbstractStruct& value) = 0;
-  virtual void visit(Key& key, AbstractVector& value) = 0;
+  virtual void visit(Key& key, AbstractSequence& value) = 0;
   virtual void visit(Key& key, Object& value) = 0;
 };
 
@@ -36,7 +36,7 @@ public:
   virtual void visit(const Key& key, const Scalar<int>& value) = 0;
   virtual void visit(const Key& key, const Scalar<std::string>& value) = 0;
   virtual void visit(const Key& key, const AbstractStruct& value) = 0;
-  virtual void visit(const Key& key, const AbstractVector& value) = 0;
+  virtual void visit(const Key& key, const AbstractSequence& value) = 0;
   virtual void visit(const Key& key, const Object& value) = 0;
 };
 }
