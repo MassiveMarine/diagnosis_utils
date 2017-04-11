@@ -10,8 +10,8 @@ class Object
 public:
   virtual ~Object() = default;
 
-  virtual void accept(Key& key, Visitor& visitor) = 0;
-  virtual void accept(const Key& key, ConstVisitor& visitor) const = 0;
+  virtual void accept(Key* key, Visitor& visitor) = 0;
+  virtual void accept(const Key* key, ConstVisitor& visitor) const = 0;
   virtual const Type& getType() const = 0;
 };
 }

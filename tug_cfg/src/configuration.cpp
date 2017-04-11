@@ -16,8 +16,7 @@ void constrain(Object& value)
 
 void constrain(Object& value, Visitor& constrainer)
 {
-  ScalarKey<void> key;
-  value.accept(key, constrainer);
+  value.accept(nullptr, constrainer);
 }
 
 void load(Object& value, Visitor& source)
@@ -28,14 +27,12 @@ void load(Object& value, Visitor& source)
 
 void load(Object& value, Visitor& source, Visitor& constrainer)
 {
-  ScalarKey<void> key;
-  value.accept(key, source);
-  value.accept(key, constrainer);
+  value.accept(nullptr, source);
+  value.accept(nullptr, constrainer);
 }
 
 void store(const Object& value, ConstVisitor& sink)
 {
-  ScalarKey<void> key;
-  value.accept(key, sink);
+  value.accept(nullptr, sink);
 }
 }

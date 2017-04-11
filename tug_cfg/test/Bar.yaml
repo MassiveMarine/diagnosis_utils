@@ -35,13 +35,13 @@ plugins: { type: "str[]" }
 
 # Other params files can be referenced as types. Lists are also possible, just like in ROS message definitions. The
 # "dynamic" attribute means whether items can be added or removed dynamically in this case.
-#filters: { type: "tug_cfg/Bar[]" }
+filters: { type: "tug_cfg/Bar[]" }
 coefficients: { type: "double[][]" }
 
 # Maps (dictionaries) are also supported. "any" is a variant type. (Note that the ROS parameters concept actually only
 # allows strings as keys; however, lists are also possible somehow, so...)
 kvargs: { type: "str[str]" }
-#error_names: { type: "str[int]" }
+error_names: { type: "str[int]" }
 
 # An "ignored" attribute could be used to specify, but ignore other parameters that could also be defined, but aren't
 # relevant. This implicates that checks are done that no other than the specified parameters are given. This would help

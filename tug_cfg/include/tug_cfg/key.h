@@ -1,6 +1,8 @@
 #ifndef _TUG_CFG__KEY_H_
 #define _TUG_CFG__KEY_H_
 
+#include <ostream>
+
 namespace tug_cfg
 {
 template <typename T> class ScalarKey;
@@ -8,13 +10,21 @@ template <typename T> class ScalarKey;
 class Key
 {
 public:
+  explicit Key(const Key* parent);
+  virtual ~Key() = default;
+
+  const Key* getParent() const;
+
+  virtual void format(std::ostream& s) const = 0;
+  void formatPath(std::ostream& s) const;
+
   /**
    * \throw std::bad_cast
    */
   template <typename T>
   inline T& as()
   {
-    return dynamic_cast<ScalarKey<T>&>(*this).key;
+    return dynamic_cast<ScalarKey<T>&>(*this);
   }
 
   /**
@@ -23,7 +33,29 @@ public:
   template <typename T>
   inline const T& as() const
   {
-    return dynamic_cast<const ScalarKey<T>&>(*this).key;
+    return dynamic_cast<const ScalarKey<T>&>(*this);
+  }
+
+  template <typename T>
+  T* asPtr()
+  {
+    ScalarKey<T>* result = dynamic_cast<ScalarKey<T>*>(this);
+    if (result != nullptr)
+    {
+      return &static_cast<T&>(*result);
+    }
+    return *dynamic_cast<ScalarKey<T*>*>(this);
+  }
+
+  template <typename T>
+  inline const T* asPtr() const
+  {
+    const ScalarKey<T>* result = dynamic_cast<const ScalarKey<T>*>(this);
+    if (result != nullptr)
+    {
+      return &static_cast<const T&>(*result);
+    }
+    return *dynamic_cast<const ScalarKey<T*>*>(this);
   }
 
   template <typename T>
@@ -33,11 +65,7 @@ public:
   }
 
 protected:
-  Key() = default;
-  virtual ~Key() = default;
-
-  Key(const Key&) = delete;
-  Key& operator=(const Key&) = delete;
+  const Key* const parent_;
 };
 
 
@@ -46,20 +74,34 @@ template <typename T>
 class ScalarKey : public Key
 {
 public:
-  explicit ScalarKey(const T& key_)
-    : key(key_)
+  inline ScalarKey(const Key* parent, const T& key)
+    : Key(parent), key_(key)
   {
   }
 
-  T key;
+  virtual void format(std::ostream& s) const override
+  {
+    s << '[' << key_ << ']';
+  }
+
+  inline operator T&()
+  {
+    return key_;
+  }
+
+  inline operator const T&() const
+  {
+    return key_;
+  }
+
+protected:
+  T key_;
 };
 
 
 
-template <>
-class ScalarKey<void> : public Key
-{
-};
+std::ostream& operator<<(std::ostream& s, const Key& key);
+std::ostream& operator<<(std::ostream& s, const Key* key);
 }
 
 #endif

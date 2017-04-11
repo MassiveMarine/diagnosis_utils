@@ -42,12 +42,12 @@ public:
     return value_;
   }
 
-  virtual void accept(Key& key, Visitor& visitor) override
+  virtual void accept(Key* key, Visitor& visitor) override
   {
     visitor.visit(key, *this);
   }
 
-  virtual void accept(const Key& key, ConstVisitor& visitor) const override
+  virtual void accept(const Key* key, ConstVisitor& visitor) const override
   {
     visitor.visit(key, *this);
   }

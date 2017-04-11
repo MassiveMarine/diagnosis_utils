@@ -3,22 +3,22 @@
 
 namespace tug_cfg
 {
-void AbstractSequence::accept(Key& key, Visitor& visitor)
+void AbstractSequence::accept(Key* key, Visitor& visitor)
 {
   visitor.visit(key, *this);
 }
 
-void AbstractSequence::accept(const Key& key, ConstVisitor& visitor) const
+void AbstractSequence::accept(const Key* key, ConstVisitor& visitor) const
 {
   visitor.visit(key, *this);
 }
 
-void AbstractMap::accept(Key& key, Visitor& visitor)
+void AbstractMap::accept(Key* key, Visitor& visitor)
 {
   visitor.visit(key, *this);
 }
 
-void AbstractMap::accept(const Key& key, ConstVisitor& visitor) const
+void AbstractMap::accept(const Key* key, ConstVisitor& visitor) const
 {
   visitor.visit(key, *this);
 }

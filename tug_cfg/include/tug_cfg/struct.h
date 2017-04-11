@@ -13,13 +13,15 @@ namespace tug_cfg
 class AbstractStruct : public Collection
 {
 public:
-  class FieldInfo
+  class Field
   {
   public:
-    FieldInfo(const std::string& unit_, const std::string& description_,
-              bool dynamic_, int level_, bool ignored_);
-    virtual ~FieldInfo() = default;
+    Field(const std::string& name_, const std::string& unit_,
+          const std::string& description_, bool dynamic_, int level_,
+          bool ignored_);
+    virtual ~Field() = default;
 
+    std::string name;
     std::string unit;
     std::string description;
     bool dynamic;
@@ -30,15 +32,15 @@ public:
 
 
   template <typename T>
-  class ScalarFieldInfo : public FieldInfo
+  class ScalarField : public Field
   {
   public:
-    ScalarFieldInfo(const std::string& unit_, const std::string& description_,
-                    bool dynamic_, int level_, bool ignored_,
-                    const T& default_value_, const T& min_, const T& max_,
-                    const std::set<T>& choices_,
-                    const std::set<T>& suggestions_)
-      : FieldInfo(unit_, description_, dynamic_, level_, ignored_),
+    ScalarField(const std::string& name_, const std::string& unit_,
+                const std::string& description_, bool dynamic_, int level_,
+                bool ignored_, const T& default_value_, const T& min_,
+                const T& max_, const std::set<T>& choices_,
+                const std::set<T>& suggestions_)
+      : Field(name_, unit_, description_, dynamic_, level_, ignored_),
         default_value(default_value_), min(min_), max(max_), choices(choices_),
         suggestions(suggestions_)
     {
@@ -54,37 +56,27 @@ public:
 
 
   template <typename MetaT>
-  struct FieldInfoTypes
+  struct FieldTypes
   {
-    typedef FieldInfo Type;
+    typedef Field Type;
   };
 
   template <typename T>
-  struct FieldInfoTypes<Scalar<T>>
+  struct FieldTypes<Scalar<T>>
   {
-    typedef ScalarFieldInfo<T> Type;
+    typedef ScalarField<T> Type;
   };
 
 
 
-  class Field : public Key
-  {
-  public:
-    explicit Field(const std::string& key_)
-      : key(key_)
-    {
-    }
-
-    virtual const FieldInfo& getInfo() const = 0;
-
-    const std::string key;
-  };
-
-
-
-  virtual void accept(Key& key, Visitor& visitor) override;
-  virtual void accept(const Key& key, ConstVisitor& visitor) const override;
+  virtual void accept(Key* key, Visitor& visitor) override;
+  virtual void accept(const Key* key, ConstVisitor& visitor) const override;
 };
+
+
+
+template <>
+void ScalarKey<const AbstractStruct::Field*>::format(std::ostream& s) const;
 
 
 
@@ -96,52 +88,45 @@ public:
 
 
 
-  class FieldImplBase : public Field
+  class FieldImplBase
   {
   public:
-    explicit FieldImplBase(const std::string& key)
-      : Field(key)
-    {
-    }
+    virtual ~FieldImplBase() = default;
 
-    virtual void accept(C& instance, Visitor& visitor) = 0;
-    virtual void accept(const C& instance, ConstVisitor& visitor) const = 0;
+    virtual void accept(C* instance, const Key* parent_key, Visitor& visitor) const = 0;
+    virtual void accept(C* instance, const Key* parent_key, ConstVisitor& visitor) const = 0;
   };
 
 
 
-  typedef const std::vector<FieldImplBase*> Fields;
+  typedef const std::vector<const FieldImplBase*> Fields;
 
 
 
-  template <typename MetaT, typename FieldInfoT = typename FieldInfoTypes<MetaT>::Type>
+  template <typename MetaT, typename FieldT = typename FieldTypes<MetaT>::Type>
   class FieldImpl : public FieldImplBase
   {
   public:
-    FieldImpl(const std::string& key, const FieldInfoT& info,
-              typename MetaT::Value C::* var)
-      : FieldImplBase(key), info_(info), var_(var)
+    FieldImpl(typename MetaT::Value C::* var, const FieldT& field)
+      : var_(var), field_(field)
     {
     }
 
-    virtual void accept(C& instance, Visitor& visitor) override
+    virtual void accept(C* instance, const Key* parent_key, Visitor& visitor) const override
     {
-      MetaT(instance.*var_).accept(*this, visitor);
+      ScalarKey<const Field*> key(parent_key, &field_);
+      MetaT(instance->*var_).accept(&key, visitor);
     }
 
-    virtual void accept(const C& instance, ConstVisitor& visitor) const override
+    virtual void accept(C* instance, const Key* parent_key, ConstVisitor& visitor) const override
     {
-      MetaT(const_cast<C&>(instance).*var_).accept(*this, visitor);
-    }
-
-    virtual const FieldInfoT& getInfo() const override
-    {
-      return info_;
+      ScalarKey<const Field*> key(parent_key, &field_);
+      MetaT(instance->*var_).accept(&key, visitor);
     }
 
   protected:
-    FieldInfoT info_;
     typename MetaT::Value C::* var_;
+    FieldT field_;
   };
 
 
@@ -169,7 +154,7 @@ public:
 
 
   explicit Struct(Value& value)
-    : value_(value)
+    : value_(&value)
   {
   }
 
@@ -178,26 +163,24 @@ public:
     return Value::getDefinition();
   }
 
-  void acceptElements(Visitor& visitor) override
+  void acceptElements(const Key* parent_key, Visitor& visitor) override
   {
-    for (FieldImplBase* field : Value::getDefinition().fields_)
+    for (const FieldImplBase* field : Value::getDefinition().fields_)
     {
-      field->accept(value_, visitor);
+      field->accept(value_, parent_key, visitor);
     }
   }
 
-  void acceptElements(ConstVisitor& visitor) const override
+  void acceptElements(const Key* parent_key, ConstVisitor& visitor) const override
   {
-    const Fields& fields(static_cast<const Type&>(getType()).fields_);
-    for (typename Fields::const_iterator it = fields.begin();
-         it != fields.end(); ++it)
+    for (const FieldImplBase* field : Value::getDefinition().fields_)
     {
-      (*it)->accept(value_, visitor);
+      field->accept(value_, parent_key, visitor);
     }
   }
 
 protected:
-  Value& value_;
+  Value* value_;
 };
 }
 

@@ -22,30 +22,39 @@ $fields
   // Magic starts here
   //============================================================================
 
-  typedef $gen_namespace::Struct<$ClassName> Struct;
+  typedef $gen_namespace::Struct<$ClassName> MetaObject;
 
   $ClassName()
-    : $initialization
+    : meta_object_(*this),
+      $initialization
   {
-  }
-  
-  operator Struct::Type()
-  {
-    return Struct::Type(*this);
   }
 
-  static const Struct::Type& getDefinition()
+  operator MetaObject&()
+  {
+    return meta_object_;
+  }
+
+  operator const MetaObject&() const
+  {
+    return meta_object_;
+  }
+
+  static const MetaObject::Type& getDefinition()
   {
     using namespace $gen_namespace;
 
     $field_specs
 
-    static Struct::Type type("$namespace/$Name", {
+    static MetaObject::Type type("$namespace/$Name", {
       $field_names
     });
 
     return type;
   }
+
+protected:
+  MetaObject meta_object_;
 };
 }  // namespace $namespace
 
@@ -60,18 +69,16 @@ _FIELD_TEMPLATE = string.Template('''\
 ''')
 
 _FIELD_SPEC_TEMPLATE = string.Template('''\
-static Struct::FieldImpl<$meta_type> $field_name(
-      "$name",
-      Struct::FieldInfo($unit, $description, $dynamic, $level, $ignored),
-      &$ClassName::$name);\
+static MetaObject::FieldImpl<$meta_type> ${name}_(&$ClassName::$name, {
+      "$name", $unit, $description, $dynamic, $level, $ignored
+    });\
 ''')
 
 _SCALAR_FIELD_SPEC_TEMPLATE = string.Template('''\
-static Struct::FieldImpl<$meta_type> $field_name(
-      "$name",
-      Struct::ScalarFieldInfo<$type>($unit, $description, $dynamic, $level, $ignored,
-        $default, $min, $max, {$choices}, {$suggestions}),
-      &$ClassName::$name);\
+static MetaObject::FieldImpl<$meta_type> ${name}_(&$ClassName::$name, {
+      "$name", $unit, $description, $dynamic, $level, $ignored,
+      $default, $min, $max, {$choices}, {$suggestions}
+    });\
 ''')
 
 
@@ -92,7 +99,6 @@ class CppParam(object):
             return _SCALAR_FIELD_SPEC_TEMPLATE.substitute(
                 type=self.type,
                 meta_type=self._generate_meta_type(param.type),
-                field_name='%s_field' % self.name,
                 name=self.name,
                 unit=self._format_string(param.unit),
                 description=self._format_string(param.description),
@@ -109,7 +115,6 @@ class CppParam(object):
         else:
             return _FIELD_SPEC_TEMPLATE.substitute(
                 meta_type=self._generate_meta_type(param.type),
-                field_name='%s_field' % self.name,
                 name=self.name,
                 unit=self._format_string(param.unit),
                 description=self._format_string(param.description),
@@ -159,15 +164,20 @@ class CppParam(object):
         return None
 
     def _format_min_max(self, param, key):
+        value = getattr(param, key)
         if isinstance(param.type, ScalarType):
             if param.type.name == ScalarType.BOOL:
-                return self._format_bool(key == 'max') # Booleans can't have min or max values
-            elif param.type.name in (ScalarType.DOUBLE, ScalarType.INT):
-                value = getattr(param, key)
+                return self._format_bool(key == 'max')  # Booleans can't have min or max values
+            elif param.type.name == ScalarType.DOUBLE:
                 if value is None:
-                    return 'std::numeric_limits<%s>::%s()' % (self.type, key)
+                    return '%sstd::numeric_limits<%s>::infinity()' % (('-' if key == 'min' else ''), self.type)
                 elif math.isinf(value):
                     return '%sstd::numeric_limits<%s>::infinity()' % (('-' if value < 0 else ''), self.type)
+                else:
+                    return str(value)
+            elif param.type.name == ScalarType.INT:
+                if value is None:
+                    return 'std::numeric_limits<%s>::%s()' % (self.type, key)
                 else:
                     return str(value)
             elif param.type.name == ScalarType.STR:
@@ -216,7 +226,7 @@ class Generator(object):
             ClassName=class_name,
             fields='\n'.join(fields),
             initialization=initialization,
-            field_specs='\n\n    '.join(p.spec for p in params),
-            field_names=textwrap.fill(', '.join('&%s_field' % p.name for p in params),
+            field_specs='\n    '.join(p.spec for p in params),
+            field_names=textwrap.fill(', '.join('&%s_' % p.name for p in params),
                                       width=80, subsequent_indent='      '),
         ))

@@ -11,97 +11,97 @@
 
 namespace tug_cfg
 {
-void DefaultConstrainer::visit(Key& key, AbstractMap& value)
+void DefaultConstrainer::visit(Key* key, AbstractMap& value)
 {
-  value.acceptElements(*this);
+  value.acceptElements(key, *this);
 }
 
-void DefaultConstrainer::visit(Key& key, Scalar<bool>& value)
+void DefaultConstrainer::visit(Key* key, Scalar<bool>& value)
 {
   constrainScalar(key, value);
 }
 
-void DefaultConstrainer::visit(Key& key, Scalar<double>& value)
+void DefaultConstrainer::visit(Key* key, Scalar<double>& value)
 {
   constrainScalar(key, value);
 }
 
-void DefaultConstrainer::visit(Key& key, Scalar<int>& value)
+void DefaultConstrainer::visit(Key* key, Scalar<int>& value)
 {
   constrainScalar(key, value);
 }
 
-void DefaultConstrainer::visit(Key& key, Scalar<std::string>& value)
+void DefaultConstrainer::visit(Key* key, Scalar<std::string>& value)
 {
   constrainScalar(key, value);
 }
 
-void DefaultConstrainer::visit(Key& key, AbstractStruct& value)
+void DefaultConstrainer::visit(Key* key, AbstractStruct& value)
 {
-  value.acceptElements(*this);
+  value.acceptElements(key, *this);
 }
 
-void DefaultConstrainer::visit(Key& key, AbstractSequence& value)
+void DefaultConstrainer::visit(Key* key, AbstractSequence& value)
 {
-  value.acceptElements(*this);
+  value.acceptElements(key, *this);
 }
 
-void DefaultConstrainer::visit(Key& key, Object& value)
+void DefaultConstrainer::visit(Key* key, Object& value)
 {
-  ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration contains unknown type " << value.getType().getName());
+  ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration contains unknown type " << value.getType().getName() << " at " << key);
 }
 
 template <typename T>
-void DefaultConstrainer::constrainScalar(Key& key, Scalar<T>& value)
+void DefaultConstrainer::constrainScalar(Key* key, Scalar<T>& value)
 {
-  AbstractStruct::Field* field = dynamic_cast<AbstractStruct::Field*>(&key);
+  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
   if (field != nullptr)
   {
-    const AbstractStruct::ScalarFieldInfo<T>& info = dynamic_cast<const AbstractStruct::ScalarFieldInfo<T>&>(field->getInfo());
-    enforceMin<T>(field->key, value, info.min);
-    enforceMax<T>(field->key, value, info.max);
-    enforceChoices<T>(field->key, value, info.choices, info.default_value);
+    const AbstractStruct::ScalarField<T>& scalar_field = dynamic_cast<const AbstractStruct::ScalarField<T>&>(*field);
+    enforceMin<T>(key, value, scalar_field.min);
+    enforceMax<T>(key, value, scalar_field.max);
+    enforceChoices<T>(key, value, scalar_field.choices, scalar_field.default_value);
   }
 }
 
 template <typename T>
-void DefaultConstrainer::enforceMin(const std::string& name, T& value, const T& min_value)
+void DefaultConstrainer::enforceMin(Key* key, T& value, const T& min_value)
 {
   if (value < min_value)
   {
-    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << name << " was below specified minimum (" << value << " < " << min_value << ")");
+    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << key << " was below specified minimum (" << value << " < " << min_value << ")");
     value = min_value;
   }
 }
 
 template <>
-void DefaultConstrainer::enforceMin<std::string>(const std::string& name, std::string& value, const std::string& min_value)
+void DefaultConstrainer::enforceMin<std::string>(Key* key, std::string& value, const std::string& min_value)
 {
   // String has no meaningful minimum, so we just ignore this.
 }
 
 template <typename T>
-void DefaultConstrainer::enforceMax(const std::string& name, T& value, const T& max_value)
+void DefaultConstrainer::enforceMax(Key* key, T& value, const T& max_value)
 {
   if (value > max_value)
   {
-    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << name << " was above specified maximum (" << value << " > " << max_value << ")");
+    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << key << " was above specified maximum (" << value << " > " << max_value << ")");
     value = max_value;
   }
 }
 
 template <>
-void DefaultConstrainer::enforceMax<std::string>(const std::string& name, std::string& value, const std::string& max_value)
+void DefaultConstrainer::enforceMax<std::string>(Key* key, std::string& value, const std::string& max_value)
 {
   // String has no meaningful maximum, so we just ignore this.
 }
 
 template <typename T>
-void DefaultConstrainer::enforceChoices(const std::string& name, T& value, const std::set<T>& choices, const T& default_value)
+void DefaultConstrainer::enforceChoices(Key* key, T& value, const std::set<T>& choices, const T& default_value)
 {
   if (!choices.empty() && choices.find(value) == choices.end())
   {
-    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << name << " was not in set of valid choices");
+    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << key << " was not in set of valid choices");
     value = default_value;
   }
 }
