@@ -42,6 +42,12 @@ public:
     return value_;
   }
 
+  inline Scalar<T>& operator=(const T& value)
+  {
+    value_ = value;
+    return *this;
+  }
+
   virtual void accept(Key* key, Visitor& visitor) override
   {
     visitor.visit(key, *this);

@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
@@ -77,11 +76,12 @@ add_library(${PROJECT_NAME}
   src/default_constrainer.cpp include/${PROJECT_NAME}/default_constrainer.h
   include/${PROJECT_NAME}/forwards.h
   src/key.cpp include/${PROJECT_NAME}/key.h
-  src/object.cpp include/${PROJECT_NAME}/object.h
-  src/scalar.cpp include/${PROJECT_NAME}/scalar.h
+  include/${PROJECT_NAME}/object.h
+  include/${PROJECT_NAME}/scalar.h
   src/struct.cpp include/${PROJECT_NAME}/struct.h
-  src/type.cpp include/${PROJECT_NAME}/type.h
-  src/visitor.cpp include/${PROJECT_NAME}/visitor.h
+  include/${PROJECT_NAME}/type.h
+  include/${PROJECT_NAME}/visitor.h
+  src/yaml_reader.cpp include/${PROJECT_NAME}/yaml_reader.h
 )
 
 ## Add cmake target dependencies of the library
@@ -107,6 +107,7 @@ add_library(${PROJECT_NAME}
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  yaml-cpp
 )
 
 #############
