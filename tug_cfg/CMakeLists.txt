@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -77,6 +77,7 @@ add_library(${PROJECT_NAME}
   include/${PROJECT_NAME}/forwards.h
   src/key.cpp include/${PROJECT_NAME}/key.h
   include/${PROJECT_NAME}/object.h
+  src/ros_param_reader.cpp include/${PROJECT_NAME}/ros_param_reader.h
   include/${PROJECT_NAME}/scalar.h
   src/struct.cpp include/${PROJECT_NAME}/struct.h
   include/${PROJECT_NAME}/type.h
@@ -151,19 +152,24 @@ target_link_libraries(${PROJECT_NAME}
 
 ## Add gtest based cpp test target and link libraries
 if(CATKIN_ENABLE_TESTING)
+  set(${PROJECT_NAME}_TEST_CONFIG_NAME BarConfig)
+
   add_custom_command(
-    COMMENT "Generating BarConfig"
-    OUTPUT ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/BarConfig.h
-    DEPENDS test/Bar.yaml
+    COMMENT "Generating ${${PROJECT_NAME}_TEST_CONFIG_NAME}"
+    OUTPUT ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
+    DEPENDS test/${${PROJECT_NAME}_TEST_CONFIG_NAME}.yaml
     COMMAND mkdir -p ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-    COMMAND rosrun ${PROJECT_NAME} gencfg.py ${PROJECT_NAME} test/Bar.yaml > ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/BarConfig.h
+    COMMAND rosrun ${PROJECT_NAME} gencfg.py ${PROJECT_NAME} test/${${PROJECT_NAME}_TEST_CONFIG_NAME}.yaml > ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
   )
 
   add_custom_target(${PROJECT_NAME}_gencfg_cpp ALL
-    DEPENDS ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/BarConfig.h
+    DEPENDS ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
   )
 
-  catkin_add_gtest(${PROJECT_NAME}_test_bar_config test/test_bar_config.cpp)
+  catkin_add_gtest(${PROJECT_NAME}_test_bar_config
+    test/test_bar_config.cpp
+    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
+  )
 
   add_dependencies(${PROJECT_NAME}_test_bar_config ${PROJECT_NAME}_gencfg_cpp)
 

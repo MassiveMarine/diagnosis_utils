@@ -35,7 +35,7 @@ plugins: { type: "str[]" }
 
 # Other params files can be referenced as types. Lists are also possible, just like in ROS message definitions. The
 # "dynamic" attribute means whether items can be added or removed dynamically in this case.
-filters: { type: "tug_cfg/Bar[]" }
+filters: { type: "tug_cfg/BarConfig[]" }
 coefficients: { type: "double[][]" }
 
 # Maps (dictionaries) are also supported. "any" is a variant type. (Note that the ROS parameters concept actually only

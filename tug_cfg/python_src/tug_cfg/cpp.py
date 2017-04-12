@@ -137,7 +137,7 @@ class CppParam(object):
         if isinstance(type_, ListType):
             return 'std::vector<%s> ' % (self._generate_type_name(type_.item_type),)
         if isinstance(type_, CfgType):
-            return '%s::%sConfig' % (type_.package_name, type_.cfg_name)
+            return '%s::%s' % (type_.package_name, type_.cfg_name)
         raise TypeError('Configuration model contains unknown type %r' % type_)
 
     def _generate_meta_type(self, type_):
@@ -192,8 +192,7 @@ class CppParam(object):
 
 class Generator(object):
     def generate(self, stream, cfg):
-        class_name = cfg.name + 'Config'
-        params = list(CppParam(class_name, p) for p in cfg.parameters)
+        params = list(CppParam(cfg.name, p) for p in cfg.parameters)
         fields = []
         initialization = ',\n      '.join('%s(%s)' % (p.name, p.default) for p in params if p.default is not None)
         for p in params:
@@ -222,8 +221,8 @@ class Generator(object):
             NAMESPACE=cfg.package_name.upper(),
             namespace=cfg.package_name,
             Name=cfg.name,
-            CLASS_NAME=class_name.upper(),
-            ClassName=class_name,
+            CLASS_NAME=cfg.name.upper(),
+            ClassName=cfg.name,
             fields='\n'.join(fields),
             initialization=initialization,
             field_specs='\n    '.join(p.spec for p in params),

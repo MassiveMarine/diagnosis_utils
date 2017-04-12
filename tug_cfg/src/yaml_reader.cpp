@@ -12,7 +12,6 @@ class YamlReader::Context
 {
 public:
   explicit Context(YamlReader* reader);
-  explicit Context(const YAML::Node& node_);
   ~Context();
 
   bool enter(Key* key);
@@ -27,12 +26,22 @@ protected:
 
 
 
+class YamlReader::RootNode
+{
+public:
+  RootNode(const YAML::Node& node_);
+
+  YAML::Node node;
+};
+
+
+
 YamlReader::YamlReader(const std::string& file_path)
   : top_(nullptr)
 {
   for (const YAML::Node& document : YAML::LoadAllFromFile(file_path))
   {
-    documents_.push(std::make_shared<Context>(document));
+    root_nodes_.push(std::make_shared<RootNode>(document));
   }
 }
 
@@ -47,6 +56,42 @@ void YamlReader::visit(Key* key, AbstractMap& value)
       {
         value.acceptNewElement(key, *this);
       }
+    }
+    else
+    {
+      // TODO: warn
+    }
+  }
+}
+
+void YamlReader::visit(Key* key, AbstractSequence& value)
+{
+  Context context(this);
+  if (context.enter(key))
+  {
+    if (context.node.IsSequence())
+    {
+      for (; context.it != context.node.end(); ++context.it)
+      {
+        value.acceptNewElement(key, *this);
+      }
+    }
+    else
+    {
+      // TODO: warn
+    }
+  }
+}
+
+void YamlReader::visit(Key* key, AbstractStruct& value)
+{
+  Context context(this);
+  if (context.enter(key))
+  {
+    if (context.node.IsMap())
+    {
+      value.acceptElements(key, *this);
+      // TODO: find out whether all elements in map have been used
     }
     else
     {
@@ -119,38 +164,6 @@ void YamlReader::visit(Key* key, Scalar<std::string>& value)
   }
 }
 
-void YamlReader::visit(Key* key, AbstractStruct& value)
-{
-  Context context(this);
-  if (context.enter(key))
-  {
-    if (context.node.IsMap())
-    {
-      value.acceptElements(key, *this);
-      // TODO: find out whether all elements in map have been used
-    }
-    else
-    {
-      // TODO: warn
-    }
-  }
-}
-
-void YamlReader::visit(Key* key, AbstractSequence& value)
-{
-  Context context(this);
-  if (context.enter(key))
-  {
-    if (context.node.IsSequence())
-    {
-      for (; context.it != context.node.end(); ++context.it)
-      {
-        value.acceptNewElement(key, *this);
-      }
-    }
-  }
-}
-
 void YamlReader::visit(Key* key, Object& value)
 {
   // TODO: warn
@@ -164,17 +177,9 @@ YamlReader::Context::Context(YamlReader* reader)
   reader_->top_ = this;
 }
 
-YamlReader::Context::Context(const YAML::Node& node_)
-  : node(node_), reader_(nullptr), parent_(nullptr)
-{
-}
-
 YamlReader::Context::~Context()
 {
-  if (reader_ != nullptr)
-  {
-    reader_->top_ = parent_;
-  }
+  reader_->top_ = parent_;
 }
 
 bool YamlReader::Context::enter(Key* key)
@@ -186,10 +191,10 @@ bool YamlReader::Context::enter(Key* key)
     {
       throw std::logic_error("Null key");
     }
-    if (!reader_->documents_.empty())
+    if (!reader_->root_nodes_.empty())
     {
-      node = reader_->documents_.front()->node;
-      reader_->documents_.pop();
+      node = reader_->root_nodes_.front()->node;
+      reader_->root_nodes_.pop();
     }
   }
   else if (parent_ == nullptr)
@@ -231,5 +236,10 @@ bool YamlReader::Context::enter(Key* key)
   }
   it = node.begin();
   return node;
+}
+
+YamlReader::RootNode::RootNode(const YAML::Node& node_)
+  : node(node_)
+{
 }
 }  // namespace tug_cfg
