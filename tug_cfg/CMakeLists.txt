@@ -8,6 +8,7 @@ add_definitions(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  dynamic_reconfigure
   roscpp
   rospy
 )
@@ -55,9 +56,8 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/collection.cpp include/${PROJECT_NAME}/collection.h
   src/configuration.cpp include/${PROJECT_NAME}/configuration.h
-  src/configuration_sink.cpp include/${PROJECT_NAME}/configuration_sink.h
-  src/configuration_source.cpp include/${PROJECT_NAME}/configuration_source.h
   src/default_constrainer.cpp include/${PROJECT_NAME}/default_constrainer.h
+  src/ros_dynamic_configuration_server.cpp include/${PROJECT_NAME}/ros_dynamic_configuration_server.h
   include/${PROJECT_NAME}/forwards.h
   src/key.cpp include/${PROJECT_NAME}/key.h
   include/${PROJECT_NAME}/object.h
