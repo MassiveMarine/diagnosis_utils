@@ -85,6 +85,7 @@ static MetaObject::FieldImpl<$meta_type> ${name}_(&$ClassName::$name, {
 class CppParam(object):
     def __init__(self, class_name, param):
         self.name = param.name
+        self.unit = param.unit
         self.type = self._generate_type_name(param.type)
         self.default = self._format_value(param, param.default)
         self.min = self._format_value(param, param.min)
@@ -197,6 +198,8 @@ class Generator(object):
         initialization = ',\n      '.join('%s(%s)' % (p.name, p.default) for p in params if p.default is not None)
         for p in params:
             doc = []
+            if p.unit:
+                doc.append('Unit: %s' % p.unit)
             if p.default is not None:
                 doc.append('Default: %s' % p.default)
             if p.min is not None:

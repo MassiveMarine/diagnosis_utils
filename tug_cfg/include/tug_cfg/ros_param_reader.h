@@ -9,7 +9,7 @@ namespace tug_cfg
 class RosParamReader : public Visitor
 {
 public:
-  RosParamReader(const ros::NodeHandle& node_handle, const std::string& key);
+  RosParamReader(const ros::NodeHandle& node_handle, const std::string& key=std::string());
   RosParamReader(const XmlRpc::XmlRpcValue& value);
   virtual ~RosParamReader();
 

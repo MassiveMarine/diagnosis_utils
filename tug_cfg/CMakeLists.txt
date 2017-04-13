@@ -13,32 +13,14 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS
+  system
+)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 catkin_python_setup()
-
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-## To declare and build dynamic reconfigure parameters within this
-## package, follow these steps:
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
-## * In this file (CMakeLists.txt):
-##   * add "dynamic_reconfigure" to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * uncomment the "generate_dynamic_reconfigure_options" section below
-##     and list every .cfg file to be processed
-
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
 
 ###################################
 ## catkin specific configuration ##
@@ -54,6 +36,7 @@ catkin_package(
   LIBRARIES ${PROJECT_NAME}
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
+  CFG_EXTRAS ${PROJECT_NAME}-extras.cmake
 )
 
 ###########
@@ -65,6 +48,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -152,6 +136,9 @@ target_link_libraries(${PROJECT_NAME}
 
 ## Add gtest based cpp test target and link libraries
 if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  include_directories(test)
+
   set(${PROJECT_NAME}_TEST_CONFIG_NAME BarConfig)
 
   add_custom_command(
@@ -168,12 +155,26 @@ if(CATKIN_ENABLE_TESTING)
 
   catkin_add_gtest(${PROJECT_NAME}_test_bar_config
     test/test_bar_config.cpp
+    test/test_helpers.cpp test/test_helpers.h
     ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
   )
 
   add_dependencies(${PROJECT_NAME}_test_bar_config ${PROJECT_NAME}_gencfg_cpp)
 
   target_link_libraries(${PROJECT_NAME}_test_bar_config
+    ${PROJECT_NAME}
+  )
+
+  add_rostest_gtest(${PROJECT_NAME}_test_ros_param_reader
+    test/test_ros_param_reader.test
+    test/test_ros_param_reader.cpp
+    test/test_helpers.cpp test/test_helpers.h
+    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
+  )
+
+  add_dependencies(${PROJECT_NAME}_test_ros_param_reader ${PROJECT_NAME}_gencfg_cpp)
+
+  target_link_libraries(${PROJECT_NAME}_test_ros_param_reader
     ${PROJECT_NAME}
   )
 endif()
