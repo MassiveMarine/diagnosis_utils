@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# copy_mode=false # copy bagfiles instead of move
 save_duration="3" # define minutes that should be saved at least
 
 log_path="/logfiles"
@@ -9,9 +8,6 @@ log_type="txt"
 log_file="${log_path}/${log_filename}.${log_type}"
 
 bag_path="/bagfiles"
-
-
-
 
 savetime=$(date +%Y-%m-%d_%H-%M-%S)
 savetime_s=$(date +%s)
@@ -57,13 +53,8 @@ bagfilebase=$(basename "$bagfile")
 bagstarttime=$(rosbag info ${bagfile}  | awk '$1 ~ /^ *start/ ' | awk -F '[(._)]' '{print $(NF-2)}')
 difference=$(( savetime_s - bagstarttime ))
 
-# Copying/Moving the non active files
-# if $copy_mode
-#   then
-  find ${bag_path}/tmp/* -mmin -${save_duration} -type f -name "*[^{active}]" -exec cp "{}" ${bag_path}/save/ \;
-# else
-#   find ${bag_path}/tmp/* -mmin -${save_duration} -type f -name "*[^{active}]" -exec mv "{}" ${bag_path}/save/ \;
-# fi
+# Moving the non active files (create hardlink)
+find ${bag_path}/tmp/* -mmin -${save_duration} -type f -name "*[^{active}]" -exec ln "{}" ${bag_path}/save/ \;
 
 (
   # Wait for lock on /var/lock/.myscript.exclusivelock (fd 200) for 10 seconds
