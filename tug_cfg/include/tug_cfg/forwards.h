@@ -14,7 +14,9 @@ namespace tug_cfg
   class Key;
   template <typename Key, typename ElementMetaT> class Map;
   class Object;
-  class RosDynamicConfigurationServer;
+  class RosDynamicConfigDescriber;
+  class RosDynamicConfigReader;
+  class RosDynamicConfigServer;
   class RosParamReader;
   template <typename T> class Scalar;
   template <typename C> class Struct;

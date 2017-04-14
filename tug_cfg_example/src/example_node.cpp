@@ -6,8 +6,9 @@
 namespace tug_cfg_example
 {
 ExampleNode::ExampleNode()
-  : nh_("~")
+  : nh_("~"), config_server_(config_)
 {
+  config_server_.setCallback(std::bind(&ExampleNode::reconfigure, this));
 }
 
 ExampleNode::~ExampleNode()
@@ -18,8 +19,14 @@ void ExampleNode::run()
 {
   tug_cfg::RosParamReader reader(nh_);
   tug_cfg::load(config_, reader);
-  ROS_INFO("Yay!");
+  config_server_.start(nh_);
+  ROS_INFO("Run!");
   ros::spin();
+}
+
+void ExampleNode::reconfigure()
+{
+  ROS_INFO("Reconfigure!");
 }
 }  // namespace tug_cfg_example
 

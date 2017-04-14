@@ -57,7 +57,9 @@ add_library(${PROJECT_NAME}
   src/collection.cpp include/${PROJECT_NAME}/collection.h
   src/configuration.cpp include/${PROJECT_NAME}/configuration.h
   src/default_constrainer.cpp include/${PROJECT_NAME}/default_constrainer.h
-  src/ros_dynamic_configuration_server.cpp include/${PROJECT_NAME}/ros_dynamic_configuration_server.h
+  src/ros_dynamic_config_describer.cpp include/${PROJECT_NAME}/ros_dynamic_config_describer.h
+  src/ros_dynamic_config_reader.cpp include/${PROJECT_NAME}/ros_dynamic_config_reader.h
+  src/ros_dynamic_config_server.cpp include/${PROJECT_NAME}/ros_dynamic_config_server.h
   include/${PROJECT_NAME}/forwards.h
   src/key.cpp include/${PROJECT_NAME}/key.h
   include/${PROJECT_NAME}/object.h

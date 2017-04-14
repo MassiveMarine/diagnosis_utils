@@ -29,12 +29,10 @@ std::ostream& operator<<(std::ostream& s, const Key& key)
 
 std::ostream& operator<<(std::ostream& s, const Key* key)
 {
-  s << '<';
   if (key != nullptr)
   {
     key->formatPath(s);
   }
-  s << '>';
   return s;
 }
 
