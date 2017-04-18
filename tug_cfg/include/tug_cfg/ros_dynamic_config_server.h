@@ -59,6 +59,7 @@ protected:
   std::function<void()> callback_;
   std::function<void()> lock_;
   std::function<void()> unlock_;
+  bool reconfiguring_;
 };
 }  // namespace tug_cfg
 

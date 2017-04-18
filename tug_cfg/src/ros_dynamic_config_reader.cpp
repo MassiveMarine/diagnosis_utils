@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <functional>
 #include <ros/console.h>
+#include <sstream>
 #include <tug_cfg/key.h>
 #include <tug_cfg/scalar.h>
 #include <tug_cfg/struct.h>
@@ -19,24 +20,25 @@ RosDynamicConfigReader::~RosDynamicConfigReader()
 
 void RosDynamicConfigReader::visit(Key* key, AbstractMap& value)
 {
-  ROS_ERROR_NAMED("RosDynamicConfigReader", "unsupported type");
+  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
+  if (field != nullptr && field->dynamic)
+  {
+    ROS_WARN_NAMED("RosDynamicConfigReader", "tried to read map");
+  }
 }
 
 void RosDynamicConfigReader::visit(Key* key, AbstractSequence& value)
 {
-  ROS_ERROR_NAMED("RosDynamicConfigReader", "unsupported type");
+  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
+  if (field != nullptr && field->dynamic)
+  {
+    ROS_WARN_NAMED("RosDynamicConfigReader", "tried to read sequence");
+  }
 }
 
 void RosDynamicConfigReader::visit(Key* key, AbstractStruct& value)
 {
-  if (key == nullptr)
-  {
-    value.acceptElements(key, *this);
-  }
-  else
-  {
-    ROS_ERROR_NAMED("RosDynamicConfigReader", "unsupported nested struct");
-  }
+  value.acceptElements(key, *this);
 }
 
 void RosDynamicConfigReader::visit(Key* key, Scalar<bool>& value)
@@ -69,11 +71,14 @@ void RosDynamicConfigReader::visitScalar(Key* key, Scalar<T>& value,
                                          const Values& values)
 {
   const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
-  if (field != nullptr)
+  if (field != nullptr && field->dynamic)
   {
+    std::ostringstream s;
+    s << key;
+    std::string name(s.str());
     for (const typename Values::value_type& p : values)
     {
-      if (p.name == field->name)
+      if (p.name == name)
       {
         value = static_cast<T>(p.value);  // Types do not always match
         break;

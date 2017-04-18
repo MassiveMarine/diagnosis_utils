@@ -5,11 +5,12 @@
 #include <tug_cfg/configuration.h>
 #include <tug_cfg/ros_dynamic_config_reader.h>
 #include <tug_cfg/ros_dynamic_config_describer.h>
+#include <tug_cfg/ros_dynamic_config_writer.h>
 
 namespace tug_cfg
 {
 RosDynamicConfigServer::RosDynamicConfigServer()
-  : configuration_(nullptr)
+  : configuration_(nullptr), reconfiguring_(false)
 {
 }
 
@@ -44,12 +45,17 @@ void RosDynamicConfigServer::start(ros::NodeHandle node_handle)
   // Note: node_handle must not be const because advertiseService is non-const
   srv_ = node_handle.advertiseService("set_parameters", &RosDynamicConfigServer::reconfigure, this);
   descriptions_pub_ = node_handle.advertise<dynamic_reconfigure::ConfigDescription>("parameter_descriptions", 1, true);
-  updates_pub_ = node_handle.advertise<dynamic_reconfigure::Config>("parameter_updates", 1);
+  updates_pub_ = node_handle.advertise<dynamic_reconfigure::Config>("parameter_updates", 1, true);
 
   dynamic_reconfigure::ConfigDescriptionPtr description = boost::make_shared<dynamic_reconfigure::ConfigDescription>();
   RosDynamicConfigDescriber describer(description.get());
-  configuration_->accept(nullptr, describer);
+  store(*configuration_, describer);
   descriptions_pub_.publish(description);
+
+  dynamic_reconfigure::ConfigPtr config = boost::make_shared<dynamic_reconfigure::Config>();
+  RosDynamicConfigWriter writer(config.get());
+  store(*configuration_, writer);
+  updates_pub_.publish(config);
 }
 
 void RosDynamicConfigServer::stop()
@@ -67,6 +73,17 @@ void RosDynamicConfigServer::stop()
   if (updates_pub_)
   {
     updates_pub_.shutdown();
+  }
+}
+
+void RosDynamicConfigServer::notify()
+{
+  if (!reconfiguring_)
+  {
+    dynamic_reconfigure::ConfigPtr config = boost::make_shared<dynamic_reconfigure::Config>();
+    RosDynamicConfigWriter writer(config.get());
+    store(*configuration_, writer);
+    updates_pub_.publish(config);
   }
 }
 
@@ -91,14 +108,26 @@ bool RosDynamicConfigServer::reconfigure(
     dynamic_reconfigure::ReconfigureRequest& req,
     dynamic_reconfigure::ReconfigureResponse& res)
 {
-  RosDynamicConfigReader reader(&req.config);
-  load(*configuration_, reader);
-  if (callback_)
+  ScopedLock lock(this);
+  reconfiguring_ = true;
+  try
   {
-    callback_();
+    RosDynamicConfigReader reader(&req.config);
+    load(*configuration_, reader);
+    if (callback_)
+    {
+      callback_();
+    }
+    RosDynamicConfigWriter writer(&res.config);
+    store(*configuration_, writer);
+    updates_pub_.publish(res.config);
   }
-  res.config = req.config;
-  updates_pub_.publish(res.config);
+  catch (...)
+  {
+    reconfiguring_ = false;
+    throw;
+  }
+  reconfiguring_ = false;
   return true;
 }
 }  // namespace tug_cfg

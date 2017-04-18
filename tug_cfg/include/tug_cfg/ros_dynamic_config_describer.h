@@ -23,13 +23,13 @@ public:
   virtual void visit(const Key* key, const Object& value) override;
 
 protected:
-  void addParam(const std::string& name, const AbstractStruct::Field* field,
-                const std::string& type_name);
+  dynamic_reconfigure::ParamDescription* createParam(
+      const Key* key, const AbstractStruct::Field* field,
+      const std::string& type_name);
 
   template <typename T, typename P>
-  void addConstraints(const std::string& name,
-                      const AbstractStruct::Field* field,
-                      std::vector<P> dynamic_reconfigure::Config::* p);
+  void addParam(const Key* key, const std::string& type_name,
+                std::vector<P> dynamic_reconfigure::Config::* p);
 
   dynamic_reconfigure::ConfigDescription* description_;
   dynamic_reconfigure::Group* top_group_;

@@ -1,6 +1,6 @@
 insane_mode: { type: bool, default: false, description: "Only switch this on if you're absolutely sure what you're doing", dynamic: true }
 decay_rate: { type: double, unit: "1/s", default: 0.3, min: 1.e-9, max: 1.0, description: "Rate of software decay", dynamic: true }
-num_engineers: { type: int, default: 3, description: "How many software engineers are needed to change a light bulb" }
-var_name: { type: str, default: foo, choices: [foo, bar, baz], description: "Choosing a proper name is often hard" }
+num_engineers: { type: int, default: 3, description: "How many software engineers are needed to change a light bulb", dynamic: true }
+var_name: { type: str, default: foo, choices: [foo, bar, baz], description: "Choosing a proper name is often hard", dynamic: true }
 pseudo_random_numbers: { type: "int[]", description: "Please make sure these are very random" }
 

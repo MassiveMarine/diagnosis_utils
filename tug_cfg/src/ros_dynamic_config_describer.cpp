@@ -1,7 +1,9 @@
 #include <tug_cfg/ros_dynamic_config_describer.h>
+#include <boost/lexical_cast.hpp>
 #include <sstream>
 #include <tug_cfg/key.h>
 #include <tug_cfg/scalar.h>
+#include <yaml-cpp/yaml.h>
 
 namespace tug_cfg
 {
@@ -57,54 +59,22 @@ void RosDynamicConfigDescriber::visit(const Key* key, const AbstractStruct& valu
 
 void RosDynamicConfigDescriber::visit(const Key* key, const Scalar<bool>& value)
 {
-  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
-  if (field != nullptr && field->dynamic)
-  {
-    std::ostringstream s;
-    s << key;
-    std::string name(s.str());
-    addParam(name, field, "bool");
-    addConstraints<bool>(name, field, &dynamic_reconfigure::Config::bools);
-  }
+  addParam<bool>(key, "bool", &dynamic_reconfigure::Config::bools);
 }
 
 void RosDynamicConfigDescriber::visit(const Key* key, const Scalar<double>& value)
 {
-  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
-  if (field != nullptr && field->dynamic)
-  {
-    std::ostringstream s;
-    s << key;
-    std::string name(s.str());
-    addParam(name, field, "double");
-    addConstraints<double>(name, field, &dynamic_reconfigure::Config::doubles);
-  }
+  addParam<double>(key, "double", &dynamic_reconfigure::Config::doubles);
 }
 
 void RosDynamicConfigDescriber::visit(const Key* key, const Scalar<int>& value)
 {
-  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
-  if (field != nullptr && field->dynamic)
-  {
-    std::ostringstream s;
-    s << key;
-    std::string name(s.str());
-    addParam(name, field, "int");
-    addConstraints<int>(name, field, &dynamic_reconfigure::Config::ints);
-  }
+  addParam<int>(key, "int", &dynamic_reconfigure::Config::ints);
 }
 
 void RosDynamicConfigDescriber::visit(const Key* key, const Scalar<std::string>& value)
 {
-  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
-  if (field != nullptr && field->dynamic)
-  {
-    std::ostringstream s;
-    s << key;
-    std::string name(s.str());
-    addParam(name, field, "str");
-    addConstraints<std::string>(name, field, &dynamic_reconfigure::Config::strs);
-  }
+  addParam<std::string>(key, "str", &dynamic_reconfigure::Config::strs);
 }
 
 void RosDynamicConfigDescriber::visit(const Key* key, const Object& value)
@@ -112,12 +82,14 @@ void RosDynamicConfigDescriber::visit(const Key* key, const Object& value)
   // TODO: warn
 }
 
-void RosDynamicConfigDescriber::addParam(const std::string& name,
-                                         const AbstractStruct::Field* field,
-                                         const std::string& type_name)
+dynamic_reconfigure::ParamDescription* RosDynamicConfigDescriber::createParam(
+    const Key* key, const AbstractStruct::Field* field,
+    const std::string& type_name)
 {
   dynamic_reconfigure::ParamDescription param_desc;
-  param_desc.name = name;
+  std::ostringstream name;
+  name << key;
+  param_desc.name = name.str();
   param_desc.type = type_name;
   param_desc.level = field->level;
   param_desc.description = field->description;
@@ -126,24 +98,51 @@ void RosDynamicConfigDescriber::addParam(const std::string& name,
     param_desc.description += " (in " + field->unit + ")";
   }
   top_group_->parameters.push_back(param_desc);
+  return &top_group_->parameters.back();
 }
 
 template <typename T, typename P>
-void RosDynamicConfigDescriber::addConstraints(
-    const std::string& name, const AbstractStruct::Field* field,
+void RosDynamicConfigDescriber::addParam(
+    const Key* key, const std::string& type_name,
     std::vector<P> dynamic_reconfigure::Config::* p)
 {
-  const AbstractStruct::ScalarField<T>& scalar_field(
-        dynamic_cast<const AbstractStruct::ScalarField<T>&>(*field));
-  P param;
-  param.name = name;
-  param.value = scalar_field.default_value;
-  (description_->dflt.*p).push_back(param);
-  param.value = scalar_field.min;
-  (description_->min.*p).push_back(param);
-  param.value = scalar_field.max;
-  (description_->max.*p).push_back(param);
-  // TODO: add choices (as enum)
+  const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
+  if (field != nullptr && field->dynamic)
+  {
+    const AbstractStruct::ScalarField<T>& scalar_field(
+          dynamic_cast<const AbstractStruct::ScalarField<T>&>(*field));
+    dynamic_reconfigure::ParamDescription* param_desc = createParam(key, field,
+                                                                    type_name);
+    P param;
+    param.name = param_desc->name;
+    param.value = scalar_field.default_value;
+    (description_->dflt.*p).push_back(param);
+    param.value = scalar_field.min;
+    (description_->min.*p).push_back(param);
+    param.value = scalar_field.max;
+    (description_->max.*p).push_back(param);
+    if (!scalar_field.choices.empty())
+    {
+      YAML::Emitter e;
+      e.SetSeqFormat(YAML::Flow);
+      e.SetMapFormat(YAML::Flow);
+      e.SetStringFormat(YAML::SingleQuoted);
+      e << YAML::BeginMap;
+      e << YAML::Key << "enum_description" << YAML::Value << "";
+      e << YAML::Key << "enum" << YAML::Value << YAML::BeginSeq;
+      for (const T& choice : scalar_field.choices)
+      {
+        e << YAML::BeginMap;
+        e << YAML::Key << "name" << YAML::Value << boost::lexical_cast<std::string>(choice);
+        e << YAML::Key << "value" << YAML::Value << choice;
+        e << YAML::Key << "description" << YAML::Value << "";
+        e << YAML::Key << "type" << YAML::Value << type_name;
+        e << YAML::EndMap;
+      }
+      e << YAML::EndSeq;
+      e << YAML::EndMap;
+      param_desc->edit_method = e.c_str();
+    }
+  }
 }
-
 }  // namespace tug_cfg
