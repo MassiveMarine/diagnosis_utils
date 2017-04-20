@@ -1,0 +1,15 @@
+rate: 33
+duration: 2.0
+have_tree: false
+factor: 20
+abs_distance: 10
+rel_distance: 20
+linear_speed: .inf
+interpolation_mode: quadratic
+baud_rate: 300
+plugins: [foo/Bar, "bla::Blubb"]
+filters: []
+coefficients: [[1, 2], [3, 4]]
+kvargs: {a: b, c: d}
+error_names: {"-1": Gaah, "-2": Panic} # rosparam doesn't support numeric keys, so we have to make those strings.
+superfluous: true

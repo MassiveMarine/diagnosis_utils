@@ -2,7 +2,10 @@
 
 from __future__ import print_function
 
+import datetime
+import os
 import os.path
+import pwd
 import re
 import rospkg
 import string
@@ -13,13 +16,42 @@ QUALIFIED_CLASS_NAME_RE = re.compile('^(([a-z][a-z0-9_]*)::)*([A-Z][A-Za-z0-9]*)
 CLASS_NAME_SEP_RE = re.compile('[A-Z][0-9]*[a-z]')
 
 
-TEMPLATE_H = string.Template('''\
-#ifndef _${NAMESPACE}__${CLASS_NAME}_H_
-#define _${NAMESPACE}__${CLASS_NAME}_H_
+LICENSE_TEMPLATE = '''\
+/*
+ * This file is part of the software provided by the Graz University of Technology AIS group.
+ *
+ * Copyright (c) $year, $user_name
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted  provided that the
+ * following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *    disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ *    products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+'''
+
+
+TEMPLATE_H = string.Template(LICENSE_TEMPLATE + '''\
+#ifndef ${NAMESPACE}_${CLASS_NAME}_H
+#define ${NAMESPACE}_${CLASS_NAME}_H
 
 namespace $namespace
 {
-
 class $ClassName
 {
 public:
@@ -28,20 +60,17 @@ public:
 
 protected:
 };
+}  // namespace $namespace
 
-}
-
-#endif
-
+#endif  // ${NAMESPACE}_${CLASS_NAME}_H
 ''')
 
 
-TEMPLATE_CPP = string.Template('''\
+TEMPLATE_CPP = string.Template(LICENSE_TEMPLATE + '''\
 #include <$include_file_path>
 
 namespace $namespace
 {
-
 $ClassName::$ClassName()
 {
 }
@@ -49,9 +78,7 @@ $ClassName::$ClassName()
 $ClassName::~$ClassName()
 {
 }
-
-}
-
+}  // namespace $namespace
 ''')
 
 
@@ -108,6 +135,8 @@ def create_class(pkg_name, qualified_class_name):
     source_file_path = [pkg_path, 'src'] + namespace + [file_name + '.cpp']
 
     substitutions = dict(
+        year=datetime.date.today().year,
+        user_name=pwd.getpwuid(os.getuid())[4].split(',', 1)[0],
         include_file_path=os.path.join(*include_file_path[2:]),
         namespace='::'.join(full_namespace),
         NAMESPACE='__'.join(p.upper() for p in full_namespace),
