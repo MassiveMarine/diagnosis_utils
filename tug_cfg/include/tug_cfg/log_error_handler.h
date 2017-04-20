@@ -24,18 +24,41 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_CFG_CONFIGURATION_H
-#define TUG_CFG_CONFIGURATION_H
+#ifndef TUG_CFG_LOG_ERROR_HANDLER_H
+#define TUG_CFG_LOG_ERROR_HANDLER_H
 
-#include <tug_cfg/forwards.h>
+#include <functional>
+#include <ostream>
+#include <string>
+#include <tug_cfg/error_handler.h>
 
 namespace tug_cfg
 {
-void constrain(Object& value);
-void constrain(Object& value, Visitor& constrainer);
-void load(Object& value, Visitor& source);
-void load(Object& value, Visitor& source, Visitor& constrainer);
-void store(const Object& value, ConstVisitor& sink);
+class LogErrorHandler : public ErrorHandler
+{
+public:
+  typedef std::function<void(const std::string&)> LogFunction;
+
+  explicit LogErrorHandler(const LogFunction& log);
+
+  void handleUnsupportedType(const Key* key, const Object& value, const std::string& description) override;
+  void handleUnsupportedKey(const Key* key, const std::string& description) override;
+  void handleTypeMismatch(const Key* key, const Object& value, const std::string& other_type,
+                          const std::string& description) override;
+  void handleViolatedConstraint(const Key* key, const std::string& description) override;
+  void handleSuperfluousValue(const Key* key, const Object& value, const std::string& child_key,
+                              const std::string& description) override;
+  void handleError(const std::string& description) override;
+
+  static ErrorHandlerPtr createRosWarnHandler(const std::string& name);
+  static ErrorHandlerPtr createStreamHandler(std::ostream& out, const std::string& prefix);
+
+protected:
+  static void logToRosWarn(const std::string& name, const std::string& message);
+  static void logToStream(std::ostream& out, const std::string& prefix, const std::string& message);
+
+  LogFunction log_;
+};
 }  // namespace tug_cfg
 
-#endif  // TUG_CFG_CONFIGURATION_H
+#endif  // TUG_CFG_LOG_ERROR_HANDLER_H

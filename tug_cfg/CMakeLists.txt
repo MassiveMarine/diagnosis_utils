@@ -10,6 +10,7 @@ add_definitions(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   roscpp
+  roslint
   rospy
 )
 
@@ -57,6 +58,8 @@ add_library(${PROJECT_NAME}
   src/collection.cpp include/${PROJECT_NAME}/collection.h
   src/configuration.cpp include/${PROJECT_NAME}/configuration.h
   src/default_constrainer.cpp include/${PROJECT_NAME}/default_constrainer.h
+  src/error_handler.cpp include/${PROJECT_NAME}/error_handler.h
+  src/log_error_handler.cpp include/${PROJECT_NAME}/log_error_handler.h
   src/ros_dynamic_config_describer.cpp include/${PROJECT_NAME}/ros_dynamic_config_describer.h
   src/ros_dynamic_config_reader.cpp include/${PROJECT_NAME}/ros_dynamic_config_reader.h
   src/ros_dynamic_config_server.cpp include/${PROJECT_NAME}/ros_dynamic_config_server.h
@@ -71,6 +74,8 @@ add_library(${PROJECT_NAME}
   include/${PROJECT_NAME}/visitor.h
   src/yaml_reader.cpp include/${PROJECT_NAME}/yaml_reader.h
 )
+
+target_compile_options(${PROJECT_NAME} PRIVATE -Wformat -Wall -Wextra -Werror)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -140,7 +145,6 @@ target_link_libraries(${PROJECT_NAME}
 ## Add gtest based cpp test target and link libraries
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
-  include_directories(test)
 
   set(${PROJECT_NAME}_TEST_CONFIG_NAME BarConfig)
 
@@ -158,7 +162,7 @@ if(CATKIN_ENABLE_TESTING)
 
   catkin_add_gtest(${PROJECT_NAME}_test_bar_config
     test/test_bar_config.cpp
-    test/test_helpers.cpp test/test_helpers.h
+    test/test_helpers.cpp include/${PROJECT_NAME}/test_helpers.h
     ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
   )
 
@@ -171,7 +175,7 @@ if(CATKIN_ENABLE_TESTING)
   add_rostest_gtest(${PROJECT_NAME}_test_ros_param_reader
     test/test_ros_param_reader.test
     test/test_ros_param_reader.cpp
-    test/test_helpers.cpp test/test_helpers.h
+    test/test_helpers.cpp include/${PROJECT_NAME}/test_helpers.h
     ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
   )
 
@@ -184,3 +188,5 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+roslint_cpp()
+roslint_add_test()

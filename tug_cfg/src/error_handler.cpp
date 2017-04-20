@@ -24,18 +24,25 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_CFG_CONFIGURATION_H
-#define TUG_CFG_CONFIGURATION_H
-
-#include <tug_cfg/forwards.h>
+#include <tug_cfg/error_handler.h>
+#include <tug_cfg/log_error_handler.h>
 
 namespace tug_cfg
 {
-void constrain(Object& value);
-void constrain(Object& value, Visitor& constrainer);
-void load(Object& value, Visitor& source);
-void load(Object& value, Visitor& source, Visitor& constrainer);
-void store(const Object& value, ConstVisitor& sink);
-}  // namespace tug_cfg
+ErrorHandlerPtr ErrorHandler::instance_;
 
-#endif  // TUG_CFG_CONFIGURATION_H
+const ErrorHandlerPtr& ErrorHandler::get()
+{
+  if (!instance_)
+  {
+    // As long as the library is tied to ROS, we default to the rosconsole-based implementation:
+    instance_ = LogErrorHandler::createRosWarnHandler("tug_cfg");
+  }
+  return instance_;
+}
+
+void ErrorHandler::set(const ErrorHandlerPtr& instance)
+{
+  instance_ = instance;
+}
+}  // namespace tug_cfg

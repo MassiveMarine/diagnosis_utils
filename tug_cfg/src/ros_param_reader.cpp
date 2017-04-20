@@ -1,8 +1,39 @@
+/*
+ * This file is part of the software provided by the Graz University of Technology AIS group.
+ *
+ * Copyright (c) 2017, Alexander Buchegger
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted  provided that the
+ * following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *    disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ *    products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 #include <tug_cfg/ros_param_reader.h>
 #include <boost/lexical_cast.hpp>
+#include <map>
+#include <sstream>
+#include <string>
 #include <tug_cfg/collection.h>
+#include <tug_cfg/error_handler.h>
 #include <tug_cfg/scalar.h>
 #include <tug_cfg/struct.h>
+#include <utility>
 
 namespace tug_cfg
 {
@@ -11,7 +42,8 @@ RosParamReader::RosParamReader(const ros::NodeHandle& node_handle, const std::st
 {
   if (!node_handle.getParam(key, root_node_))
   {
-    // TODO: warn
+    ErrorHandler::get()->handleError("ROS parameter server has no parameter named " + node_handle.getNamespace() + "/"
+                                     + key);
   }
 }
 
@@ -38,8 +70,7 @@ void RosParamReader::visit(Key* key, AbstractMap& value)
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Node is not struct" << std::endl;
+      ErrorHandler::get()->handleTypeMismatch(key, value, getXmlRpcTypeName(context.node->getType()), "");
     }
   }
 }
@@ -58,8 +89,7 @@ void RosParamReader::visit(Key* key, AbstractSequence& value)
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Node is not array" << std::endl;
+      ErrorHandler::get()->handleTypeMismatch(key, value, getXmlRpcTypeName(context.node->getType()), "");
     }
   }
 }
@@ -71,13 +101,19 @@ void RosParamReader::visit(Key* key, AbstractStruct& value)
   {
     if (context.node->getType() == XmlRpc::XmlRpcValue::TypeStruct)
     {
+      for (const XmlRpc::XmlRpcValue::ValueStruct::value_type& v : *context.node)
+      {
+        context.remaining_keys.insert(v.first);
+      }
       value.acceptElements(key, *this);
-      // TODO: find out whether all elements in map have been used
+      for (const std::string& remaining_key : context.remaining_keys)
+      {
+        ErrorHandler::get()->handleSuperfluousValue(key, value, remaining_key, "");
+      }
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Node is not struct" << std::endl;
+      ErrorHandler::get()->handleTypeMismatch(key, value, getXmlRpcTypeName(context.node->getType()), "");
     }
   }
 }
@@ -93,8 +129,7 @@ void RosParamReader::visit(Key* key, Scalar<bool>& value)
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Node is not bool" << std::endl;
+      ErrorHandler::get()->handleTypeMismatch(key, value, getXmlRpcTypeName(context.node->getType()), "");
     }
   }
 }
@@ -114,8 +149,7 @@ void RosParamReader::visit(Key* key, Scalar<double>& value)
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Node is not double" << std::endl;
+      ErrorHandler::get()->handleTypeMismatch(key, value, getXmlRpcTypeName(context.node->getType()), "");
     }
   }
 }
@@ -131,8 +165,7 @@ void RosParamReader::visit(Key* key, Scalar<int>& value)
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Node is not int" << std::endl;
+      ErrorHandler::get()->handleTypeMismatch(key, value, getXmlRpcTypeName(context.node->getType()), "");
     }
   }
 }
@@ -148,17 +181,46 @@ void RosParamReader::visit(Key* key, Scalar<std::string>& value)
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Node is not string" << std::endl;
+      ErrorHandler::get()->handleTypeMismatch(key, value, getXmlRpcTypeName(context.node->getType()), "");
     }
   }
 }
 
 void RosParamReader::visit(Key* key, Object& value)
 {
-  // TODO: warn
-  std::cerr << "Visiting object is not supported" << std::endl;
+  ErrorHandler::get()->handleUnsupportedType(key, value, "");
 }
+
+const std::string& RosParamReader::getXmlRpcTypeName(XmlRpc::XmlRpcValue::Type type)
+{
+  typedef std::map<XmlRpc::XmlRpcValue::Type, std::string> Names;
+
+  static std::string unknown_type_name = "Unknown";
+  static Names names;
+
+  if (names.empty())
+  {
+#define X(x) names.insert(std::make_pair(XmlRpc::XmlRpcValue::Type ## x, #x))
+    X(Invalid);
+    X(Boolean);
+    X(Int);
+    X(Double);
+    X(String);
+    X(DateTime);
+    X(Base64);
+    X(Array);
+    X(Struct);
+#undef X
+  }
+
+  Names::iterator it = names.find(type);
+  if (it != names.end())
+  {
+    return it->second;
+  }
+  return unknown_type_name;
+}
+
 
 
 
@@ -175,7 +237,7 @@ RosParamReader::Context::~Context()
 
 bool RosParamReader::Context::enter(Key* key)
 {
-  //std::cerr << "Entering " << key << std::endl;
+  // std::cerr << "Entering " << key << std::endl;
   if (key == nullptr)
   {
     if (parent != nullptr)
@@ -200,8 +262,7 @@ bool RosParamReader::Context::enter(Key* key)
     }
     else
     {
-      // TODO: warn
-      std::cerr << "Sequence key is not int" << std::endl;
+      ErrorHandler::get()->handleUnsupportedKey(key, "sequence key is not int");
     }
   }
   else if (parent->node->getType() == XmlRpc::XmlRpcValue::TypeStruct)
@@ -209,7 +270,11 @@ bool RosParamReader::Context::enter(Key* key)
     const AbstractStruct::Field* field = key->asPtr<const AbstractStruct::Field>();
     if (field != nullptr)
     {
-      node = &(*parent->node)[field->name];
+      if (parent->node->hasMember(field->name))
+      {
+        node = &(*parent->node)[field->name];
+        parent->remaining_keys.erase(field->name);
+      }
     }
     else
     {
@@ -227,8 +292,7 @@ bool RosParamReader::Context::enter(Key* key)
         }
         else
         {
-          // TODO: warn
-          std::cerr << "Map key is neither field, string, nor int" << std::endl;
+          ErrorHandler::get()->handleUnsupportedKey(key, "map key is neither field, nor string, nor int");
         }
       }
       node = &parent->it->second;

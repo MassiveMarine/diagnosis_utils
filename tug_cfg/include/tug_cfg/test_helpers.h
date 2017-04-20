@@ -24,18 +24,14 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_CFG_CONFIGURATION_H
-#define TUG_CFG_CONFIGURATION_H
+#ifndef TUG_CFG_TEST_HELPERS_H
+#define TUG_CFG_TEST_HELPERS_H
 
-#include <tug_cfg/forwards.h>
+#include <tug_cfg/BarConfig.h>
 
 namespace tug_cfg
 {
-void constrain(Object& value);
-void constrain(Object& value, Visitor& constrainer);
-void load(Object& value, Visitor& source);
-void load(Object& value, Visitor& source, Visitor& constrainer);
-void store(const Object& value, ConstVisitor& sink);
+void assertBar1LoadedCorrectly(const tug_cfg::BarConfig& config);
 }  // namespace tug_cfg
 
-#endif  // TUG_CFG_CONFIGURATION_H
+#endif  // TUG_CFG_TEST_HELPERS_H

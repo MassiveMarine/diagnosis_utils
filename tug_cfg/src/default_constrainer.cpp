@@ -1,13 +1,37 @@
+/*
+ * This file is part of the software provided by the Graz University of Technology AIS group.
+ *
+ * Copyright (c) 2017, Alexander Buchegger
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted  provided that the
+ * following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *    disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ *    products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 #include <tug_cfg/default_constrainer.h>
+#include <set>
+#include <sstream>
+#include <string>
 #include <tug_cfg/collection.h>
+#include <tug_cfg/error_handler.h>
 #include <tug_cfg/scalar.h>
 #include <tug_cfg/struct.h>
-//#include <ros/console.h>
-#include <iostream>
-
-#define ROS_WARN_STREAM_NAMED(name, value) do { ((std::cerr << name << ": ") << value) << std::endl;  } while (false)
-
-#define LOGGER_NAME "tug_cfg"
 
 namespace tug_cfg
 {
@@ -48,7 +72,7 @@ void DefaultConstrainer::visit(Key* key, AbstractSequence& value)
 
 void DefaultConstrainer::visit(Key* key, Object& value)
 {
-  ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration contains unknown type " << value.getType().getName() << " at " << key);
+  ErrorHandler::get()->handleUnsupportedType(key, value, "");
 }
 
 template <typename T>
@@ -69,13 +93,15 @@ void DefaultConstrainer::enforceMin(Key* key, T& value, const T& min_value)
 {
   if (value < min_value)
   {
-    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << key << " was below specified minimum (" << value << " < " << min_value << ")");
+    std::ostringstream s;
+    s << "value is below specified minimum (" << value << " < " << min_value << ")";
+    ErrorHandler::get()->handleViolatedConstraint(key, s.str());
     value = min_value;
   }
 }
 
 template <>
-void DefaultConstrainer::enforceMin<std::string>(Key* key, std::string& value, const std::string& min_value)
+void DefaultConstrainer::enforceMin<std::string>(Key* /*key*/, std::string& /*value*/, const std::string& /*min_value*/)
 {
   // String has no meaningful minimum, so we just ignore this.
 }
@@ -85,13 +111,15 @@ void DefaultConstrainer::enforceMax(Key* key, T& value, const T& max_value)
 {
   if (value > max_value)
   {
-    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << key << " was above specified maximum (" << value << " > " << max_value << ")");
+    std::ostringstream s;
+    s << "value is above specified maximum (" << value << " > " << max_value << ")";
+    ErrorHandler::get()->handleViolatedConstraint(key, s.str());
     value = max_value;
   }
 }
 
 template <>
-void DefaultConstrainer::enforceMax<std::string>(Key* key, std::string& value, const std::string& max_value)
+void DefaultConstrainer::enforceMax<std::string>(Key* /*key*/, std::string& /*value*/, const std::string& /*max_value*/)
 {
   // String has no meaningful maximum, so we just ignore this.
 }
@@ -101,7 +129,19 @@ void DefaultConstrainer::enforceChoices(Key* key, T& value, const std::set<T>& c
 {
   if (!choices.empty() && choices.find(value) == choices.end())
   {
-    ROS_WARN_STREAM_NAMED(LOGGER_NAME, "Configuration parameter " << key << " was not in set of valid choices");
+    std::ostringstream s;
+    s << "value is not in set of valid choices (" << value << " not in (";
+    typename std::set<T>::const_iterator it = choices.begin();
+    if (it != choices.end())
+    {
+      s << *it;
+      while (++it != choices.end())
+      {
+        s << ", " << *it;
+      }
+    }
+    s << "))";
+    ErrorHandler::get()->handleViolatedConstraint(key, s.str());
     value = default_value;
   }
 }

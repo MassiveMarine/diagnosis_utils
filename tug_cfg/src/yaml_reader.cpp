@@ -1,6 +1,36 @@
+/*
+ * This file is part of the software provided by the Graz University of Technology AIS group.
+ *
+ * Copyright (c) 2017, Alexander Buchegger
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted  provided that the
+ * following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ *    disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ *    products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 #include <tug_cfg/yaml_reader.h>
 #include <exception>
+#include <map>
+#include <set>
+#include <string>
 #include <tug_cfg/collection.h>
+#include <tug_cfg/error_handler.h>
 #include <tug_cfg/key.h>
 #include <tug_cfg/scalar.h>
 #include <tug_cfg/struct.h>
@@ -18,6 +48,7 @@ public:
 
   YAML::Node node;
   YAML::const_iterator it;
+  std::set<std::string> remaining_keys;
 
 protected:
   YamlReader* reader_;
@@ -29,10 +60,38 @@ protected:
 class YamlReader::RootNode
 {
 public:
-  RootNode(const YAML::Node& node_);
+  explicit RootNode(const YAML::Node& node_);
 
   YAML::Node node;
 };
+
+
+
+const std::string& getYamlNodeTypeName(YAML::NodeType::value type)
+{
+  typedef std::map<YAML::NodeType::value, std::string> Names;
+
+  static std::string unknown_type_name = "Unknown";
+  static Names names;
+
+  if (names.empty())
+  {
+#define X(x) names.insert(std::make_pair(YAML::NodeType::x, #x))
+    X(Undefined);
+    X(Null);
+    X(Scalar);
+    X(Sequence);
+    X(Map);
+#undef X
+  }
+
+  Names::iterator it = names.find(type);
+  if (it != names.end())
+  {
+    return it->second;
+  }
+  return unknown_type_name;
+}
 
 
 
@@ -59,7 +118,7 @@ void YamlReader::visit(Key* key, AbstractMap& value)
     }
     else
     {
-      // TODO: warn
+      ErrorHandler::get()->handleTypeMismatch(key, value, getYamlNodeTypeName(context.node.Type()), "");
     }
   }
 }
@@ -78,7 +137,7 @@ void YamlReader::visit(Key* key, AbstractSequence& value)
     }
     else
     {
-      // TODO: warn
+      ErrorHandler::get()->handleTypeMismatch(key, value, getYamlNodeTypeName(context.node.Type()), "");
     }
   }
 }
@@ -90,12 +149,19 @@ void YamlReader::visit(Key* key, AbstractStruct& value)
   {
     if (context.node.IsMap())
     {
+      for (; context.it != context.node.end(); ++context.it)
+      {
+        context.remaining_keys.insert(context.it->first.as<std::string>());
+      }
       value.acceptElements(key, *this);
-      // TODO: find out whether all elements in map have been used
+      for (const std::string& remaining_key : context.remaining_keys)
+      {
+        ErrorHandler::get()->handleSuperfluousValue(key, value, remaining_key, "");
+      }
     }
     else
     {
-      // TODO: warn
+      ErrorHandler::get()->handleTypeMismatch(key, value, getYamlNodeTypeName(context.node.Type()), "");
     }
   }
 }
@@ -111,7 +177,7 @@ void YamlReader::visit(Key* key, Scalar<bool>& value)
     }
     else
     {
-      // TODO: warn
+      ErrorHandler::get()->handleTypeMismatch(key, value, getYamlNodeTypeName(context.node.Type()), "");
     }
   }
 }
@@ -127,7 +193,7 @@ void YamlReader::visit(Key* key, Scalar<double>& value)
     }
     else
     {
-      // TODO: warn
+      ErrorHandler::get()->handleTypeMismatch(key, value, getYamlNodeTypeName(context.node.Type()), "");
     }
   }
 }
@@ -143,7 +209,7 @@ void YamlReader::visit(Key* key, Scalar<int>& value)
     }
     else
     {
-      // TODO: warn
+      ErrorHandler::get()->handleTypeMismatch(key, value, getYamlNodeTypeName(context.node.Type()), "");
     }
   }
 }
@@ -159,14 +225,14 @@ void YamlReader::visit(Key* key, Scalar<std::string>& value)
     }
     else
     {
-      // TODO: warn
+      ErrorHandler::get()->handleTypeMismatch(key, value, getYamlNodeTypeName(context.node.Type()), "");
     }
   }
 }
 
 void YamlReader::visit(Key* key, Object& value)
 {
-  // TODO: warn
+  ErrorHandler::get()->handleUnsupportedType(key, value, "");
 }
 
 
@@ -184,7 +250,7 @@ YamlReader::Context::~Context()
 
 bool YamlReader::Context::enter(Key* key)
 {
-  //std::cerr << "Entering " << key << std::endl;
+  // std::cerr << "Entering " << key << std::endl;
   if (key == nullptr)
   {
     if (parent_ != nullptr)
@@ -211,6 +277,7 @@ bool YamlReader::Context::enter(Key* key)
     if (field != nullptr)
     {
       node = parent_->node[field->name];
+      parent_->remaining_keys.erase(field->name);
     }
     else
     {
@@ -228,7 +295,7 @@ bool YamlReader::Context::enter(Key* key)
         }
         else
         {
-          // TODO: warn
+          ErrorHandler::get()->handleUnsupportedKey(key, "map key is neither field, nor string, nor int");
         }
       }
       node = parent_->it->second;

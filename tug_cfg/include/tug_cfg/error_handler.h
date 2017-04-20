@@ -24,18 +24,35 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_CFG_CONFIGURATION_H
-#define TUG_CFG_CONFIGURATION_H
+#ifndef TUG_CFG_ERROR_HANDLER_H
+#define TUG_CFG_ERROR_HANDLER_H
 
+#include <string>
 #include <tug_cfg/forwards.h>
 
 namespace tug_cfg
 {
-void constrain(Object& value);
-void constrain(Object& value, Visitor& constrainer);
-void load(Object& value, Visitor& source);
-void load(Object& value, Visitor& source, Visitor& constrainer);
-void store(const Object& value, ConstVisitor& sink);
+class ErrorHandler
+{
+public:
+  ErrorHandler() = default;
+  virtual ~ErrorHandler() = default;
+
+  virtual void handleUnsupportedType(const Key* key, const Object& value, const std::string& description) = 0;
+  virtual void handleUnsupportedKey(const Key* key, const std::string& description) = 0;
+  virtual void handleTypeMismatch(const Key* key, const Object& value, const std::string& other_type,
+                                  const std::string& description) = 0;
+  virtual void handleViolatedConstraint(const Key* key, const std::string& description) = 0;
+  virtual void handleSuperfluousValue(const Key* key, const Object& value, const std::string& child_key,
+                                      const std::string& description) = 0;
+  virtual void handleError(const std::string& description) = 0;
+
+  static const ErrorHandlerPtr& get();
+  static void set(const ErrorHandlerPtr& instance);
+
+protected:
+  static ErrorHandlerPtr instance_;
+};
 }  // namespace tug_cfg
 
-#endif  // TUG_CFG_CONFIGURATION_H
+#endif  // TUG_CFG_ERROR_HANDLER_H
