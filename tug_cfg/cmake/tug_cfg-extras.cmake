@@ -31,5 +31,6 @@ macro(generate_cfg)
   )
   
   list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS ${PROJECT_NAME}_generate_cfg)
+  include_directories(${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION})
 endmacro()
 
