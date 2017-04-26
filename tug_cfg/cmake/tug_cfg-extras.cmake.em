@@ -32,7 +32,7 @@ macro(tug_cfg_generate_cpp)
       COMMAND cmake -E make_directory ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}
       # CATKIN_ENV prepares some environment variables:
       COMMAND ${CATKIN_ENV}
-              cmake -E env "PYTHONPATH=${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}:$$PYTHONPATH"
+              env "PYTHONPATH=${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}:$$PYTHONPATH"
               ${TUG_CFG_SCRIPTS_DIR}/generate_cpp.py
               ${PROJECT_NAME} ${_cfg_file_path} > ${_header_file_path}
     )
