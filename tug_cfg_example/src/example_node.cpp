@@ -25,7 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <tug_cfg_example/example_node.h>
-#include <boost/thread/lock_types.hpp>
+#include <boost/thread/lock_guard.hpp>
 #include <ros/init.h>
 #include <tug_cfg/configuration.h>
 #include <tug_cfg/ros_param_reader.h>
@@ -45,7 +45,7 @@ ExampleNode::~ExampleNode()
 
 void ExampleNode::start()
 {
-  boost::scoped_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_);
   tug_cfg::RosParamReader reader(nh_);
   tug_cfg::load(config_, reader);
   config_server_.start(nh_);
@@ -55,7 +55,7 @@ void ExampleNode::start()
 
 void ExampleNode::update(const ros::TimerEvent&)
 {
-  boost::scoped_lock<boost::mutex> lock(mutex_);
+  boost::lock_guard<boost::mutex> lock(mutex_);
   ++config_.num_engineers;
   config_server_.notify();
 }
