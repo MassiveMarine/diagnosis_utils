@@ -24,39 +24,37 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <tug_cfg/test_helpers.h>
 #include <gtest/gtest.h>
 #include <limits>
+#include <tug_cfg/configuration.h>
+#include <tug_cfg/yaml_reader.h>
+#include <tug_cfg_example/ExampleConfig.h>
+#include <tug_cfg_example/test_helpers.h>
 
-namespace tug_cfg
+TEST(TestExampleConfig, testDefaultConstructor)
 {
-void assertBar1LoadedCorrectly(const tug_cfg::BarConfig& config)
-{
-  ASSERT_EQ(config.rate, 33);
-  ASSERT_EQ(config.duration, 2);
-  ASSERT_EQ(config.have_tree, false);
-  ASSERT_EQ(config.factor, 20);
-  ASSERT_EQ(config.abs_distance, 10);
-  ASSERT_EQ(config.rel_distance, 20);
-  ASSERT_EQ(config.linear_speed, std::numeric_limits<double>::infinity());
-  ASSERT_EQ(config.interpolation_mode, "quadratic");
-  ASSERT_EQ(config.baud_rate, 300);
-  ASSERT_EQ(config.plugins.size(), 2);
-  ASSERT_EQ(config.plugins.at(0), "foo/Bar");
-  ASSERT_EQ(config.plugins.at(1), "bla::Blubb");
-  ASSERT_EQ(config.filters.size(), 0);
-  ASSERT_EQ(config.coefficients.size(), 2);
-  ASSERT_EQ(config.coefficients.at(0).size(), 2);
-  ASSERT_EQ(config.coefficients.at(0).at(0), 1);
-  ASSERT_EQ(config.coefficients.at(0).at(1), 2);
-  ASSERT_EQ(config.coefficients.at(1).size(), 2);
-  ASSERT_EQ(config.coefficients.at(1).at(0), 3);
-  ASSERT_EQ(config.coefficients.at(1).at(1), 4);
-  ASSERT_EQ(config.kvargs.size(), 2);
-  ASSERT_EQ(config.kvargs.at("a"), "b");
-  ASSERT_EQ(config.kvargs.at("c"), "d");
-  ASSERT_EQ(config.error_names.size(), 2);
-  ASSERT_EQ(config.error_names.at(-1), "Gaah");
-  ASSERT_EQ(config.error_names.at(-2), "Panic");
+  tug_cfg_example::ExampleConfig config;
 }
-}  // namespace tug_cfg
+
+TEST(TestExampleConfig, testConstrainer)
+{
+  tug_cfg_example::ExampleConfig config;
+  ASSERT_EQ(config.decay_rate, 0.3);
+  config.decay_rate = 0;
+  tug_cfg::constrain(config);
+  ASSERT_EQ(config.decay_rate, 1e-9);  // Should be minimum.
+}
+
+TEST(TestExampleConfig, testLoadYaml)
+{
+  tug_cfg_example::ExampleConfig config;
+  tug_cfg::YamlReader reader("../../../src/utils/tug_cfg_example/test/example1.yaml");
+  tug_cfg::load(config, reader);
+  tug_cfg_example::assertExample1LoadedCorrectly(config);
+}
+
+int main(int argc, char** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

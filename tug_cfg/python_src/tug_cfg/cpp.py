@@ -4,8 +4,8 @@ import textwrap
 from .model import ScalarType, MapType, ListType, CfgType
 
 _HEADER_TEMPLATE = string.Template('''\
-#ifndef _${NAMESPACE}__${CLASS_NAME}_H_
-#define _${NAMESPACE}__${CLASS_NAME}_H_
+#ifndef ${NAMESPACE}_${CLASS_NAME}_H
+#define ${NAMESPACE}_${CLASS_NAME}_H
 
 #include <limits>
 #include <$gen_namespace/scalar.h>
@@ -25,8 +25,8 @@ $fields
   typedef $gen_namespace::Struct<$ClassName> MetaObject;
 
   $ClassName()
-    : meta_object_(*this),
-      $initialization
+    : $initialization
+      meta_object_(*this)
   {
   }
 
@@ -58,7 +58,7 @@ protected:
 };
 }  // namespace $namespace
 
-#endif  // _${NAMESPACE}__${CLASS_NAME}_H_
+#endif  // ${NAMESPACE}_${CLASS_NAME}_H
 ''')
 
 _FIELD_TEMPLATE = string.Template('''\
@@ -195,7 +195,7 @@ class Generator(object):
     def generate(self, stream, cfg):
         params = list(CppParam(cfg.name, p) for p in cfg.parameters)
         fields = []
-        initialization = ',\n      '.join('%s(%s)' % (p.name, p.default) for p in params if p.default is not None)
+        initialization = '\n      '.join('%s(%s),' % (p.name, p.default) for p in params if p.default is not None)
         for p in params:
             doc = []
             if p.unit:

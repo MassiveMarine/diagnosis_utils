@@ -25,36 +25,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <gtest/gtest.h>
+#include <iostream>
 #include <limits>
-#include <tug_cfg/BarConfig.h>
+#include <ros/init.h>
 #include <tug_cfg/configuration.h>
-#include <tug_cfg/test_helpers.h>
-#include <tug_cfg/yaml_reader.h>
+#include <tug_cfg/log_error_handler.h>
+#include <tug_cfg/ros_param_reader.h>
+#include <tug_cfg_example/ExampleConfig.h>
+#include <tug_cfg_example/test_helpers.h>
 
-TEST(TestBarConfig, testDefaultConstructor)
+TEST(TestRosParamReader, testLoadRosParam1)
 {
-  tug_cfg::BarConfig config;
-}
-
-TEST(TestBarConfig, testConstrainer)
-{
-  tug_cfg::BarConfig config;
-  ASSERT_EQ(config.factor, 10);
-  config.factor = 0;
-  tug_cfg::constrain(config);
-  ASSERT_EQ(config.factor, 0.1);
-}
-
-TEST(TestBarConfig, testLoadYaml)
-{
-  tug_cfg::BarConfig config;
-  tug_cfg::YamlReader reader("../../../src/utils/tug_cfg/test/bar1.yaml");
+  tug_cfg_example::ExampleConfig config;
+  tug_cfg::RosParamReader reader(ros::NodeHandle("~"), "example1");
   tug_cfg::load(config, reader);
-  tug_cfg::assertBar1LoadedCorrectly(config);
+  tug_cfg_example::assertExample1LoadedCorrectly(config);
+}
+
+TEST(TestRosParamReader, testLoadRosParam2)
+{
+  tug_cfg_example::ExampleConfig config;
+  tug_cfg::RosParamReader reader(ros::NodeHandle("~example1"));
+  tug_cfg::load(config, reader);
+  tug_cfg_example::assertExample1LoadedCorrectly(config);
+}
+
+TEST(TestRosParamReader, testLoadRosParam3)
+{
+  tug_cfg_example::ExampleConfig config;
+  tug_cfg::RosParamReader reader(ros::NodeHandle("/test_ros_param_reader/example1"));
+  tug_cfg::load(config, reader);
+  tug_cfg_example::assertExample1LoadedCorrectly(config);
 }
 
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
+  ros::init(argc, argv, "test_ros_param_reader");
+  tug_cfg::ErrorHandler::set(tug_cfg::LogErrorHandler::createStreamHandler(std::cerr, "Warning: "));
   return RUN_ALL_TESTS();
 }

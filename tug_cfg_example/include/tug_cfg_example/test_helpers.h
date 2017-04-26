@@ -24,14 +24,14 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_CFG_TEST_HELPERS_H
-#define TUG_CFG_TEST_HELPERS_H
+#ifndef TUG_CFG_EXAMPLE_TEST_HELPERS_H
+#define TUG_CFG_EXAMPLE_TEST_HELPERS_H
 
-#include <tug_cfg/BarConfig.h>
+#include <tug_cfg_example/ExampleConfig.h>
 
-namespace tug_cfg
+namespace tug_cfg_example
 {
-void assertBar1LoadedCorrectly(const tug_cfg::BarConfig& config);
-}  // namespace tug_cfg
+void assertExample1LoadedCorrectly(const tug_cfg_example::ExampleConfig& config);
+}  // namespace tug_cfg_example
 
-#endif  // TUG_CFG_TEST_HELPERS_H
+#endif  // TUG_CFG_EXAMPLE_TEST_HELPERS_H

@@ -40,11 +40,15 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
+
   <build_depend>roscpp</build_depend>
   <build_depend>tug_cfg</build_depend>
+
   <run_depend>roscpp</run_depend>
   <run_depend>tug_cfg</run_depend>
 
+  <test_depend>roslint</test_depend>
+  <test_depend>rostest</test_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

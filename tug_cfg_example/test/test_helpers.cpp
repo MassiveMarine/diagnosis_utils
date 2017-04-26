@@ -24,44 +24,35 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <tug_cfg_example/test_helpers.h>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <limits>
-#include <ros/init.h>
-#include <tug_cfg/BarConfig.h>
-#include <tug_cfg/configuration.h>
-#include <tug_cfg/log_error_handler.h>
-#include <tug_cfg/ros_param_reader.h>
-#include <tug_cfg/test_helpers.h>
 
-TEST(TestBarConfig, testLoadRosParam1)
+namespace tug_cfg_example
 {
-  tug_cfg::BarConfig config;
-  tug_cfg::RosParamReader reader(ros::NodeHandle("~"), "bar1");
-  tug_cfg::load(config, reader);
-  assertBar1LoadedCorrectly(config);
-}
-
-TEST(TestBarConfig, testLoadRosParam2)
+void assertExample1LoadedCorrectly(const tug_cfg_example::ExampleConfig& config)
 {
-  tug_cfg::BarConfig config;
-  tug_cfg::RosParamReader reader(ros::NodeHandle("~bar1"));
-  tug_cfg::load(config, reader);
-  assertBar1LoadedCorrectly(config);
+  ASSERT_EQ(config.insane_mode, false);
+  ASSERT_EQ(config.decay_rate, 0.5);
+  ASSERT_EQ(config.num_engineers, 2);
+  ASSERT_EQ(config.engineer_names.size(), 2);
+  ASSERT_EQ(config.engineer_names.at(1), "Al");
+  ASSERT_EQ(config.engineer_names.at(2), "Bert");
+  ASSERT_EQ(config.var_name, "bar");
+  ASSERT_EQ(config.pseudo_random_numbers.size(), 3);
+  ASSERT_EQ(config.pseudo_random_numbers.at(0), 42);
+  ASSERT_EQ(config.pseudo_random_numbers.at(1), 666);
+  ASSERT_EQ(config.pseudo_random_numbers.at(2), 13);
+  ASSERT_EQ(config.max_speed, std::numeric_limits<double>::infinity());
+  ASSERT_EQ(config.covariance.size(), 2);
+  ASSERT_EQ(config.covariance.at(0).size(), 2);
+  ASSERT_EQ(config.covariance.at(0).at(0), 1);
+  ASSERT_EQ(config.covariance.at(0).at(1), 2);
+  ASSERT_EQ(config.covariance.at(1).size(), 2);
+  ASSERT_EQ(config.covariance.at(1).at(0), 3);
+  ASSERT_EQ(config.covariance.at(1).at(1), 4);
+  ASSERT_EQ(config.extra_params.size(), 2);
+  ASSERT_EQ(config.extra_params.at("a"), "b");
+  ASSERT_EQ(config.extra_params.at("c"), "d");
 }
-
-TEST(TestBarConfig, testLoadRosParam3)
-{
-  tug_cfg::BarConfig config;
-  tug_cfg::RosParamReader reader(ros::NodeHandle("/test_ros_param_reader/bar1"));
-  tug_cfg::load(config, reader);
-  assertBar1LoadedCorrectly(config);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_ros_param_reader");
-  tug_cfg::ErrorHandler::set(tug_cfg::LogErrorHandler::createStreamHandler(std::cerr, "Warning: "));
-  return RUN_ALL_TESTS();
-}
+}  // namespace tug_cfg_example

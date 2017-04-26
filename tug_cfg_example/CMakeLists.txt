@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tug_cfg_example)
 
-## Add support for C++11, supported in ROS Kinetic and newer
-add_definitions(-std=c++11)
-
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -19,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Declare tug_cfg parameters ##
 ################################
 
-generate_cfg(
+tug_cfg_generate_cpp(
   cfg/ExampleConfig.yaml
 )
 
@@ -43,6 +40,9 @@ catkin_package(
 ## Build ##
 ###########
 
+## Specify additional compile options for this package
+add_definitions(-std=c++11 -Wformat -Wall -Wextra -Werror)
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
@@ -60,8 +60,7 @@ add_executable(${PROJECT_NAME}_node
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(${PROJECT_NAME}_node
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_tug_cfg
 )
 
 ## Specify libraries to link a library or executable target against
@@ -109,10 +108,39 @@ target_link_libraries(${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_tug_cfg_example.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslint REQUIRED)
+  find_package(rostest REQUIRED)
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+  catkin_add_gtest(${PROJECT_NAME}_test_example_config
+    test/test_example_config.cpp
+    test/test_helpers.cpp include/${PROJECT_NAME}/test_helpers.h
+  )
+
+  add_dependencies(${PROJECT_NAME}_test_example_config
+    ${PROJECT_NAME}_tug_cfg
+  )
+
+  target_link_libraries(${PROJECT_NAME}_test_example_config
+    ${catkin_LIBRARIES}
+  )
+
+  add_rostest_gtest(${PROJECT_NAME}_test_ros_param_reader
+    test/test_ros_param_reader.test
+    test/test_ros_param_reader.cpp
+    test/test_helpers.cpp include/${PROJECT_NAME}/test_helpers.h
+  )
+
+  add_dependencies(${PROJECT_NAME}_test_ros_param_reader
+    ${PROJECT_NAME}_tug_cfg
+  )
+
+  target_link_libraries(${PROJECT_NAME}_test_ros_param_reader
+    ${catkin_LIBRARIES}
+  )
+
+  ## Add folders to be run by python nosetests
+  # catkin_add_nosetests(test)
+  roslint_cpp()
+  roslint_add_test()
+endif()

@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tug_cfg)
 
-## Add support for C++11, supported in ROS Kinetic and newer
-add_definitions(-std=c++11)
-
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -45,6 +42,9 @@ catkin_package(
 ## Build ##
 ###########
 
+## Specify additional compile options for this package
+add_definitions(-std=c++11 -Wformat -Wall -Wextra -Werror)
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
@@ -75,8 +75,6 @@ add_library(${PROJECT_NAME}
   src/yaml_reader.cpp include/${PROJECT_NAME}/yaml_reader.h
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wformat -Wall -Wextra -Werror)
-
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -103,12 +101,34 @@ target_link_libraries(${PROJECT_NAME}
   yaml-cpp
 )
 
+#add_custom_command(
+#  COMMENT "Copying scripts to devel"
+#  OUTPUT ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/generate_cpp.py
+#  DEPENDS ${PROJECT_SOURCE_DIR}/scripts/generate_cpp.py
+#  COMMAND cmake -E make_directory ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}
+#  COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/scripts/generate_cpp.py ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/generate_cpp.py
+#)
+#
+#add_custom_target(${PROJECT_NAME}_copy_scripts ALL
+#  DEPENDS ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/generate_cpp.py
+#)
+
+# Target simply for adding the extras file to the list of source files (for IDEs):
+add_custom_target(${PROJECT_NAME}_cmake_extras ALL
+  SOURCES cmake/${PROJECT_NAME}-extras.cmake.em
+)
+
 #############
 ## Install ##
 #############
 
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+
+catkin_install_python(
+  PROGRAMS scripts/generate_cpp.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
@@ -142,51 +162,8 @@ target_link_libraries(${PROJECT_NAME}
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-if(CATKIN_ENABLE_TESTING)
-  find_package(rostest REQUIRED)
-
-  set(${PROJECT_NAME}_TEST_CONFIG_NAME BarConfig)
-
-  add_custom_command(
-    COMMENT "Generating ${${PROJECT_NAME}_TEST_CONFIG_NAME}"
-    OUTPUT ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
-    DEPENDS test/${${PROJECT_NAME}_TEST_CONFIG_NAME}.yaml
-    COMMAND mkdir -p ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-    COMMAND rosrun ${PROJECT_NAME} gencfg.py ${PROJECT_NAME} test/${${PROJECT_NAME}_TEST_CONFIG_NAME}.yaml > ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
-  )
-
-  add_custom_target(${PROJECT_NAME}_gencfg_cpp ALL
-    DEPENDS ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
-  )
-
-  catkin_add_gtest(${PROJECT_NAME}_test_bar_config
-    test/test_bar_config.cpp
-    test/test_helpers.cpp include/${PROJECT_NAME}/test_helpers.h
-    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
-  )
-
-  add_dependencies(${PROJECT_NAME}_test_bar_config ${PROJECT_NAME}_gencfg_cpp)
-
-  target_link_libraries(${PROJECT_NAME}_test_bar_config
-    ${PROJECT_NAME}
-  )
-
-  add_rostest_gtest(${PROJECT_NAME}_test_ros_param_reader
-    test/test_ros_param_reader.test
-    test/test_ros_param_reader.cpp
-    test/test_helpers.cpp include/${PROJECT_NAME}/test_helpers.h
-    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${${PROJECT_NAME}_TEST_CONFIG_NAME}.h
-  )
-
-  add_dependencies(${PROJECT_NAME}_test_ros_param_reader ${PROJECT_NAME}_gencfg_cpp)
-
-  target_link_libraries(${PROJECT_NAME}_test_ros_param_reader
-    ${PROJECT_NAME}
-  )
-endif()
-
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 roslint_cpp()
 roslint_add_test()
+
