@@ -7,12 +7,12 @@ it is calculated, but with some inaccuracy, e.g. if a button has no analog
 values between 1 (pressed) and 0 (not pressed) the axis also has only 1 and 0.
 """
 
-from tug_joy_actuators import Button
-from tug_joy_actuators import VirtualButton
-from tug_joy_actuators import VirtualAxis
-from tug_joy_actuators import Axis
+from joy_actuators import Button
+from joy_actuators import VirtualButton
+from joy_actuators import VirtualAxis
+from joy_actuators import Axis
 
-from tug_joy_constants import *
+from joy_constants import *
 
 
 class PS3Mapping:

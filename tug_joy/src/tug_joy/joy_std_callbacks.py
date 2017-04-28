@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from tug_joy_base import Manager
+from joy_base import Manager
 
 
 def limit(src, min_, max_):

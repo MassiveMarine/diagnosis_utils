@@ -6,11 +6,11 @@
     <arg name="CONTROLLER_NAME_LOGITECH_RUMBLE_PAD_2" value="logitech_rumble_pad_2" />
     <arg name="CONTROLLER_NAME_DEFAULT" value="default" />
 
-    <node pkg="tug_joy" type="tug_joy.py" name="tug_joy_node" output="screen">
+    <node pkg="tug_joy" type="joy.py" name="tug_joy_node" output="screen">
         <param name="joy_topic_name" type="string" value="/joy" />
         <param name="joy_manager_frequency" type="int" value="20" />
         <param name="joy_controller_name" type="string" value="$(arg CONTROLLER_NAME_PS3)" />
-        <param name="configuration_python_file" type="string" value="tug_joy_forbot_config" />
+        <param name="configuration_python_file" type="string" value="tug_joy_config_forbot" />
     </node>
 	
     <node pkg="joy" type="joy_node" name="joy_node" >

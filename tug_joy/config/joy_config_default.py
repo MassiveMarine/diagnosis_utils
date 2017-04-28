@@ -6,10 +6,10 @@ some predefined callbacks.
 """
 
 import rospy
-from tug_joy_constants import *
-from tug_joy_base import Manager
-from tug_joy_base import Callback
-from tug_joy_std_callbacks import *
+from tug_joy.joy_constants import *
+from tug_joy.joy_base import Manager
+from tug_joy.joy_base import Callback
+from tug_joy.joy_std_callbacks import *
 
 ########################################################################################################################
 #                                                    OWN CALLBACKS                                                     #

@@ -11,10 +11,10 @@ from controller_manager_msgs.srv import SwitchController, SwitchControllerReques
 from geometry_msgs.msg import TwistStamped
 import moveit_commander
 import rospy
-from tug_joy_constants import *
-from tug_joy_base import Manager
-from tug_joy_base import Callback
-from tug_joy_std_callbacks import *
+from tug_joy.joy_constants import *
+from tug_joy.joy_base import Manager
+from tug_joy.joy_base import Callback
+from tug_joy.joy_std_callbacks import *
 
 ########################################################################################################################
 #                                                    OWN CALLBACKS                                                     #

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
-from tug_joy_controller_mappings import *
-from tug_joy_constants import *
+from joy_controller_mappings import *
+from joy_constants import *
 
 
 class Callback:

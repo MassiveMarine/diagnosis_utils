@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from tug_joy_constants import *
+from joy_constants import *
 from rospy import loginfo, logwarn, logerr, logdebug
 
 
