@@ -28,7 +28,7 @@ macro(tug_cfg_generate_cpp)
     add_custom_command(
       COMMENT "Generating C++ code from ${PROJECT_NAME}/${_arg}"
       OUTPUT ${_header_file_path}
-      DEPENDS tug_cfg ${_cfg_file_path} ${TUG_CFG_SCRIPTS_DIR}/generate_cpp.py
+      DEPENDS ${_cfg_file_path} ${TUG_CFG_SCRIPTS_DIR}/generate_cpp.py
       COMMAND cmake -E make_directory ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION}
       # CATKIN_ENV prepares some environment variables:
       COMMAND ${CATKIN_ENV}
