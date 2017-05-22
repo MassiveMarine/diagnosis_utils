@@ -130,15 +130,16 @@ class ServiceCall:
         except Exception as e:
             rospy.logerr(e)
 
-    def stop_cb(self, value_dict):
-        pass
+    def stop_cb(self, service_value):
+        rospy.logdebug("ServiceCall::stop_cb: " + str(service_value))
+        self.callback(service_value)
 
     def callback(self, service_value):
-        rospy.logerr("ServiceCall::callback: " + str(service_value))
+        rospy.logdebug("ServiceCall::callback: " + str(service_value))
         try:
             resp = self.service(service_value)
         except rospy.ServiceException, e:
-            print "Service call failed: %s" % e
+            rospy.logerr("Service call failed: %s" % e)
 
 
 class TopicPublisher:
@@ -147,12 +148,13 @@ class TopicPublisher:
         self.topic_name = topic_name
         self.topic = rospy.Publisher(self.topic_name, self.topic_type, queue_size=10)
 
-    def stop_cb(self, value_dict):
-        pass
+    def stop_cb(self, topic_value):
+        rospy.logdebug("TopicPublisher::stop_cb: " + str(topic_value))
+        self.callback(topic_value)
 
     def callback(self, topic_value):
-        rospy.logerr("TopicPublisher::callback: " + str(topic_value))
+        rospy.logdebug("TopicPublisher::callback: " + str(topic_value))
         try:
             self.topic.publish(topic_value)
         except rospy.ServiceException, e:
-            print "Service call failed: %s" % e
+            rospy.logerr("Service call failed: %s" % e)
