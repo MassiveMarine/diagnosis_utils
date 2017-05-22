@@ -115,3 +115,44 @@ class CmdVel:
 
         except ValueError as error:
             rospy.logerr(error)
+
+
+class ServiceCall:
+    def __init__(self, service_name, service_type, wait_for_service_timeout=10.0):
+        self.service_type = service_type
+        self.service_name = service_name
+        self.service = None
+        try:
+            if wait_for_service_timeout:
+                rospy.wait_for_service(self.service_name, wait_for_service_timeout)
+
+            self.service = rospy.ServiceProxy(self.service_name, self.service_type)
+        except Exception as e:
+            rospy.logerr(e)
+
+    def stop_cb(self, value_dict):
+        pass
+
+    def callback(self, service_value):
+        rospy.logerr("ServiceCall::callback: " + str(service_value))
+        try:
+            resp = self.service(service_value)
+        except rospy.ServiceException, e:
+            print "Service call failed: %s" % e
+
+
+class TopicPublisher:
+    def __init__(self, topic_name, topic_type, wait_for_service_timeout=10.0):
+        self.topic_type = topic_type
+        self.topic_name = topic_name
+        self.topic = rospy.Publisher(self.topic_name, self.topic_type, queue_size=10)
+
+    def stop_cb(self, value_dict):
+        pass
+
+    def callback(self, topic_value):
+        rospy.logerr("TopicPublisher::callback: " + str(topic_value))
+        try:
+            self.topic.publish(topic_value)
+        except rospy.ServiceException, e:
+            print "Service call failed: %s" % e
