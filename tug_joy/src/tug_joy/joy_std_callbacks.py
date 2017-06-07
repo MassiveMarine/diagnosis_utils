@@ -52,7 +52,7 @@ class CmdVel:
     from geometry_msgs.msg import Twist
 
     def __init__(self, actuator_linear_x, actuator_linear_y, actuator_angular_z, namespace, publishing_topic,
-                 trans_vel=0.5, rot_vel=0.5):
+                 trans_vel=0.5, rot_vel=0.5, ackerman_mode=False):
 
         self.namespace = namespace
         self.max_tv_ = rospy.get_param('~' + self.namespace + 'MaxTransVel', 1.0)
@@ -73,6 +73,8 @@ class CmdVel:
             self.used_actuators.append(actuator_linear_y)
         if actuator_angular_z:
             self.used_actuators.append(actuator_angular_z)
+
+        self.ackerman_mode = ackerman_mode
 
         self.cmd_vel_pub_ = rospy.Publisher(publishing_topic, self.Twist, queue_size=1)
 
@@ -103,13 +105,15 @@ class CmdVel:
     def callback(self, value_dict):
         new_twist = self.Twist()
         try:
-            print value_dict
             if self.actuator_linear_x:
                 new_twist.linear.x = self.basic_tv_ * value_dict[self.actuator_linear_x]
             if self.actuator_linear_y:
                 new_twist.linear.y = self.basic_tv_ * value_dict[self.actuator_linear_y]
             if self.actuator_angular_z:
                 new_twist.angular.z = self.basic_rv_ * value_dict[self.actuator_angular_z]
+
+            if self.ackerman_mode and new_twist.linear.x < 0.0:
+                new_twist.angular.z *= -1.0
 
             self.cmd_vel_pub_.publish(new_twist)
 
