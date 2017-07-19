@@ -72,11 +72,15 @@ Profiler& Profiler::getRootInstance()
 void Profiler::printStatistics(std::ostream& out, const unsigned indent)
 {
   Lock lock(mutex_);
-  if (parent_ == nullptr)
+  if (parent_ == nullptr && indent <= 0)
   {
     out << HR << std::endl;
+    out << "Profiling Statistics:" << std::endl;
   }
-  out << std::setw(indent + 2) << std::right << "- " << name_ << ":" << std::endl;
+  else
+  {
+    out << std::setw(indent + 2) << std::right << "- " << name_ << ":" << std::endl;
+  }
   for (const auto& profile : profiles_)
   {
     out << std::setw(indent + 2 + 2) << std::right << "- " << profile.first
