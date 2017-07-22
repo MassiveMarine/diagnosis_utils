@@ -24,66 +24,41 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_PROFILING_DURATION_MEASUREMENT_H
-#define TUG_PROFILING_DURATION_MEASUREMENT_H
+#ifndef TUG_PROFILING_SIMPLE_FORMATTER_H
+#define TUG_PROFILING_SIMPLE_FORMATTER_H
 
-#include <chrono>
-#include <cstdint>
-#include <functional>
 #include <iomanip>
-#include <ostream>
+#include <iostream>
+#include <ratio>
 #include <string>
-#include <tug_profiling/profiler.h>
 
 namespace tug_profiling
 {
-class DurationMeasurement
+template <typename Ratio>
+const char* getRatioAcronym();
+
+template <typename T, typename Ratio = std::ratio<1>>
+class SimpleFormatter
 {
 public:
-  typedef std::chrono::steady_clock Clock;
-  typedef std::function<void(std::ostream&, const Clock::duration::rep&)> Formatter;
+  typedef T ValueType;
+  typedef Ratio RatioType;
 
-  static const Clock::time_point NEVER;
-  static const Formatter DEFAULT_FORMATTER;
-
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Clock::time_point& start_time = Clock::now());
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Formatter& formatter,
-                      const Clock::time_point& start_time = Clock::now());
-  ~DurationMeasurement();
-
-  void start(const Clock::time_point& start_time = Clock::now());
-  void stop(const Clock::time_point& stop_time = Clock::now());
-
-protected:
-  void commit(const Clock::duration& measurement);
-
-  Profiler* profiler_ = nullptr;
-  std::string name_;
-  const Formatter* formatter_;
-  Clock::time_point start_time_;
-};
-
-template <typename DurationType>
-class SimpleDurationFormatter
-{
-public:
-  SimpleDurationFormatter(int width = 0)
-    : width_(width)
+  SimpleFormatter(const std::string& unit, const int width, const int precision = 0)
+    : unit_(unit), width_(width), precision_(precision)
   {
   }
 
-  void operator()(std::ostream& out, const DurationMeasurement::Clock::duration::rep& d) const
+  void operator()(std::ostream& out, const T& value) const
   {
-    out << std::setw(width_)
-        << std::chrono::duration_cast<DurationType>(DurationMeasurement::Clock::duration(d)).count()
-        << getDurationAcronym();
+    out << std::setw(width_) << std::setprecision(precision_) << value << getRatioAcronym<Ratio>() << unit_;
   }
 
-  static const char* getDurationAcronym();
-
 protected:
+  std::string unit_;
   int width_;
+  int precision_;
 };
 }  // namespace tug_profiling
 
-#endif  // TUG_PROFILING_DURATION_MEASUREMENT_H
+#endif  // TUG_PROFILING_SIMPLE_FORMATTER_H

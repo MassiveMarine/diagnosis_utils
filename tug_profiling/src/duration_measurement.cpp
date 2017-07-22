@@ -43,7 +43,7 @@ DurationMeasurement::DurationMeasurement(Profiler& profiler, const std::string& 
 
 DurationMeasurement::DurationMeasurement(Profiler& profiler, const std::string& name, const Formatter& formatter,
                                          const Clock::time_point& start_time)
-  : profiler_(&profiler), name_(name), formatter_(formatter), start_time_(start_time)
+  : profiler_(&profiler), name_(name), formatter_(&formatter), start_time_(start_time)
 {
 }
 
@@ -71,7 +71,7 @@ void DurationMeasurement::commit(const Clock::duration& measurement)
   ProfilePtr& profile = profiler_->getProfile(name_);
   if (!profile)
   {
-    profile = std::make_shared<Statistics<Clock::duration::rep>>(formatter_);
+    profile = std::make_shared<Statistics<Clock::duration::rep>>(*formatter_);
   }
 
   typedef MeasurementAccumulator<Clock::duration::rep> DurationMA;

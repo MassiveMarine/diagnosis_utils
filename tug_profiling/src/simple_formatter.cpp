@@ -24,66 +24,29 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_PROFILING_DURATION_MEASUREMENT_H
-#define TUG_PROFILING_DURATION_MEASUREMENT_H
+#include <tug_profiling/simple_formatter.h>
 
-#include <chrono>
-#include <cstdint>
-#include <functional>
-#include <iomanip>
-#include <ostream>
-#include <string>
-#include <tug_profiling/profiler.h>
+#define GET_RATIO_ACRONYM(ratio, acronym) \
+template <> const char* getRatioAcronym<std::ratio>() { return #acronym; }
 
 namespace tug_profiling
 {
-class DurationMeasurement
-{
-public:
-  typedef std::chrono::steady_clock Clock;
-  typedef std::function<void(std::ostream&, const Clock::duration::rep&)> Formatter;
-
-  static const Clock::time_point NEVER;
-  static const Formatter DEFAULT_FORMATTER;
-
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Clock::time_point& start_time = Clock::now());
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Formatter& formatter,
-                      const Clock::time_point& start_time = Clock::now());
-  ~DurationMeasurement();
-
-  void start(const Clock::time_point& start_time = Clock::now());
-  void stop(const Clock::time_point& stop_time = Clock::now());
-
-protected:
-  void commit(const Clock::duration& measurement);
-
-  Profiler* profiler_ = nullptr;
-  std::string name_;
-  const Formatter* formatter_;
-  Clock::time_point start_time_;
-};
-
-template <typename DurationType>
-class SimpleDurationFormatter
-{
-public:
-  SimpleDurationFormatter(int width = 0)
-    : width_(width)
-  {
-  }
-
-  void operator()(std::ostream& out, const DurationMeasurement::Clock::duration::rep& d) const
-  {
-    out << std::setw(width_)
-        << std::chrono::duration_cast<DurationType>(DurationMeasurement::Clock::duration(d)).count()
-        << getDurationAcronym();
-  }
-
-  static const char* getDurationAcronym();
-
-protected:
-  int width_;
-};
+// Acronyms for standard ratios:
+GET_RATIO_ACRONYM(atto, a)
+GET_RATIO_ACRONYM(femto, f)
+GET_RATIO_ACRONYM(pico, p)
+GET_RATIO_ACRONYM(nano, n)
+GET_RATIO_ACRONYM(micro, u)  // Should be greek mu, but we'd like to stay with ASCII
+GET_RATIO_ACRONYM(milli, m)
+GET_RATIO_ACRONYM(centi, c)
+GET_RATIO_ACRONYM(deci, d)
+GET_RATIO_ACRONYM(ratio<1>,)
+GET_RATIO_ACRONYM(deca, da)
+GET_RATIO_ACRONYM(hecto, h)
+GET_RATIO_ACRONYM(kilo, k)
+GET_RATIO_ACRONYM(mega, M)
+GET_RATIO_ACRONYM(giga, G)
+GET_RATIO_ACRONYM(tera, T)
+GET_RATIO_ACRONYM(peta, P)
+GET_RATIO_ACRONYM(exa, E)
 }  // namespace tug_profiling
-
-#endif  // TUG_PROFILING_DURATION_MEASUREMENT_H

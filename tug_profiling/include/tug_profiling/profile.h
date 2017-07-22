@@ -70,7 +70,7 @@ public:
     }
     else
     {
-      out << "performed " << std::setw(5) << count_ << " times; min: ";
+      out << "performed " << std::setw(6) << count_ << "x, min: ";
       formatter_(out, min_);
       out << ", avg: ";
       formatter_(out, getAverage());

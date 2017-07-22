@@ -24,66 +24,49 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_PROFILING_DURATION_MEASUREMENT_H
-#define TUG_PROFILING_DURATION_MEASUREMENT_H
-
-#include <chrono>
-#include <cstdint>
+#include <tug_profiling/statistics_printer.h>
+#include <tug_cfg/ros_param_reader.h>
+#include <tug_cfg/configuration.h>
 #include <functional>
-#include <iomanip>
-#include <ostream>
-#include <string>
-#include <tug_profiling/profiler.h>
+#include <iostream>
 
 namespace tug_profiling
 {
-class DurationMeasurement
+StatisticsPrinter::StatisticsPrinter(const ros::NodeHandle& nh)
+  : StatisticsPrinter(Profiler::getRootInstance(), nh)
 {
-public:
-  typedef std::chrono::steady_clock Clock;
-  typedef std::function<void(std::ostream&, const Clock::duration::rep&)> Formatter;
+}
 
-  static const Clock::time_point NEVER;
-  static const Formatter DEFAULT_FORMATTER;
-
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Clock::time_point& start_time = Clock::now());
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Formatter& formatter,
-                      const Clock::time_point& start_time = Clock::now());
-  ~DurationMeasurement();
-
-  void start(const Clock::time_point& start_time = Clock::now());
-  void stop(const Clock::time_point& stop_time = Clock::now());
-
-protected:
-  void commit(const Clock::duration& measurement);
-
-  Profiler* profiler_ = nullptr;
-  std::string name_;
-  const Formatter* formatter_;
-  Clock::time_point start_time_;
-};
-
-template <typename DurationType>
-class SimpleDurationFormatter
+StatisticsPrinter::StatisticsPrinter(Profiler& profiler, const ros::NodeHandle& nh)
+  : profiler_(&profiler), node_handle_(nh, "profiling"), config_server_(config_)
 {
-public:
-  SimpleDurationFormatter(int width = 0)
-    : width_(width)
+  tug_cfg::RosParamReader reader(node_handle_);
+  tug_cfg::load(config_, reader);
+  reconfigure();
+  config_server_.setCallback(std::bind(&StatisticsPrinter::reconfigure, this));
+  config_server_.start(node_handle_);
+}
+
+StatisticsPrinter::~StatisticsPrinter()
+{
+}
+
+void StatisticsPrinter::printStatistics(const ros::TimerEvent&)
+{
+  profiler_->printStatistics(std::cout);
+  profiler_->clear();
+}
+
+void StatisticsPrinter::reconfigure()
+{
+  if (config_.print_statistics)
   {
+    timer_ = node_handle_.createTimer(ros::Duration(config_.print_statistics_interval),
+                                      &StatisticsPrinter::printStatistics, this);
   }
-
-  void operator()(std::ostream& out, const DurationMeasurement::Clock::duration::rep& d) const
+  else if (timer_)
   {
-    out << std::setw(width_)
-        << std::chrono::duration_cast<DurationType>(DurationMeasurement::Clock::duration(d)).count()
-        << getDurationAcronym();
+    timer_ = ros::Timer();
   }
-
-  static const char* getDurationAcronym();
-
-protected:
-  int width_;
-};
+}
 }  // namespace tug_profiling
-
-#endif  // TUG_PROFILING_DURATION_MEASUREMENT_H

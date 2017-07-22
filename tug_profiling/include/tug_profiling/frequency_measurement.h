@@ -24,66 +24,37 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TUG_PROFILING_DURATION_MEASUREMENT_H
-#define TUG_PROFILING_DURATION_MEASUREMENT_H
+#ifndef TUG_PROFILING_FREQUENCY_MEASUREMENT_H
+#define TUG_PROFILING_FREQUENCY_MEASUREMENT_H
 
 #include <chrono>
-#include <cstdint>
 #include <functional>
-#include <iomanip>
 #include <ostream>
-#include <string>
+#include <tug_profiling/profile.h>
 #include <tug_profiling/profiler.h>
 
 namespace tug_profiling
 {
-class DurationMeasurement
+class FrequencyMeasurement
 {
 public:
-  typedef std::chrono::steady_clock Clock;
-  typedef std::function<void(std::ostream&, const Clock::duration::rep&)> Formatter;
+  typedef std::chrono::system_clock Clock;
+  typedef std::function<void(std::ostream&, const double&)> Formatter;
 
-  static const Clock::time_point NEVER;
   static const Formatter DEFAULT_FORMATTER;
 
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Clock::time_point& start_time = Clock::now());
-  DurationMeasurement(Profiler& profiler, const std::string& name, const Formatter& formatter,
-                      const Clock::time_point& start_time = Clock::now());
-  ~DurationMeasurement();
-
-  void start(const Clock::time_point& start_time = Clock::now());
-  void stop(const Clock::time_point& stop_time = Clock::now());
-
-protected:
-  void commit(const Clock::duration& measurement);
-
-  Profiler* profiler_ = nullptr;
-  std::string name_;
-  const Formatter* formatter_;
-  Clock::time_point start_time_;
+  FrequencyMeasurement(Profiler& profiler, const std::string& name, const Clock::time_point& time = Clock::now());
+  FrequencyMeasurement(Profiler& profiler, const std::string& name, const Formatter& formatter,
+                       const Clock::time_point& time = Clock::now());
 };
 
-template <typename DurationType>
-class SimpleDurationFormatter
+class FrequencyStatistics : public Statistics<double>
 {
 public:
-  SimpleDurationFormatter(int width = 0)
-    : width_(width)
-  {
-  }
+  FrequencyStatistics(const Formatter& formatter = FrequencyMeasurement::DEFAULT_FORMATTER);
 
-  void operator()(std::ostream& out, const DurationMeasurement::Clock::duration::rep& d) const
-  {
-    out << std::setw(width_)
-        << std::chrono::duration_cast<DurationType>(DurationMeasurement::Clock::duration(d)).count()
-        << getDurationAcronym();
-  }
-
-  static const char* getDurationAcronym();
-
-protected:
-  int width_;
+  FrequencyMeasurement::Clock::time_point last_time_;
 };
 }  // namespace tug_profiling
 
-#endif  // TUG_PROFILING_DURATION_MEASUREMENT_H
+#endif  // TUG_PROFILING_FREQUENCY_MEASUREMENT_H

@@ -27,6 +27,7 @@
 #include <tug_profiling/profiler.h>
 #include <algorithm>
 #include <iomanip>
+#include <ros/this_node.h>
 #include <tug_profiling/profile.h>
 
 static const std::string HR(79, '-');
@@ -75,7 +76,7 @@ void Profiler::printStatistics(std::ostream& out, const unsigned indent)
   if (parent_ == nullptr && indent <= 0)
   {
     out << HR << std::endl;
-    out << "Profiling Statistics:" << std::endl;
+    out << "Profiling statistics of " << ros::this_node::getName() << " node:" << std::endl;
   }
   else
   {
@@ -84,7 +85,7 @@ void Profiler::printStatistics(std::ostream& out, const unsigned indent)
   for (const auto& profile : profiles_)
   {
     out << std::setw(indent + 2 + 2) << std::right << "- " << profile.first
-        << std::setw(20 - std::min(20, static_cast<int>(profile.first.size())) + 2) << std::left << ": " << std::right;
+        << std::setw(30 - std::min(30, static_cast<int>(profile.first.size())) + 2) << std::left << ": " << std::right;
     profile.second->print(out);
   }
   for (Profiler* child : children_)
