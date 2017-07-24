@@ -51,6 +51,7 @@ public:
 
   void operator()(std::ostream& out, const T& value) const
   {
+    out << std::fixed;  // Fixed-point notation for floating-point values
     out << std::setw(width_) << std::setprecision(precision_) << value << getRatioAcronym<Ratio>() << unit_;
   }
 

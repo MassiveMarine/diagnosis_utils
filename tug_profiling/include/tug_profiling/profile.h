@@ -41,7 +41,7 @@ public:
   Profile() = default;
   virtual ~Profile() = default;
 
-  virtual void print(std::ostream& out) = 0;
+  virtual void print(std::ostream& out) const = 0;
 };
 
 template <typename T>
@@ -62,7 +62,7 @@ public:
   {
   }
 
-  void print(std::ostream& out) override
+  void print(std::ostream& out) const override
   {
     if (count_ <= 0)
     {
@@ -94,15 +94,14 @@ public:
     }
   }
 
-  T getAverage()
+  T getAverage() const
   {
-    // Get rounded average:
-    return (sum_ + count_ / 2) / count_;
+    return sum_ / static_cast<T>(count_);
   }
 
 protected:
   Formatter formatter_;
-  T count_ = 0;
+  std::size_t count_ = 0;
   T sum_ = 0;
   T min_ = std::numeric_limits<T>::max();
   T max_ = std::numeric_limits<T>::lowest();
