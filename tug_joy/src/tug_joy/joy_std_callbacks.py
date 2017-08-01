@@ -2,6 +2,7 @@
 
 import rospy
 from joy_base import Manager
+import actionlib
 
 
 def limit(src, min_, max_):
@@ -144,6 +145,24 @@ class ServiceCall:
             resp = self.service(service_value)
         except rospy.ServiceException, e:
             rospy.logerr("Service call failed: %s" % e)
+
+
+class ActionClient:
+    def __init__(self, action_name, action_type, wait_for_action_server_timeout=rospy.Duration()):
+        self.action_name = action_name
+        self.action_type = action_type
+        self.wait_for_action_server_timeout = wait_for_action_server_timeout
+
+        self.action = actionlib.SimpleActionClient(self.action_name, self.action_type)
+
+        self.action.wait_for_server(timeout=wait_for_action_server_timeout)
+
+        # self.action_name
+
+    def send_goal(self, goal, wait_for_action_result_timeout=rospy.Duration()):
+        self.action.send_goal(goal)
+        self.action.wait_for_result(wait_for_action_result_timeout)
+        return self.action.get_result()
 
 
 class TopicPublisher:
