@@ -15,7 +15,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  */
 
 #include <tug_time/Timer.h>
-#include <ros/ros.h>
+#include <boost/asio/deadline_timer.hpp>
+#include <ros/init.h>
 
 Timer::Timer() : wait_period_(100 * 1000)
 { }

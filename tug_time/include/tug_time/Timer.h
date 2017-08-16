@@ -17,8 +17,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef TUG_TIME_TIMER_H
 #define TUG_TIME_TIMER_H
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/function.hpp>
 
 class Timer

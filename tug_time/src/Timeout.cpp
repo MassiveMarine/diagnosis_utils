@@ -15,90 +15,104 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  */
 
 #include <tug_time/Timeout.h>
-#include <ros/ros.h>
-#include <boost/date_time/date.hpp>
+#include <boost/bind.hpp>
+#include <ros/init.h>
 
-Timeout::Timeout(boost::function<bool()> timeout_call_back) : call_back_(timeout_call_back), pause_thread_(true),
-                                                              is_killed_(false)
+Timeout::Timeout(const Callback& callback)
+  : timeout_(Clock::duration::zero()), callback_(callback), running_(true), thread_(boost::bind(&Timeout::run, this))
 {
-  background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
 }
 
-Timeout::Timeout(boost::posix_time::time_duration timeout, boost::function<bool()> timeout_call_back) :
-        timeout_(timeout), call_back_(timeout_call_back), pause_thread_(false), is_killed_(false)
+Timeout::Timeout(const Clock::duration& timeout, const Callback& callback)
+  : start_time_(Clock::now()), timeout_(timeout), callback_(callback), running_(true),
+    thread_(boost::bind(&Timeout::run, this))
 {
-    background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
 }
 
-Timeout::Timeout(double timeout, boost::function<bool()> timeout_call_back) :
-        call_back_(timeout_call_back), pause_thread_(false), is_killed_(false)
+Timeout::Timeout(const boost::posix_time::time_duration& timeout, const Callback& callback)
+  : start_time_(Clock::now()),
+    timeout_(boost::chrono::duration_cast<Clock::duration>(boost::chrono::duration<double>(
+      static_cast<double>(timeout.ticks()) / static_cast<double>(timeout.ticks_per_second())))),
+    callback_(callback), running_(true), thread_(boost::bind(&Timeout::run, this))
 {
-  double seconds = static_cast<double>(static_cast<int64_t>(timeout));
-  double milli_seconds = (timeout - seconds) * 1000.;
+}
 
-  timeout_ = boost::posix_time::seconds(static_cast<int64_t>(seconds)) +
-    boost::posix_time::milliseconds(static_cast<int64_t>(milli_seconds));
-  background_thread_ = boost::thread(boost::bind(&Timeout::run, this));
+Timeout::Timeout(double timeout, const Callback& callback)
+  : start_time_(Clock::now()),
+    timeout_(boost::chrono::duration_cast<Clock::duration>(boost::chrono::duration<double>(timeout))),
+    callback_(callback), running_(true), thread_(boost::bind(&Timeout::run, this))
+{
 }
 
 Timeout::~Timeout()
 {
-    boost::mutex::scoped_lock lock(the_mutex_);
-    is_killed_ = true;
-    the_condition_.notify_one();
-    lock.unlock();
+  Lock lock(mutex_);
+  running_ = false;
+  condition_.notify_one();
+  lock.unlock();
 
-    background_thread_.join();
+  thread_.join();
 }
 
 void Timeout::run()
 {
-    boost::mutex::scoped_lock lock(the_mutex_);
-
-    while (ros::ok() && !is_killed_)
+  Lock lock(mutex_);
+  while (ros::ok() && running_)
+  {
+    if (start_time_ != Clock::time_point() && timeout_ != Clock::duration::zero())
     {
-        if (pause_thread_)
-            the_condition_.wait(lock);
-        else if (!the_condition_.timed_wait(lock, timeout_))
-            pause_thread_ = !call_back_();
+      const Clock::time_point expiration_time(start_time_ + timeout_);
+      if (Clock::now() >= expiration_time)
+      {
+        // Stop timeout before calling the callback; this allows the callback to call set() or setTimeOut():
+        start_time_ = Clock::time_point();
+        if (callback_())
+        {
+          // If callback returned true, restart timeout:
+          start_time_ = Clock::now();
+        }
+      }
+      else
+      {
+        condition_.wait_until(lock, expiration_time);
+      }
     }
+    else
+    {
+      condition_.wait(lock);
+    }
+  }
 }
 
 void Timeout::set()
 {
-    boost::mutex::scoped_lock lock(the_mutex_);
-    pause_thread_ = false;
-    the_condition_.notify_one();
+  Lock lock(mutex_);
+  start_time_ = Clock::now();
+  condition_.notify_one();
 }
 
 void Timeout::stop()
 {
-    boost::mutex::scoped_lock lock(the_mutex_);
-    pause_thread_ = true;
-    the_condition_.notify_one();
+  Lock lock(mutex_);
+  start_time_ = Clock::time_point();
+  condition_.notify_one();
 }
 
-void Timeout::setTimeOut(boost::posix_time::time_duration timeout)
+void Timeout::setTimeOut(const Clock::duration& timeout)
 {
-  boost::mutex::scoped_lock lock(the_mutex_);
+  Lock lock(mutex_);
   timeout_ = timeout;
+  start_time_ = Clock::now();
+  condition_.notify_one();
+}
 
-  pause_thread_ = false;
-  the_condition_.notify_one();
+void Timeout::setTimeOut(const boost::posix_time::time_duration& timeout)
+{
+  setTimeOut(boost::chrono::duration_cast<Clock::duration>(boost::chrono::duration<double>(
+    static_cast<double>(timeout.ticks()) / static_cast<double>(timeout.ticks_per_second()))));
 }
 
 void Timeout::setTimeOut(double timeout)
 {
-  boost::mutex::scoped_lock lock(the_mutex_);
-  double seconds = static_cast<double>(static_cast<int64_t>(timeout));
-  double milli_seconds = (timeout - seconds) * 1000.;
-
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__ << ":" << __LINE__ <<
-    " seconds:" << seconds << " and milli seconds" << milli_seconds);
-
-  timeout_ = boost::posix_time::seconds(static_cast<int64_t>(seconds)) +
-    boost::posix_time::milliseconds(static_cast<int64_t>(milli_seconds));
-
-  pause_thread_ = false;
-  the_condition_.notify_one();
+  setTimeOut(boost::chrono::duration_cast<Clock::duration>(boost::chrono::duration<double>(timeout)));
 }
