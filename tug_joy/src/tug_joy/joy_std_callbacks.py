@@ -121,6 +121,48 @@ class CmdVel:
         except ValueError as error:
             rospy.logerr(error)
 
+class Ackermann:
+    from ackermann_msgs.msg import AckermannDrive
+
+    def __init__(self, actuator_speed, actuator_steering_angle, namespace, publishing_topic):
+
+        self.namespace = namespace
+        self.max_speed_ = rospy.get_param('~' + self.namespace + 'max_speed', 1.0)
+        self.min_speed_ = rospy.get_param('~' + self.namespace + 'min_speed', -1.0)
+        self.max_steering_angle_ = rospy.get_param('~' + self.namespace + 'max_steering_angle', 1.0)
+        self.min_steering_angle_ = rospy.get_param('~' + self.namespace + 'min_steering_angle', -1.0)
+
+        self.actuator_speed_ = actuator_speed
+        self.actuator_steering_angle_ = actuator_steering_angle
+
+        self.used_actuators = []
+        if actuator_speed:
+            self.used_actuators.append(actuator_speed)
+        if actuator_steering_angle:
+            self.used_actuators.append(actuator_steering_angle)
+
+        self.ackermann_pub_ = rospy.Publisher(publishing_topic, self.AckermannDrive, queue_size=1)
+
+    def stop_cb(self, value_dict):
+        new_ackermann = self.AckermannDrive()
+        self.ackermann_pub_.publish(new_ackermann)
+
+    def callback(self, value_dict):
+        new_ackermann = self.AckermannDrive()
+        try:
+            if self.actuator_speed_:
+                new_ackermann.speed = value_dict[self.actuator_speed_]
+                new_ackermann.speed *= self.min_speed_ if new_ackermann.speed < 0 else self.max_speed_
+
+            if self.actuator_steering_angle_:
+                new_ackermann.steering_angle = value_dict[self.actuator_steering_angle_]
+                new_ackermann.steering_angle *= self.min_steering_angle_ if new_ackermann.speed < 0 else self.max_steering_angle_
+
+            self.ackermann_pub_.publish(new_ackermann)
+
+        except ValueError as error:
+            rospy.logerr(error)
+
 
 class ServiceCall:
     def __init__(self, service_name, service_type, wait_for_service_timeout=10.0):
@@ -166,7 +208,7 @@ class ActionClient:
 
 
 class TopicPublisher:
-    def __init__(self, topic_name, topic_type, wait_for_service_timeout=10.0):
+    def __init__(self, topic_name, topic_type):
         self.topic_type = topic_type
         self.topic_name = topic_name
         self.topic = rospy.Publisher(self.topic_name, self.topic_type, queue_size=10)
