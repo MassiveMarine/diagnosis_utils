@@ -121,6 +121,7 @@ class CmdVel:
         except ValueError as error:
             rospy.logerr(error)
 
+
 class Ackermann:
     from ackermann_msgs.msg import AckermannDrive
 
@@ -148,17 +149,17 @@ class Ackermann:
         self.ackermann_pub_.publish(new_ackermann)
 
     def callback(self, value_dict):
-        new_ackermann = self.AckermannDrive()
+        new_msg = self.AckermannDrive()
         try:
             if self.actuator_speed_:
-                new_ackermann.speed = value_dict[self.actuator_speed_]
-                new_ackermann.speed *= self.min_speed_ if new_ackermann.speed < 0 else self.max_speed_
+                new_msg.speed = value_dict[self.actuator_speed_]
+                new_msg.speed *= self.min_speed_ if new_msg.speed < 0 else self.max_speed_
 
             if self.actuator_steering_angle_:
-                new_ackermann.steering_angle = value_dict[self.actuator_steering_angle_]
-                new_ackermann.steering_angle *= self.min_steering_angle_ if new_ackermann.speed < 0 else self.max_steering_angle_
+                new_msg.steering_angle = value_dict[self.actuator_steering_angle_]
+                new_msg.steering_angle *= self.min_steering_angle_ if new_msg.speed < 0 else self.max_steering_angle_
 
-            self.ackermann_pub_.publish(new_ackermann)
+            self.ackermann_pub_.publish(new_msg)
 
         except ValueError as error:
             rospy.logerr(error)
