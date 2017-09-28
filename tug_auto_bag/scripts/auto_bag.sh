@@ -48,6 +48,9 @@ touch "${log_file_real}"
 ln -sf "${log_autobag_real}" "${log_autobag_virtual}"
 ln -sf "${log_file_real}" "${log_file_virtual}"
 
+rosrun tug_auto_bag write_repo_states.sh ${log_file_real}
+rosrun tug_auto_bag write_repo_states.sh ${log_autobag_real}
+
 # delete temporary bag files
 # if rosbag crashes and a bag_save is running, it is possible that the following
 # command removes the bagfile before it is stored in ${bag_path}/save

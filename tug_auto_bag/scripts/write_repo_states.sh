@@ -7,26 +7,27 @@
 #
 #     write_repo_states.sh                                      # will write a logfile at /logfiles/log.txt
 #
-#     write_repo_states.sh /path/to/logfile/                    # will write a logfile at /path/to/logfile/log.txt
+#     write_repo_states.sh /path/to/logfile/                    # will write a logfile at /path/to/logfile/log.txt if it exists already
 #
 #     write_repo_states.sh /path/to/logfile/log_file_name.txt   # will write a logfile at /path/to/logfile/log_file_name.txt but the 
 #                                                               # file has to created first, e.g. touch /path/to/logfile/log_file_name.txt
 #     
 
 logpath=$1
+echo "${logpath}"
 if   [ -d "${logpath}" ]
-	then 
-	export logfile="${logpath}/log.txt"
-	echo "${logpath} is used as logging directory";
-elif [[ -f $logpath ]]
-	then
-	export logfile=$logpath
+    then 
+    export logfile="${logpath}/log.txt"
+    echo "${logpath} is used as logging directory";
+elif [ -f ${logpath} ]
+    then
+    export logfile=$logpath
     echo "${logfile} is used as logging file";
 else
-	logpath="/logfiles"
-	export logfile="${logpath}/log.txt"
+    logpath="/logfiles"
+    export logfile="${logpath}/log.txt"
 
-	echo "${logpath} is used as logging directory";
+    echo "${logpath} is used as logging directory";
 fi
 
 echo -n "" > $logfile
