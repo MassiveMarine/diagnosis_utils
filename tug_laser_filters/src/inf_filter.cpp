@@ -50,7 +50,7 @@ bool LaserScanINFFilter::update(const sensor_msgs::LaserScan& input_scan,
   output_scan = input_scan;
   for (int index = 0; index < output_scan.ranges.size(); ++index)
   {
-    if (isinf(output_scan.ranges[index]))
+    if (std::isinf(output_scan.ranges[index]))
     {
       output_scan.ranges[index] = output_scan.range_max + 1.0;
     }

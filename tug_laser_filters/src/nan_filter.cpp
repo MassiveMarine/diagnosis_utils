@@ -50,7 +50,7 @@ bool LaserScanNANFilter::update(const sensor_msgs::LaserScan& input_scan,
   output_scan = input_scan;
   for (int index = 0; index < output_scan.ranges.size(); ++index)
   {
-    if (isnan(output_scan.ranges[index]))
+    if (std::isnan(output_scan.ranges[index]))
     {
       output_scan.ranges[index] = output_scan.range_max + 1.0;
     }
