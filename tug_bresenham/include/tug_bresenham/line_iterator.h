@@ -17,6 +17,7 @@ public:
 
   void operator++();
   void operator++(int);
+  void operator+=(int delta);
 
   inline int getX() const
   {

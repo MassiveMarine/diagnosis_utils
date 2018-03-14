@@ -28,6 +28,42 @@ void LineIterator::operator++(int)
   advance();
 }
 
+void LineIterator::operator+=(int delta)
+{
+  //TODO find method without case distinction
+
+  int x_advance = 0;
+  int y_advance = 0;
+  if (dx_ == 0)
+  {
+    y_advance = delta;
+  }
+  else if (dy_ == 0)
+  {
+    x_advance = delta;
+  }
+  else
+  {
+    if (dx_ >= - dy_)
+    {
+      x_advance = delta;
+      double dy_dx = static_cast<double>(-dy_) / static_cast<double>(dx_);
+      y_advance = static_cast<int>(round(dy_dx * static_cast<double>(x_advance)));
+    }
+    else
+    {
+      y_advance = delta;
+      double dx_dy = static_cast<double>(dx_) / static_cast<double>(-dy_);
+      x_advance = static_cast<int>(round(dx_dy * static_cast<double>(y_advance)));
+    }
+  }
+
+  error_ += x_advance * dy_ + y_advance * dx_;
+
+  x_ = x_advance * sx_;
+  y_ = y_advance * sy_;
+}
+
 bool LineIterator::isAtEnd() const
 {
   return (x_ == end_x_) && (y_ == end_y_);

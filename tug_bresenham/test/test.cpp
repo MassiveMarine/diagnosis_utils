@@ -35,8 +35,6 @@ protected:
   CoordsVector coords_;
 };
 
-
-
 static void expectCoords(tug_bresenham::BasicCircleIterator& bci, const CoordsVector& expected_coords)
 {
   size_t i = 0;
@@ -50,8 +48,6 @@ static void expectCoords(tug_bresenham::BasicCircleIterator& bci, const CoordsVe
   EXPECT_EQ(i, expected_coords.size());
   EXPECT_TRUE(bci.isFinished());
 }
-
-
 
 static void doTestRadius(int radius, int max_iterations, bool& is_finished, int& actual_iterations)
 {
@@ -83,8 +79,6 @@ static void doTestRadius(int radius, int max_iterations, bool& is_finished, int&
   actual_iterations = i;
 }
 
-
-
 static void testRadius(int radius)
 {
   bool is_finished = false;
@@ -95,8 +89,6 @@ static void testRadius(int radius)
   EXPECT_TRUE(is_finished);
 }
 
-
-
 static void testRadius(int radius, int iterations)
 {
   bool is_finished = true;
@@ -105,8 +97,6 @@ static void testRadius(int radius, int iterations)
   EXPECT_EQ(actual_iterations, iterations);
   EXPECT_FALSE(is_finished);
 }
-
-
 
 static void testExpectedException(int radius)
 {
@@ -125,8 +115,6 @@ static void testExpectedException(int radius)
   }
 }
 
-
-
 TEST(BasicCircleIterator, testCircleNegativeRadius)
 {
   testExpectedException(std::numeric_limits<int>::min());
@@ -134,14 +122,10 @@ TEST(BasicCircleIterator, testCircleNegativeRadius)
   testExpectedException(-1);
 }
 
-
-
 TEST(BasicCircleIterator, testCircle0)
 {
   testExpectedException(0);
 }
-
-
 
 TEST(BasicCircleIterator, testCircle1)
 {
@@ -149,23 +133,17 @@ TEST(BasicCircleIterator, testCircle1)
   expectCoords(bci, CoordsBuilder(1, 0)(0, 1));
 }
 
-
-
 TEST(BasicCircleIterator, testCircle2)
 {
   tug_bresenham::BasicCircleIterator bci(2);
   expectCoords(bci, CoordsBuilder(2, 0)(2, 1)(1, 2)(0, 2));
 }
 
-
-
 TEST(BasicCircleIterator, testCircle3)
 {
   tug_bresenham::BasicCircleIterator bci(3);
   expectCoords(bci, CoordsBuilder(3, 0)(3, 1)(2, 2)(1, 3)(0, 3));
 }
-
-
 
 TEST(BasicCircleIterator, testCircleRadius1To100)
 {
@@ -175,13 +153,164 @@ TEST(BasicCircleIterator, testCircleRadius1To100)
   }
 }
 
-
-
 TEST(BasicCircleIterator, testCircleRadiusLarge)
 {
   testRadius(std::numeric_limits<int>::max(), 10000);
 }
 
+TEST(LineIterator, test_advanceDelta_onlyX)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 10, 0);
+  iterator += 5;
+
+  EXPECT_EQ(5, iterator.getX());
+  EXPECT_EQ(0, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_onlyNegativeX)
+{
+  tug_bresenham::LineIterator iterator(0, 0, -10, 0);
+  iterator += 5;
+
+  EXPECT_EQ(-5, iterator.getX());
+  EXPECT_EQ(0, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_onlyY)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 0, 10);
+  iterator += 5;
+
+  EXPECT_EQ(0, iterator.getX());
+  EXPECT_EQ(5, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_onlyNegativeY)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 0, -10);
+  iterator += 5;
+
+  EXPECT_EQ(0, iterator.getX());
+  EXPECT_EQ(-5, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_sameXYDisplacement)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 10, 10);
+  iterator += 5;
+
+  EXPECT_EQ(5, iterator.getX());
+  EXPECT_EQ(5, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_sameNegativeXYDisplacement)
+{
+  tug_bresenham::LineIterator iterator(0, 0, -10, -10);
+  iterator += 5;
+
+  EXPECT_EQ(-5, iterator.getX());
+  EXPECT_EQ(-5, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_sameXYDisplacementXPositiveYNegative)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 10, -10);
+  iterator += 5;
+
+  EXPECT_EQ(5, iterator.getX());
+  EXPECT_EQ(-5, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_sameXYDisplacementXNegativeYPositive)
+{
+  tug_bresenham::LineIterator iterator(0, 0, -10, 10);
+  iterator += 5;
+
+  EXPECT_EQ(-5, iterator.getX());
+  EXPECT_EQ(5, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_moreXThenYDisplacement)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 10, 5);
+  iterator += 5;
+
+  EXPECT_EQ(5, iterator.getX());
+  EXPECT_EQ(3, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_moreYThenXDisplacement)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 5, 10);
+  iterator += 5;
+
+  EXPECT_EQ(3, iterator.getX());
+  EXPECT_EQ(5, iterator.getY());
+}
+
+TEST(LineIterator, test_advanceDelta_completeLineMoreXThenY)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 10, 5);
+
+  tug_bresenham::LineIterator standard_iterator(0, 0, 10, 5);
+
+  CoordsVector line_coords;
+  CoordsVector standard_line_coords;
+
+  iterator += 5;
+  line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+
+  for (size_t i = 0; i < 5; ++i)
+  {
+    standard_iterator++;
+  }
+  standard_line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+
+  for (size_t i = 0; i < 5; ++i)
+  {
+    iterator++;
+    standard_iterator++;
+
+    line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+    standard_line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+  }
+
+  EXPECT_TRUE(iterator.isAtEnd());
+
+  EXPECT_EQ(standard_line_coords, line_coords);
+}
+
+TEST(LineIterator, test_advanceDelta_completeLineMoreYThenX)
+{
+  tug_bresenham::LineIterator iterator(0, 0, 5, 10);
+
+  tug_bresenham::LineIterator standard_iterator(0, 0, 5, 10);
+
+  CoordsVector line_coords;
+  CoordsVector standard_line_coords;
+
+  iterator += 5;
+  line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+
+  for (size_t i = 0; i < 5; ++i)
+  {
+    standard_iterator++;
+  }
+  standard_line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+
+  for (size_t i = 0; i < 5; ++i)
+  {
+    iterator++;
+    standard_iterator++;
+
+    line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+    standard_line_coords.push_back(std::make_pair(iterator.getX(), iterator.getY()));
+  }
+
+  EXPECT_TRUE(iterator.isAtEnd());
+
+  EXPECT_EQ(standard_line_coords, line_coords);
+}
 
 
 int main(int argc, char** argv)
